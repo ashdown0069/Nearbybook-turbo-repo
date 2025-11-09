@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "NearbyBook",
   "private": true,
   "scripts": {
     "build": "turbo run build",
