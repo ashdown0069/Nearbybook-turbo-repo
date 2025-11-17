@@ -1,0 +1,22 @@
+{
+  "name": "@repo/data-access",
+  "version": "0.0.0",
+  "description": "",
+  "exports": "./index.ts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": ">=5.90.9",
+    "axios": ">=1.13.2"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@repo/types": "*",
+    "@tanstack/react-query": ">=5.90.9",
+    "axios": ">=1.13.2",
+    "typescript": "5.9.2"
+  }
+}
