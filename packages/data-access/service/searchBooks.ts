@@ -5,12 +5,13 @@ import type { AxiosInstance } from "axios";
 export const getBooks = (
   axiosInstance: AxiosInstance,
   query: string,
-  pageNo: number
+  pageNo: number,
+  mode: "title" | "isbn" = "title"
 ): Promise<BookList> => {
   return axiosInstance
     .get("/searchbooks", {
       params: {
-        mode: "title",
+        mode: mode,
         query: query,
         pageNo: pageNo,
       },
@@ -23,7 +24,8 @@ export const useSearchBooksByTitle = (
 ) => {
   return useInfiniteQuery({
     queryKey: ["search", "title", query],
-    queryFn: ({ pageParam }) => getBooks(instance, query, pageParam as number),
+    queryFn: ({ pageParam }) =>
+      getBooks(instance, query, pageParam as number, "title"),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages, lastPageParam) => {
       // 현재 페이지 번호가 전체 페이지 수보다 작으면 다음 페이지 번호를 반환합니다.
@@ -39,12 +41,11 @@ export const useSearchBooksByTitle = (
 
 export const useSearchBooksByISBN = (
   instance: AxiosInstance,
-  query: string,
-  pageNo: number
+  query: string
 ) => {
   return useQuery({
     queryKey: ["search", "isbn", query],
-    queryFn: () => getBooks(instance, query, pageNo),
+    queryFn: () => getBooks(instance, query, 1, "isbn"),
     enabled: !!query,
   });
 };
