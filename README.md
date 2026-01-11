@@ -1,5 +1,12 @@
 # Turborepo Nearbybook
 
+## 📂 Applications
+
+- [**Web**](./apps/web/README.md) - Next.js Web Application
+- [**Native**](./apps/native/README.md) - React Native (Expo) Application
+- [**Extension**](./apps/extension/README.md) - Chrome Extension
+- [**API**](./apps/api/README.md) - NestJS API Server
+
 ## 📝 Commit Convention
 
 ### 1. Scope
