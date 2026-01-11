@@ -1,1 +1,1 @@
-// export default { extends: ['@commitlint/config-conventional', '@commitlint/config-workspace-scopes'] };
+export default { extends: ['@commitlint/config-conventional', '@commitlint/config-workspace-scopes'] };

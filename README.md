@@ -10,7 +10,8 @@
 | :-------------------- | :--------------------------------------------- | :------------------------------ |
 | **native**            | Expo / React Native 앱 관련 변경 사항          | `feat(native): ...`             |
 | **web**               | 웹 프론트엔드 관련 변경 사항                   | `fix(web): ...`                 |
-| **ui**                | 공통 UI 컴포넌트 (Design System) 변경          | `refactor(ui): ...`             |
+| **api**               | backend api 변경사항                           | `fix(api): ...`                 |
+| **extension**         | 크롬 확장프로그램 변경 사항                    | `fix(extension): ...`           |
 | **data-access**       | API 호출, React Query, 상태 관리 로직          | `feat(data-access): ...`        |
 | **types**             | 공통 타입/인터페이스 정의 (`.d.ts`, interface) | `chore(types): ...`             |
 | **eslint-config**     | ESLint, Prettier 등 린트 설정 변경             | `chore(eslint-config): ...`     |
