@@ -26,11 +26,9 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.CAMERA",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_LOCATION"
+        "android.permission.CAMERA"
       ],
-      "package": "com.jaehakim.xnative"
+      "package": "com.nearbybook.nearbybook"
     },
     "web": {
       "output": "static",
@@ -56,14 +54,25 @@
       [
         "react-native-vision-camera",
         {
-          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+          "enableCodeScanner": true
+        }
+      ],
+      ["expo-location", {}],
+      [
+        "@mj-studio/react-native-naver-map",
+        {
+          "client_id": "5lzpnyl4wi"
         }
       ],
       [
-        "expo-location",
+        "expo-build-properties",
         {
-          "isAndroidForegroundServiceEnabled": true,
-          "locationAlwaysAndWhenInUsePermission": "앱 사용 중에만 위치 정보를 사용합니다."
+          "android": {
+            "extraMavenRepos": [
+              "https://repository.map.naver.com/archive/maven"
+            ]
+          }
         }
       ]
     ],

@@ -45,7 +45,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="mylibs" // app/(tabs)/mylibs.tsx
         options={{
+          href: null, //tab에서 안보이게, 아직 미완성
           title: "도서관",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="library" size={size} color={color} />
           ),
@@ -55,12 +57,7 @@ export default function TabLayout() {
         name="barcode"
         options={{
           href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="maps/bookmap"
-        options={{
-          href: null,
+          headerShown: false,
         }}
       />
     </Tabs>

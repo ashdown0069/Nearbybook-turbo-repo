@@ -1,30 +1,22 @@
 import Header from "@/components/Header";
 import MainTileBtn from "@/components/MainTileBtn";
 import { Link } from "expo-router";
-import {
-  BookMarked,
-  Map,
-  ScanBarcode,
-  Search,
-  TextSearch,
-} from "lucide-react-native";
+import { Map, ScanBarcode, Search, TextSearch } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useGetPopularLoanBooks } from "@repo/data-access";
-import AdMob from "@/components/plan/ad";
 import { axiosInstance } from "@/lib/axios";
-import PopularBook from "@/components/Books/PopularBook";
-import PopularBookSkeleton from "@/components/Books/PopularBookSkeleton";
+import PopularBook from "@/features/Book/components/PopularBook";
+import PopularBookSkeleton from "@/features/Book/components/PopularBookSkeleton";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useDatabase } from "@/db/provider";
 import { useEffect } from "react";
-import { BooksTable } from "@/db/schema";
-import { cn } from "@/lib/utils";
+import Error from "@/components/Error";
 export default function HomeScreen() {
-  const { data, isLoading, isError, error } = useGetPopularLoanBooks(
+  const { data, isLoading, isError, error, refetch } = useGetPopularLoanBooks(
     axiosInstance,
     {
       placeholderData: keepPreviousData,
@@ -50,12 +42,7 @@ export default function HomeScreen() {
   });
 
   if (isError) {
-    return (
-      <SafeAreaView>
-        <Text>오류가 발생했습니다:</Text>
-        <Text>{error.message}</Text>
-      </SafeAreaView>
-    );
+    return <Error refetch={refetch} message={error.message} />;
   }
 
   return (
@@ -70,7 +57,7 @@ export default function HomeScreen() {
     >
       <Header />
       <ScrollView className="flex-1 p-0">
-        <View className="flex flex-row flex-wrap justify-center gap-6">
+        <View className="flex flex-row flex-wrap justify-center gap-6 px-3">
           <Link href={"/search"} asChild>
             <MainTileBtn
               BtnText={`제목${"\n"}으로 검색`}
@@ -89,7 +76,7 @@ export default function HomeScreen() {
               Icon={<TextSearch size={32} color={"#ffffff"} />}
             />
           </Link>
-          <Link href={"/(tabs)/mylibs"} asChild>
+          <Link href={"/(maps)/libsmap"} asChild>
             <MainTileBtn
               BtnText={`집 근처 도서관 찾기`}
               Icon={<Map size={32} color={"#ffffff"} />}

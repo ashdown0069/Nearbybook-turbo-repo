@@ -1,53 +1,35 @@
-import SearchInput from "@/components/Search/SearchInput";
+import {
+  SearchInput,
+  NoResult,
+  SearchISBNTip,
+  SearchResultInfo,
+} from "@/features/Search";
 import { axiosInstance } from "@/lib/axios";
-import { useSearchBooksByISBN } from "@repo/data-access";
+import { useSearchBook } from "@repo/data-access";
 import React, { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import BookItem from "@/components/Books/BookItem";
-import { useCurrentBookStore } from "@/hooks/useCurrentBook";
-import SearchResultInfo from "@/components/Search/SearchResultInfo";
-import BookBottomSheetModal from "@/components/BottomSheet/Modal";
-import BottomSheetProvider from "@/components/Provider/BottomSheetProvider";
-import { useDatabase } from "@/db/provider";
-import Toast from "react-native-toast-message";
+import BookItem from "@/features/Book/components/BookItem";
+import { useCurrentBookStore } from "@/store/useCurrentBook";
+import BookBottomSheetModal from "@/components/BottomSheet/BookBottomSheetModal";
 import { Book } from "@repo/types";
-import { useRouter } from "expo-router";
-import SaveBookOnTheShelf from "@/components/BottomSheet/SaveBookOnTheShelf";
-import FindOnTheMap from "@/components/BottomSheet/FindOnTheMap";
-import { saveBookToDataBase } from "@/db/service/Book";
-import SearchISBNTip from "@/components/Search/SearchISBNTip";
-import NoResult from "@/components/Search/NoResult";
+import FindOnTheMap from "@/features/Map/components/bottomsheet/FindOnTheMap";
+
+import SaveBookOnTheShelf from "@/features/Map/components/bottomsheet/SaveBookOnTheShelf";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 export default function SearchISBNScreen() {
   //book select
   const selectBook = useCurrentBookStore((state) => state.selectBook);
-  const selectedBook = useCurrentBookStore((state) => state.selectedBook);
   //bottom sheet
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const handlePressBookItem = useCallback((book: Book) => {
     bottomSheetModalRef.current?.present();
     selectBook(book);
   }, []);
-  //get db
-  const { db } = useDatabase();
-
-  const router = useRouter();
-  const saveBookToBookshelf = async () => {
-    if (selectedBook && db) {
-      await saveBookToDataBase(db, selectedBook, () => {
-        bottomSheetModalRef.current?.dismiss();
-        Toast.show({
-          onPress: () => {
-            router.push("/(tabs)/mybooks");
-          },
-          type: "custom",
-          text1: "책이 성공적으로 저장되었습니다.",
-          text2: "확인하기",
-          position: "bottom",
-        });
-      });
-    }
+  const closeBottomSheet = () => {
+    bottomSheetModalRef.current?.dismiss();
   };
 
   //search
@@ -64,7 +46,7 @@ export default function SearchISBNScreen() {
       return false;
     }
   };
-  const { data, isLoading, isError } = useSearchBooksByISBN(
+  const { data, isLoading, isError } = useSearchBook(
     axiosInstance,
     searchQuery,
   );
@@ -92,45 +74,45 @@ export default function SearchISBNScreen() {
     );
   }
   if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#00ff00" />
-      </SafeAreaView>
-    );
+    return <Loading />;
   }
 
   if (isError) {
-    return (
-      <SafeAreaView className="flex-1 flex-col items-center justify-center gap-2">
-        <Text className="text-red-500">오류가 발생했습니다.</Text>
-        <Text className="text-red-500">잠시 후에 다시 시도해주세요.</Text>
-      </SafeAreaView>
-    );
+    return <Error message="isbn search error" />;
   }
 
   return (
-    <BottomSheetProvider>
+    <SafeAreaView
+      style={{ flex: 1 }}
+      edges={{
+        bottom: "off",
+        top: "additive",
+        right: "additive",
+        left: "additive",
+      }}
+    >
       <SearchInput
         placeholder="ISBN으로 검색"
         query={searchQuery}
         setQuery={setSearchQuery}
       />
-      {data && data.books.length > 0 && (
-        <SearchResultInfo result={data?.numFound ?? 0} />
-      )}
-      {data && data.books.length === 0 && <NoResult />}
-      {data && data.books.length > 0 && (
-        <View className="px-3">
-          <BookItem
-            book={data.books[0]}
-            handlePressBookItem={handlePressBookItem}
-          />
+      {data && Object.keys(data).length === 0 && (
+        <View className="h-40">
+          <NoResult />
         </View>
       )}
+      {data && Object.keys(data).length > 0 && (
+        <>
+          <SearchResultInfo result={1} />
+          <View className="px-3">
+            <BookItem book={data} handlePressBookItem={handlePressBookItem} />
+          </View>
+        </>
+      )}
       <BookBottomSheetModal ref={bottomSheetModalRef}>
-        <FindOnTheMap />
-        <SaveBookOnTheShelf saveBookToBookshelf={saveBookToBookshelf} />
+        <FindOnTheMap href={"../(maps)/bookmap"} onPress={closeBottomSheet} />
+        <SaveBookOnTheShelf onPress={closeBottomSheet} />
       </BookBottomSheetModal>
-    </BottomSheetProvider>
+    </SafeAreaView>
   );
 }

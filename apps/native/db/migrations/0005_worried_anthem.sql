@@ -1,0 +1,1 @@
+ALTER TABLE `libraries_table` ADD `isActive` integer DEFAULT false;

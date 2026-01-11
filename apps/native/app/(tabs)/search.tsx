@@ -1,25 +1,24 @@
-import SearchInput from "@/components/Search/SearchInput";
+import {
+  SearchInput,
+  NoResult,
+  SearchTitleTip,
+  SearchResultInfo,
+} from "@/features/Search";
 import { axiosInstance } from "@/lib/axios";
 import { useSearchBooksByTitle } from "@repo/data-access";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlashList } from "@shopify/flash-list";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import BookItem from "@/components/Books/BookItem";
-import { useCurrentBookStore } from "@/hooks/useCurrentBook";
-import SearchResultInfo from "@/components/Search/SearchResultInfo";
-import BookBottomSheetModal from "@/components/BottomSheet/Modal";
-import BottomSheetProvider from "@/components/Provider/BottomSheetProvider";
-import { useDatabase } from "@/db/provider";
-import Toast from "react-native-toast-message";
+import BookItem from "@/features/Book/components/BookItem";
+import { useCurrentBookStore } from "@/store/useCurrentBook";
+import BookBottomSheetModal from "@/components/BottomSheet/BookBottomSheetModal";
 import { Book } from "@repo/types";
-import { useRouter } from "expo-router";
-import SaveBookOnTheShelf from "@/components/BottomSheet/SaveBookOnTheShelf";
-import FindOnTheMap from "@/components/BottomSheet/FindOnTheMap";
-import { saveBookToDataBase } from "@/db/service/Book";
-import SearchTitleTip from "@/components/Search/SearchTitleTip";
-import NoResult from "@/components/Search/NoResult";
+import SaveBookOnTheShelf from "@/features/Map/components/bottomsheet/SaveBookOnTheShelf";
+import FindOnTheMap from "@/features/Map/components/bottomsheet/FindOnTheMap";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 export default function SearchScreen() {
   //book select
   const selectBook = useCurrentBookStore((state) => state.selectBook);
@@ -30,34 +29,31 @@ export default function SearchScreen() {
     bottomSheetModalRef.current?.present();
     selectBook(book);
   }, []);
-  //get db
-  const { db } = useDatabase();
-
-  const router = useRouter();
-  const saveBookToBookshelf = async () => {
-    if (selectedBook && db) {
-      await saveBookToDataBase(db, selectedBook, () => {
-        bottomSheetModalRef.current?.dismiss();
-        Toast.show({
-          onPress: () => {
-            router.push("/(tabs)/mybooks");
-          },
-          type: "custom",
-          text1: "책이 성공적으로 저장되었습니다.",
-          text2: "확인하기",
-          position: "bottom",
-        });
-      });
-    }
+  const closeBottomSheet = () => {
+    bottomSheetModalRef.current?.dismiss();
   };
 
   //search
   const [searchQuery, setSearchQuery] = useState("");
-  const { data, isLoading, fetchNextPage, isFetchingNextPage, isError } =
-    useSearchBooksByTitle(axiosInstance, searchQuery);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    isFetchingNextPage,
+    isError,
+    refetch,
+  } = useSearchBooksByTitle(axiosInstance, searchQuery);
+  // const BOOKS = data?.allBooks ?? [];
   const BOOKS = useMemo(
     () => data?.pages.flatMap((page) => page.books) ?? [],
-    [data?.pages],
+    [data],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Book }) => (
+      <BookItem book={item} handlePressBookItem={handlePressBookItem} />
+    ),
+    [handlePressBookItem],
   );
   //  .filter((book) => Number.isInteger(Number(book.publicationYear)))
   if (!searchQuery) {
@@ -76,56 +72,54 @@ export default function SearchScreen() {
     );
   }
   if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#00ff00" />
-      </SafeAreaView>
-    );
+    return <Loading />;
   }
 
   if (isError) {
-    return (
-      <SafeAreaView className="flex-1 flex-col items-center justify-center gap-2">
-        <Text className="text-red-500">오류가 발생했습니다.</Text>
-        <Text className="text-red-500">잠시 후에 다시 시도해주세요.</Text>
-      </SafeAreaView>
-    );
+    return <Error message="search error" refetch={refetch} />;
   }
 
   return (
-    <BottomSheetProvider>
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}
+      edges={{
+        bottom: "off",
+        top: "additive",
+        right: "additive",
+        left: "additive",
+      }}
+    >
       <SearchInput
         placeholder="제목으로 검색"
         query={searchQuery}
         setQuery={setSearchQuery}
       />
       {data && data.pages[0].numFound !== 0 && (
-        <SearchResultInfo result={data.pages[0].numFound ?? 0} />
+        <SearchResultInfo result={data.pages[0].numFound} />
       )}
       <FlashList
-        contentContainerClassName="px-3 flex-1"
+        contentContainerClassName="px-3"
+        style={{
+          flex: 1,
+        }}
         data={BOOKS}
-        renderItem={({ item }) => (
-          <BookItem book={item} handlePressBookItem={handlePressBookItem} />
-        )}
-        ListEmptyComponent={<NoResult />}
-        keyExtractor={(item) => item.isbn}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <View className="h-40">
+            <NoResult />
+          </View>
+        }
+        keyExtractor={(item, index) => item.isbn + index.toString()}
         onEndReached={fetchNextPage}
         onEndReachedThreshold={0.8}
-        ListFooterComponent={() => {
-          if (isFetchingNextPage) {
-            return (
-              <View className="flex h-8 items-center justify-center">
-                <ActivityIndicator size="small" color="#00ff00" />
-              </View>
-            );
-          }
-        }}
       />
       <BookBottomSheetModal ref={bottomSheetModalRef}>
-        <FindOnTheMap />
-        <SaveBookOnTheShelf saveBookToBookshelf={saveBookToBookshelf} />
+        <FindOnTheMap href={"../(maps)/bookmap"} onPress={closeBottomSheet} />
+        <SaveBookOnTheShelf onPress={closeBottomSheet} />
+        {/* <SaveBookOnTheShelf saveBookToBookshelf={saveBookToBookshelf} /> */}
       </BookBottomSheetModal>
-    </BottomSheetProvider>
+    </SafeAreaView>
   );
 }

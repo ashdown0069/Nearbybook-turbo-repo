@@ -1,10 +1,4 @@
-import {
-  int,
-  sqliteTable,
-  text,
-  integer,
-  primaryKey,
-} from "drizzle-orm/sqlite-core";
+import { int, sqliteTable, text, primaryKey } from "drizzle-orm/sqlite-core";
 
 export const BooksTable = sqliteTable("books_table", {
   id: int().primaryKey({ autoIncrement: true }),
@@ -15,7 +9,7 @@ export const BooksTable = sqliteTable("books_table", {
   isbn: text().notNull().unique(),
   vol: text().notNull(),
   bookImageURL: text().notNull(),
-  createAt: integer({ mode: "timestamp" }).$defaultFn(() => new Date()),
+  createAt: int({ mode: "timestamp" }).$defaultFn(() => new Date()),
 });
 
 export const LibrariesTable = sqliteTable("libraries_table", {
@@ -29,7 +23,8 @@ export const LibrariesTable = sqliteTable("libraries_table", {
   closed: text().notNull(),
   latitude: text().notNull(),
   longitude: text().notNull(),
-  createdAt: integer({ mode: "timestamp" }).$defaultFn(() => new Date()),
+  isActive: int({ mode: "boolean" }).default(false),
+  createdAt: int({ mode: "timestamp" }).$defaultFn(() => new Date()),
 });
 
 export const LibraryBooksTable = sqliteTable(

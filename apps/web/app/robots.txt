@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /_next/
+Disallow: /privacy/
+Disallow: /feedback/
+
+Sitemap: https://nearbybook.kr/sitemap.xml

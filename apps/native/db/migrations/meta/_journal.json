@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1763367483527,
+      "tag": "0000_busy_korg",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1763376521695,
+      "tag": "0001_useful_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1763457723631,
+      "tag": "0002_glamorous_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1763457983896,
+      "tag": "0003_daily_dazzler",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1764250777268,
+      "tag": "0004_careful_celestials",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1765897853875,
+      "tag": "0005_worried_anthem",
+      "breakpoints": true
+    }
+  ]
+}

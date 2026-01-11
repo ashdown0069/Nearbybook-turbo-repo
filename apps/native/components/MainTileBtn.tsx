@@ -13,7 +13,7 @@ export default function MainTileBtn({
   return (
     <Pressable
       {...rest}
-      className="min-h-36 w-2/5 flex-col items-center justify-center gap-3 rounded-lg bg-green-600 p-6"
+      className="min-h-36 w-2/5 flex-col items-center justify-center gap-3 rounded-lg bg-green-600 p-6 active:bg-green-700"
     >
       {Icon}
       <Text className="text-center leading-4 text-white">{BtnText}</Text>

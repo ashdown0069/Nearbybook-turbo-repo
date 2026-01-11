@@ -1,3 +1,4 @@
-import { Book, BookList } from "./Book.js";
-import { Library } from "./Library.js";
-export type { Book, BookList, Library };
+import type { Book, BookList } from "./Book";
+import type { Library } from "./Library";
+import type { DistrictCode, DistrictName } from "./Region";
+export type { Book, BookList, Library, DistrictCode, DistrictName };
