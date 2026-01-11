@@ -2,9 +2,6 @@
 
 'NearbyBook'은 사용자가 원하는 도서의 정보를 기반으로, 주변 공공 도서관에서 해당 도서를 소장하고 있는지 검색해주는 웹사이트입니다.
 
-- [Backend](https://github.com/ashdown0069/nearbybook__backend)
-- [Extension](https://github.com/ashdown0069/nearbybook_extension)
-
 ## ✨ 주요 기능
 
 - **도서 검색**: 도서명 또는 ISBN을 통해 원하는 책을 검색할 수 있습니다.
@@ -22,7 +19,6 @@
 - **Map**: Naver Maps API
 - **Testing:** Jest, React Testing Library
 - **Deployment:** Vercel
-- **Backend**: Nest.js (도서 Open API 및 데이터 처리) [[링크]](https://github.com/ashdown0069/nearbybook__backend)
 
 ## 💡 주요 구현 사항
 
@@ -30,17 +26,7 @@
 
 - 모바일에서도 사용가능하도록 구현
 
-### 지도
-
-- 지도를 로드하고 인스턴스를 관리하는 `useMapInit`
-- 데이터 변경에 따라 마커를 찍고 지우는 `useMapMarkers`
-- 지도 이동 시 재검색 버튼 활성화를 담당하는 `useMapInteraction`
-
-역할 별 커스텀 훅으로 분리하여 유지보수 및 재사용성을 증가
-
 ### SEO (검색 엔진 최적화)
-
-검색 결과에 따라 동적인 메타태그를 생성하여 검색 엔진 노출을 극대화했습니다.
 
 - Next.js의 `generateMetadata` API를 활용하여 검색된 책의 제목, 저자, 이미지를 Open Graph 태그로 동적으로 생성
 - `schema.org` 구조화된 데이터(JSON-LD)를 삽입하여 검색 엔진이 책 정보를 더 잘 이해하도록 구현
