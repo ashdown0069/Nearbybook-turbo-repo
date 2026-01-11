@@ -1,50 +1,58 @@
-# Welcome to your Expo app 👋
+# 📱 NearbyBook App (React native)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+'NearbyBook'의 모바일 애플리케이션입니다. 사용자가 원하는 도서의 정보를 기반으로, 주변 공공 도서관에서 해당 도서를 소장하고 있는지 검색해주는 서비스를 모바일 앱으로 제공합니다.
 
-## Get started
+## ✨ 주요 기능
 
-1. Install dependencies
+- **도서 검색**: 도서명, ISBN 또는 바코드 스캔을 통해 원하는 책을 검색할 수 있습니다.
+- **주변 도서관 찾기**: 네이버 지도를 활용하여 내 위치 주변의 공공 도서관을 쉽게 찾을 수 있습니다.
+- **소장 여부 확인**: 검색한 도서가 주변 도서관에 있는지, 대출 가능한지 확인할 수 있습니다.
+- **북마크/즐겨찾기**: 관심 있는 책을 저장할 수 있습니다.
 
-   ```bash
-   npm install
-   ```
+## 🛠️ 기술 스택 (Tech Stack)
 
-2. Start the app
+- **Framework**: [Expo](https://expo.dev), [React Native](https://reactnative.dev)
+- **Language**: TypeScript
+- **Styling**: [NativeWind](https://www.nativewind.dev/) (Tailwind CSS), Lucide React Native
+- **Navigation**: Expo Router
+- **State Management**: Zustand, React Query (@tanstack/react-query)
+- **Map**: Naver Maps API (@mj-studio/react-native-naver-map)
+- **Local Database**: Drizzle ORM, Expo SQLite
+- **Storage**: React Native MMKV
+- **Camera**: React Native Vision Camera (바코드 스캔 등)
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 개발 환경 설정 및 실행
 
-In the output, you'll find options to open the app in a
+> **Note**: 이 프로젝트는 네이티브 모듈(지도, 카메라 등)을 포함하고 있어 **Expo Go 대신 개발 빌드(Development Build)** 환경에서 실행해야 합니다.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. 의존성 설치
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. 환경 변수 설정
 
-## Learn more
+```
+EXPO_PUBLIC_BACKEND_URL="https://api.nearbybook.kr"
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. 개발 빌드 실행
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+**개발 빌드 실행:**
 
-## Join the community
+```bash
+npx expo run:android
+npx expo run:ios
+```
 
-Join our community of developers creating universal apps.
+## 📂 폴더 구조
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **app/**: Expo Router 기반의 페이지 및 라우팅 구조
+- **components/**: 재사용 가능한 UI 컴포넌트
+- **constants/**: 상수 데이터
+- **db/**: 로컬 데이터베이스 설정 (Drizzle ORM)
+- **hooks/**: 커스텀 React Hooks
+- **lib/**: 유틸리티 함수 및 외부 라이브러리 설정
+- **store/**: 전역 상태 관리 (Zustand)
+- **types/**: TypeScript 타입 정의
