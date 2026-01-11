@@ -4,9 +4,6 @@
 
 'NearbyBook'는 사용자가 현재 보고 있는 웹 페이지의 도서 정보를 기반으로, 주변 공공 도서관에서 해당 도서를 소장하고 있는지 검색해주는 크롬 확장 프로그램입니다.
 
-[Backend](https://github.com/ashdown0069/nearbybook__backend) / 
-[Frontend](https://github.com/ashdown0069/nearbybook)
-
 ## ✨ 주요 기능
 
 - **자동 도서 정보 추출**: 웹 페이지에서 도서명, ISBN을 자동으로 파싱
@@ -19,8 +16,7 @@
 ## 🛠️ 기술 스택
 
 - **Frontend**: Wxt Framework, React
-- **Browser API**: Chrome Extension API (Tabs, Scripting, Storage, SidePanel, notifications)
-- **Backend**: Nest.js - 정부 Open API 연동 및 데이터 처리
+- **Browser API**: Chrome Extension API (Tabs, Scripting, Storage, notifications)
 
 ## 🚀 설치
 
