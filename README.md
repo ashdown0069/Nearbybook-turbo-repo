@@ -1,5 +1,12 @@
 # Turborepo Nearbybook
 
+## Deploy
+
+- Web - https://www.nearbybook.kr
+- extension - whale https://store.whale.naver.com/detail/obibakaogmkejdobgjnlnjbnpbjpeegk
+- extension - chrome
+  https://chromewebstore.google.com/detail/nearbybook/ifholedgogcogipjgaaljiboodpnbcec?hl=ko&utm_source=ext_sidebar
+
 ## 📂 Applications
 
 - [**Web**](./apps/web/README.md) - Next.js Web Application
