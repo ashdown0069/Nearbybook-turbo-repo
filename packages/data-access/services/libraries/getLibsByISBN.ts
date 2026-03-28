@@ -6,7 +6,7 @@ export const getLibsByISBN = async (
   axiosInstance: AxiosInstance,
   isbn: string,
   region: string,
-  dtlRegion: string
+  dtlRegion: string,
 ): Promise<Library[]> => {
   return axiosInstance
     .get("/libraries/searchbyisbn", {
@@ -23,10 +23,10 @@ export const useGetLibsByISBN = (
   axiosInstance: AxiosInstance,
   isbn: string,
   region: string,
-  dtlRegion: string
+  dtlRegion: string,
 ) => {
   return useQuery({
-    queryKey: ["search", "location", isbn, region, dtlRegion],
+    queryKey: ["libs", isbn, region, dtlRegion],
     queryFn: () => getLibsByISBN(axiosInstance, isbn, region, dtlRegion),
     enabled: !!isbn && !!region && !!dtlRegion,
     placeholderData: keepPreviousData,
@@ -38,10 +38,10 @@ export const PrefetchGetLibsByISBN = async (
   queryClient: QueryClient,
   isbn: string,
   region: string,
-  dtl_region: string
+  dtlRegion: string,
 ) => {
   return await queryClient.prefetchQuery({
-    queryKey: ["libs", isbn, region, dtl_region],
-    queryFn: () => getLibsByISBN(axiosInstance, isbn, region, dtl_region),
+    queryKey: ["libs", isbn, region, dtlRegion],
+    queryFn: () => getLibsByISBN(axiosInstance, isbn, region, dtlRegion),
   });
 };

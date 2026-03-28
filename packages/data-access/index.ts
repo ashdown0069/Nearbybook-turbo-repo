@@ -31,6 +31,13 @@ import {
   useGetRegionLibsList,
 } from "./services/libraries/getLibsList";
 import { getLibsByISBNExtension } from "./services/libraries/getLibsByISBNExtension";
+import { signup, useSignup } from "./services/auth/signup";
+import { login, useLogin } from "./services/auth/login";
+import { refreshToken } from "./services/auth/refresh";
+import {
+  getAutoCompleteResult,
+  useGetAutoCompleteResult,
+} from "./services/meilisearch/autocomplete";
 export {
   searchBook,
   getLibsByISBNExtension,
@@ -51,4 +58,11 @@ export {
   useGetLibsByISBN,
   createAxiosInstance,
   useGetBookLoanStatus,
+  signup,
+  useSignup,
+  login,
+  useLogin,
+  refreshToken,
+  getAutoCompleteResult,
+  useGetAutoCompleteResult,
 };
