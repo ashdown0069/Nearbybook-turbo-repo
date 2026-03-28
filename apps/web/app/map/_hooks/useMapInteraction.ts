@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useMapStore } from "@/store/useMapStore";
-import { DISTRICTS_CODE_AND_NAME, SI_DO_CODE_AND_NAME } from "@/const";
 import { toast } from "sonner";
+import { findRegionByNames } from "@/app/map/_utils/regionLookup";
 
 export function useMapInteraction(
   mapRef: React.RefObject<naver.maps.Map | null>,
@@ -28,32 +28,18 @@ export function useMapInteraction(
           const area1 = response.v2.results[0]?.region.area1.name;
           const area2 = response.v2.results[0]?.region.area2.name;
 
-          const foundSiDo = SI_DO_CODE_AND_NAME.find(
-            (sido) => sido.name === area1,
-          );
-          if (!foundSiDo) {
+          const result = findRegionByNames(area1, area2);
+
+          if (!result) {
             toast.error("알 수 없는 지역입니다.");
             return;
           }
 
-          const siGunGuList =
-            DISTRICTS_CODE_AND_NAME[
-              foundSiDo.name as keyof typeof DISTRICTS_CODE_AND_NAME
-            ];
-          const foundSiGunGu = siGunGuList.find(
-            (siGunGu) => siGunGu.name === area2,
-          );
-
-          if (!foundSiGunGu) {
-            toast.error("알 수 없는 지역입니다.");
-            return;
-          }
-
-          setRegion(foundSiDo, foundSiGunGu);
+          setRegion(result.siDo, result.siGunGu);
         },
       );
     }
-  }, [mapRef.current, setShowSearchBtn]);
+  }, [setShowSearchBtn]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -68,7 +54,7 @@ export function useMapInteraction(
       naver.maps.Event.removeListener(dragendListener);
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, [mapRef.current]); // map instance가 준비된 후 바인딩
+  }, []); // map instance가 준비된 후 바인딩
 
   return { showSearchBtn, handleSearchAgain };
 }

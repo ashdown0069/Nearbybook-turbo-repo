@@ -3,10 +3,13 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useMapStore } from "@/store/useMapStore";
-import { DISTRICTS_CODE_AND_NAME, SI_DO_CODE_AND_NAME } from "@/const";
 import type { Region } from "@/types/type";
-import { getRegionCookie, setRegionCookie } from "@/lib/MapCookie";
+import { setRegionCookie } from "@/lib/MapCookie";
 import { useShallow } from "zustand/shallow";
+import {
+  findRegionByCodes,
+  findRegionByNames,
+} from "@/app/map/_utils/regionLookup";
 
 const DEFAULT_REGION = { code: "11", name: "서울특별시" };
 const DEFAULT_DISTRICT = { code: "11010", name: "종로구" };
@@ -49,44 +52,46 @@ export function useUserRegion({
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     // 1. URL 파라미터 로직
     if (regionProp && detailRegionProp) {
-      const region = SI_DO_CODE_AND_NAME.find((s) => s.code === regionProp);
-      const dtlRegion = DISTRICTS_CODE_AND_NAME[
-        region?.name as keyof typeof DISTRICTS_CODE_AND_NAME
-      ]?.find((d) => d.code === detailRegionProp);
+      const result = findRegionByCodes(regionProp, detailRegionProp);
 
-      if (!region || !dtlRegion) {
+      if (!result) {
         setFallbackLocation();
         return;
       }
 
-      const locationName = `${region.name} ${dtlRegion.name}`;
-      if (naver && naver.maps && naver.maps.Service) {
+      const { siDo, siGunGu } = result;
+      const locationName = `${siDo.name} ${siGunGu.name}`;
+
+      if (naver?.maps?.Service) {
         naver.maps.Service.geocode(
           { query: locationName },
           (status, response) => {
+            if (cancelled) return;
+
             if (
               status === naver.maps.Service.Status.OK &&
               response.v2.meta.totalCount > 0
             ) {
               const item = response.v2.addresses[0];
               setMyPosition(+item.y, +item.x);
-            } else {
-              console.warn("Geocoding failed for URL params");
             }
 
-            updateRegionAndCookie(
-              { code: region.code, name: region.name },
-              { code: dtlRegion.code, name: dtlRegion.name },
-            );
+            updateRegionAndCookie(siDo, siGunGu);
             setStatus("success");
-            return;
           },
         );
+      } else {
+        updateRegionAndCookie(siDo, siGunGu);
+        setStatus("success");
       }
 
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
     // 2. Geolocation API 사용
@@ -97,6 +102,8 @@ export function useUserRegion({
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        if (cancelled) return;
+
         const { latitude, longitude } = position.coords;
         setMyPosition(latitude, longitude);
 
@@ -105,6 +112,8 @@ export function useUserRegion({
         naver.maps.Service.reverseGeocode(
           { coords: userLocation, orders: "legalcode" },
           (status, response) => {
+            if (cancelled) return;
+
             if (status !== naver.maps.Service.Status.OK) {
               setFallbackLocation();
               return;
@@ -113,40 +122,27 @@ export function useUserRegion({
             const area1 = response.v2.results[0]?.region.area1.name;
             const area2 = response.v2.results[0]?.region.area2.name;
 
-            const foundSiDo = SI_DO_CODE_AND_NAME.find(
-              (sido) =>
-                sido.name === area1 ||
-                area1.includes(sido.name) ||
-                sido.name.includes(area1),
-            );
+            const result = findRegionByNames(area1, area2);
 
-            if (!foundSiDo) {
+            if (!result) {
               setFallbackLocation();
               return;
             }
 
-            const siGunGuList =
-              DISTRICTS_CODE_AND_NAME[
-                foundSiDo.name as keyof typeof DISTRICTS_CODE_AND_NAME
-              ];
-
-            const foundSiGunGu = siGunGuList?.find(
-              (siGunGu) => siGunGu.name === area2,
-            );
-
-            if (!foundSiGunGu) {
-              setFallbackLocation();
-              return;
-            }
-
-            updateRegionAndCookie(foundSiDo, foundSiGunGu);
+            updateRegionAndCookie(result.siDo, result.siGunGu);
             setStatus("success");
           },
         );
       },
-      (error) => {
-        setFallbackLocation("위치 정보 접근이 차단되었습니다.");
+      () => {
+        if (!cancelled) {
+          setFallbackLocation("위치 정보 접근이 차단되었습니다.");
+        }
       },
     );
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [regionProp, detailRegionProp]);
 }

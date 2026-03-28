@@ -56,11 +56,4 @@ export async function searchAction(prevState: any, formData: FormData) {
     "&pageNo=1";
   // 실제 검색 로직 처리
   redirect(url);
-
-  return {
-    query,
-    mode,
-    error: null,
-    success: true,
-  };
 }

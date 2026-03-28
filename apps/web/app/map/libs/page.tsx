@@ -78,6 +78,7 @@ export default function LibsPage() {
     libraries: filteredLibraries,
     getMarkerIcon,
     getOverlayContent,
+    enableClustering: true,
   });
 
   return (

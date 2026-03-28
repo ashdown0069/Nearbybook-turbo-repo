@@ -5,8 +5,7 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "@repo/ui/components/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import Script from "next/script";
-import usePreconnect from "@/hooks/usePreconnect";
+import setupPreconnect from "@/lib/setupPreconnect";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,22 +74,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  usePreconnect();
+  setupPreconnect();
   return (
     <html lang="ko">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Script
-          src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_MAP_CLIENT_ID}`}
-          id="naver-map-script"
-          type="text/javascript"
-        />
-        <Script
-          type="text/javascript"
-          id="naver-map-script-geocoder"
-          src="https://oapi.map.naver.com/openapi/v3/maps-geocoder.js"
-        />
         <Toaster richColors position="top-center" />
         <QueryProvider>{children}</QueryProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}

@@ -1,7 +1,6 @@
-import React from "react";
 import { preconnect } from "react-dom";
 
-export default function usePreconnect() {
+export default function setupPreconnect() {
   preconnect("https://api.nearbybook.kr");
   preconnect("https://image.aladin.co.kr");
   preconnect("http://image.aladin.co.kr");

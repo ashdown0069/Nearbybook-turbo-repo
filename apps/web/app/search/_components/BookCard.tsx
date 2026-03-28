@@ -15,8 +15,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { getRegionCookie } from "@/lib/MapCookie";
-// import { PrefetchGetLibsByISBN } from "@/services/libraries/getLibsByISBN";
-// import { prefetchBook } from "@/services/books/searchBook";
 import { useHoverAction } from "@/hooks/useHoverAction";
 import { prefetchBook, PrefetchGetLibsByISBN } from "@repo/data-access";
 import { axiosInstance } from "@/lib/axios";
