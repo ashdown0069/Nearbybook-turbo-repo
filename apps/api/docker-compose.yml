@@ -1,0 +1,54 @@
+# ============================================
+# Docker Compose - 로컬 개발 환경 (DB + Redis만)
+# ============================================
+#
+# 왜 이런 구조인가?
+# - 백엔드를 로컬에서 실행하면 HMR(Hot Module Reload)이 빨라 개발 효율이 높음
+# - DB/Redis는 설치 없이 Docker로 일관된 버전을 보장
+# - Coolify 프로덕션 환경과 동일한 PostgreSQL 16, Redis 7 버전 사용
+# ============================================
+
+services:
+  # ---- PostgreSQL ----
+  # Coolify 프로덕션과 동일한 16 버전 사용
+  db:
+    image: postgres:16-alpine
+    container_name: nearbybook-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-nearbybook}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nearbybook1234}
+      POSTGRES_DB: ${DB_NAME:-nearbybook}
+    ports:
+      # 로컬 백엔드 및 DB 관리도구(DBeaver 등)에서 접속 가능하도록 노출
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # 명명된 볼륨: 컨테이너 재시작해도 데이터 유지
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-nearbybook}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Redis ----
+  # 캐싱 및 세션 관리용
+  # 현재 메모리 캐시(cache-manager)를 Redis로 전환 시 사용
+  redis:
+    image: redis:7-alpine
+    container_name: nearbybook-redis
+    restart: unless-stopped
+    ports:
+      # 로컬 백엔드에서 localhost:6379로 접속
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:
