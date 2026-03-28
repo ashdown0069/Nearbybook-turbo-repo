@@ -1,10 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { AppService } from 'src/app.service';
 
 @Injectable()
 export class CommonService {
-  private readonly logger = new Logger(AppService.name);
+  private readonly logger = new Logger(CommonService.name);
   constructor(private readonly httpService: HttpService) {}
   async sendMessageToDiscord(
     title: string,

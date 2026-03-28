@@ -17,7 +17,7 @@ export class searchBooksDto {
   mode: 'title' | 'isbn';
 
   @Transform(({ value }) => {
-    return value.trim().replace(/ /g, '');
+    return value.trim();
   })
   @IsString()
   @IsNotEmpty()

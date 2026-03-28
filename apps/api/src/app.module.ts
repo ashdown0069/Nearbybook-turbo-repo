@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HttpModule } from '@nestjs/axios';
 import { APP_GUARD } from '@nestjs/core';
@@ -9,9 +9,18 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { BooksModule } from './books/books.module';
 import { LibrariesModule } from './libraries/libraries.module';
 import { CommonModule } from './common/common.module';
+import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './auth/auth.module';
+import { TaskModule } from './task/task.module';
 import * as https from 'https';
 import * as http from 'http';
 import CacheableLookup from 'cacheable-lookup';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MeilisearchModule } from './meilisearch/meilisearch.module';
+import { BullModule } from '@nestjs/bullmq';
+import { RedisModule } from './redis/redis.module';
+import { createKeyv } from '@keyv/redis';
+import { AopModule } from '@toss/nestjs-aop';
 
 const cacheable = new CacheableLookup();
 
@@ -40,8 +49,9 @@ cacheable.install(httpsAgent);
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
     }),
+    DatabaseModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -60,14 +70,42 @@ cacheable.install(httpsAgent);
       httpAgent,
       httpsAgent,
     }),
-    CacheModule.register({
+    // CacheModule.register({
+    //   isGlobal: true,
+    // }),
+    CacheModule.registerAsync({
       isGlobal: true,
-      ttl: 1000 * 60 * 30, //30 min
-      max: 5000, // maximum number of items in cache,
+      useFactory: async (config: ConfigService) => ({
+        stores: [
+          createKeyv(
+            `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`,
+          ),
+        ],
+        ttl: 30 * 60 * 1000, // 30분 (ms)
+        namespace: 'http-cache',
+      }),
+      inject: [ConfigService],
     }),
     BooksModule,
     LibrariesModule,
     CommonModule,
+    AuthModule,
+    TaskModule,
+    ScheduleModule.forRoot(),
+    MeilisearchModule,
+    AopModule,
+    RedisModule,
+    BullModule.forRootAsync({
+      useFactory(config: ConfigService) {
+        return {
+          connection: {
+            host: config.get('REDIS_HOST'),
+            port: config.get('REDIS_PORT'),
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [

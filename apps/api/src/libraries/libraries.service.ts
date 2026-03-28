@@ -1,29 +1,26 @@
 import { HttpService } from '@nestjs/axios';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { LibSrchResponse } from '@repo/types';
 import { lastValueFrom } from 'rxjs';
-import { AppService } from 'src/app.service';
 import { CommonService } from 'src/common/common.service';
-import { Cacheable } from 'src/decorator/cache.decorator';
+import { DATABASE_CONNECTION } from 'src/database/database.provider';
+import { RedisCache } from 'src/redis/redis-cache.decorator';
+import { LibrariesDbService } from './libraries-db.service';
 
 @Injectable()
 export class LibrariesService {
-  private readonly logger = new Logger(AppService.name);
+  private readonly logger = new Logger(LibrariesService.name);
   constructor(
     private readonly httpService: HttpService,
     private readonly commonService: CommonService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly LibrariesDbService: LibrariesDbService,
   ) {}
 
-  @Cacheable({
-    ttl: 1000 * 60 * 60, // 1 hours
-    customKey: (args) => `${args[0]}_${args[1]}_${args[2]}`,
-  })
+  @RedisCache({ ttl: 3600 })
   async fetchLibrariesByISBN(
     ISBN: string,
     region: number,
@@ -52,7 +49,7 @@ export class LibrariesService {
       }
     } catch (error) {
       this.logger.error('getLibraryListByISBN service error', error);
-      this.commonService.sendMessageToDiscord(
+      await this.commonService.sendMessageToDiscord(
         'getLibraryListByISBN service error',
         JSON.stringify(error),
         'Error',
@@ -61,11 +58,14 @@ export class LibrariesService {
     }
   }
 
-  // @Cacheable({
-  //   ttl: 1000 * 60 * 60 * 24, // 1 days
-  //   customKey: (args) => `${args[0]}_${args[1] ? args[1] : ''}`,
-  // })
-  async fetchRegionLibraryList(region: number, dtlRegion?: number) {
+  async getRegionLibraryList(region: number, dtlRegion?: number) {
+    return await this.LibrariesDbService.findByRegionCode(region.toString());
+  }
+
+  async fetchRegionLibraryList(
+    region: number,
+    dtlRegion?: number,
+  ): Promise<LibSrchResponse['libs']['lib'] | []> {
     let params = {};
     if (dtlRegion) {
       params = {
@@ -94,7 +94,7 @@ export class LibrariesService {
       return result.data.response.libs.map((lib) => lib.lib);
     } catch (error) {
       this.logger.error('fetchRegionLibraryList service error', error);
-      this.commonService.sendMessageToDiscord(
+      await this.commonService.sendMessageToDiscord(
         'fetchRegionLibraryList service error',
         JSON.stringify(error),
         'Error',
@@ -122,10 +122,11 @@ export class LibrariesService {
       regionLibsPromise,
     ]);
 
+    const bookLibCodes = new Set(
+      libsWithBook.map((l: any) => l.libCode),
+    );
     const result = regionLibs.map((lib: any) => ({
-      hasBook: libsWithBook.some(
-        (libWithBook: any) => libWithBook.libCode === lib.libCode,
-      ),
+      hasBook: bookLibCodes.has(lib.libCode),
       ...lib,
     }));
 

@@ -43,3 +43,12 @@ GET  http://localhost:4001/popularloanbooks
 ### 
 
 GET http://data4library.kr/api/srchBooks?authKey=87c71a8b62e42b783479e358f07a5e9a14328c3f0efc02c0002a1c009bf2ff50&keyword=전진권&format=json
+
+
+###
+GET http://localhost:4001/task/trigger/library-refresh
+
+
+
+###
+GET http://localhost:4001/libraries/searchbyregion?region=11&dtlRegion=11060

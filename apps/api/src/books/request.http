@@ -7,7 +7,7 @@ GET  http://localhost:4001/books/search?query=9791194383437&mode=isbn&pageNo=1
 //9788409783076
 //9791141602451
 ###
-GET  http://localhost:4001/books/search/9791127468509
+GET  http://localhost:4001/books/search/9788936439743
 
 //배포판
 ###
@@ -26,3 +26,12 @@ GET  http://localhost:4001/books/naver/9788409783076
 ###
 
 GET http://data4library.kr/api/libSrch
+
+//naver 책 검색 api 테스트용
+//9788409783076
+###
+GET  http://localhost:4001/books/searchNaver/9788936439743
+
+
+###
+GET  http://localhost:4001/books/tracking/9791141602451

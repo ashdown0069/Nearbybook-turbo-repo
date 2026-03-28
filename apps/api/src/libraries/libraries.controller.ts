@@ -4,10 +4,14 @@ import { SearchLibrariesByISBNDto } from './dto/req/search-libs-byISBN';
 import { SearchLibrariesByRegionDto } from './dto/req/search-libs-byRegion';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LibraryResponseDto } from './dto/res/libs-response.dto';
+import { LibrariesDbService } from './libraries-db.service';
 
 @Controller('libraries')
 export class LibrariesController {
-  constructor(private readonly librariesService: LibrariesService) {}
+  constructor(
+    private readonly librariesService: LibrariesService,
+    private readonly librariesDbService: LibrariesDbService,
+  ) {}
 
   //도서(isbn사용) 소장 도서관 검색 (지역 전체 도서관 리턴)
   @Serialize(LibraryResponseDto)
@@ -39,10 +43,9 @@ export class LibrariesController {
     @Query()
     query: SearchLibrariesByRegionDto,
   ) {
-    console.log('query', query);
-    return await this.librariesService.fetchRegionLibraryList(
-      query.region,
-      query.dtlRegion,
+    return await this.librariesDbService.findByRegionCode(
+      query.region.toString(),
+      query.dtlRegion ? query.dtlRegion.toString() : undefined,
     );
   }
 }
