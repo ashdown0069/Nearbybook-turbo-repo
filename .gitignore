@@ -11,6 +11,7 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 
 # Testing
 coverage
@@ -39,3 +40,20 @@ yarn-error.log*
 
 .expo
 .vscode
+
+# ai
+.playwright-mcp
+.serena
+PROJECT_INDEX.md
+PROJECT_INDEX.json
+.claude
+claudedocs
+
+# Type package build artifacts
+packages/types/src/**/*.d.ts
+packages/types/src/**/*.js
+packages/types/src/**/*.js.map
+
+# temp
+apps/scraper
+docs
