@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FeedbackDto } from './common/dto/feedback.dto';
 import { CommonService } from './common/common.service';
+import { hostname } from 'os';
 
 @Controller('/')
 export class AppController {
@@ -11,8 +12,11 @@ export class AppController {
   ) {}
 
   @Get()
-  async getHello() {
-    return this.appService.getHello();
+  async healthCheck() {
+    return {
+      status: 'ok',
+      hostname: hostname(),
+    };
   }
 
   @Post('/feedback')

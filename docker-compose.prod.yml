@@ -1,0 +1,31 @@
+# ============================================
+# Docker Compose - Coolify 프로덕션 배포용
+# ============================================
+# 작동원리:
+# Coolify에서 Docker Compose 빌드팩으로 이 파일을 지정하면
+# 기존 Dockerfile을 사용해 이미지를 빌드하고,
+# deploy.replicas로 여러 인스턴스를 실행합니다.
+#
+# 왜 루트에 있는가?
+# - 빌드 컨텍스트가 모노레포 루트여야 Dockerfile의
+#   COPY packages/types/, COPY apps/api/ 등이 동작
+# - apps/api/docker-compose.yml은 개발용(DB+Redis)이므로 별도 유지
+#
+# 사용법 (Coolify 설정):
+# - Build Pack: Docker Compose
+# - Docker Compose Location: /docker-compose.prod.yml
+# ============================================
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    # 인스턴스 수: 원하는 만큼 조절
+    deploy:
+      replicas: 2
+    expose:
+      - "4001"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
