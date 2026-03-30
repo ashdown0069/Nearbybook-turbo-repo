@@ -30,6 +30,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY packages/types/package.json ./packages/types/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 COPY apps/api/package.json ./apps/api/package.json
 
 # devDependencies 포함 설치 (빌드 단계에서 typescript, nest-cli 필요)
@@ -38,6 +39,9 @@ RUN npm ci --include=dev
 # ---- 빌드 ----
 FROM deps AS build
 WORKDIR /app
+
+# typescript-config 복사 (tsconfig extends 해석에 필요)
+COPY packages/typescript-config/ ./packages/typescript-config/
 
 # packages/types 소스 복사 (Internal Package: 빌드 불필요, .ts 직접 참조)
 COPY packages/types/ ./packages/types/
@@ -60,6 +64,7 @@ WORKDIR /app
 # - --ignore-scripts: postinstall 등 빌드 도구가 필요한 스크립트 건너뜀 (alpine 환경)
 COPY package.json package-lock.json ./
 COPY packages/types/package.json ./packages/types/package.json
+COPY packages/typescript-config/package.json ./packages/typescript-config/package.json
 COPY apps/api/package.json ./apps/api/package.json
 RUN npm ci --omit=dev --ignore-scripts
 
