@@ -12,10 +12,7 @@ import { RedisCacheAspect } from './redis-cache.aspect';
     {
       provide: REDIS_CLIENT,
       useFactory: (config: ConfigService) => {
-        return new Redis({
-          host: config.get('REDIS_HOST'),
-          port: config.get('REDIS_PORT'),
-        });
+        return new Redis(config.get('REDIS_URL'));
       },
       inject: [ConfigService],
     },

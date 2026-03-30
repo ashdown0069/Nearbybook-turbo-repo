@@ -76,11 +76,7 @@ cacheable.install(httpsAgent);
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async (config: ConfigService) => ({
-        stores: [
-          createKeyv(
-            `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`,
-          ),
-        ],
+        stores: [createKeyv(config.get('REDIS_URL'))],
         ttl: 30 * 60 * 1000, // 30분 (ms)
         namespace: 'http-cache',
       }),
@@ -99,8 +95,7 @@ cacheable.install(httpsAgent);
       useFactory(config: ConfigService) {
         return {
           connection: {
-            host: config.get('REDIS_HOST'),
-            port: config.get('REDIS_PORT'),
+            url: config.get('REDIS_URL'),
           },
         };
       },
