@@ -40,7 +40,7 @@ export class PopularityProcessor extends WorkerHost {
         REDIS_KEYS.POPULARITY_META_PROCESSING,
       );
     } catch (error) {
-      this.logger.log('popularity processor: no data to process', error);
+      this.logger.warn('popularity processor: no data to process', error);
       return;
     }
 
@@ -75,7 +75,7 @@ export class PopularityProcessor extends WorkerHost {
           `popularity processor: invalid meta for ISBN ${isbn}`,
           error,
         );
-        return;
+        continue;
       }
       const title = (meta.bookname ?? '').trim();
       if (!title) continue;
