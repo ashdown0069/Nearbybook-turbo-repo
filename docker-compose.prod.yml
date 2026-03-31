@@ -21,11 +21,16 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+    # Swarm 모드에서는 image 필드가 필수
+    # 빌드된 이미지를 이 이름으로 태깅하여 Swarm이 노드에 분배
+    image: nearbybook-api:latest
     # 인스턴스 수: 원하는 만큼 조절
     deploy:
       replicas: 2
+      # Swarm 모드에서는 top-level restart 대신 deploy 안에 선언
+      restart_policy:
+        condition: on-failure
     expose:
       - "4001"
     environment:
       - NODE_ENV=production
-    restart: unless-stopped
