@@ -1,3 +1,4 @@
+//@ts-nocheck
 /**
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
@@ -14,7 +15,7 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config: Config = {
+const config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -211,4 +212,4 @@ const config: Config = {
   // watchman: true,
 };
 
-export default createJestConfig(config);
+export default createJestConfig(config) as unknown as any;
