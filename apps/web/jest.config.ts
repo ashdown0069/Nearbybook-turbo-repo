@@ -14,7 +14,7 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config = {
+const config: Config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
