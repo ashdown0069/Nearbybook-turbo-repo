@@ -1,10 +1,11 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
 import { LibrariesService } from './libraries.service';
 import { SearchLibrariesByISBNDto } from './dto/req/search-libs-byISBN';
 import { SearchLibrariesByRegionDto } from './dto/req/search-libs-byRegion';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { LibraryResponseDto } from './dto/res/libs-response.dto';
 import { LibrariesDbService } from './libraries-db.service';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('libraries')
 export class LibrariesController {
@@ -14,6 +15,8 @@ export class LibrariesController {
   ) {}
 
   //도서(isbn사용) 소장 도서관 검색 (지역 전체 도서관 리턴)
+  @CacheTTL(60 * 30)
+  @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
   @Get('/searchbyisbn')
   async findLibrariesByISBN__Web(@Query() query: SearchLibrariesByISBNDto) {
@@ -25,6 +28,8 @@ export class LibrariesController {
   }
 
   //도서(isbn사용) 소장 도서관만 리턴
+  @CacheTTL(60 * 30)
+  @UseInterceptors(CacheInterceptor)
   @Get('/searchbyisbn/extension')
   async findLibrariesByISBN__Extension(
     @Query() query: SearchLibrariesByISBNDto,

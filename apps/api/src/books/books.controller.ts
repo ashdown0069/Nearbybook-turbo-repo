@@ -14,6 +14,7 @@ import { AutocompleteResponseDto } from './dto/res/autocomplete.dto';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
+  //메일리서치 자동완성
   @Get('/autocomplete')
   @Serialize(AutocompleteResponseDto)
   async getAutocompleteSuggestions(@Query() query: AutoCompleteDto) {
@@ -38,7 +39,9 @@ export class BooksController {
   @Serialize(BookDto)
   @Get('/search/:isbn')
   async searchBook(@Param('isbn') isbn: string) {
-    return await this.booksService.searchBook(isbn);
+    const book = await this.booksService.searchBook(isbn);
+    this.booksService._trackingBook(isbn, book).catch();
+    return book;
   }
 
   //검색창 밑 검색어 추천

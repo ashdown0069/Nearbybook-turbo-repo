@@ -18,6 +18,7 @@ import { REDIS_CLIENT } from 'src/constant/tokens';
 import Redis from 'ioredis';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/res/books.dto';
+import { BookRecord } from 'src/database/schema';
 
 @Injectable()
 export class BooksService {
@@ -107,7 +108,6 @@ export class BooksService {
       if (!foundBook) {
         return this.searchBook__naver(isbn);
       }
-
       return foundBook;
     } catch (error) {
       this.logger.error('searchBook service error', error);
@@ -316,8 +316,8 @@ export class BooksService {
     }
   }
 
-  async _trackingBook(isbn: string) {
-    const book = await this.searchBook(isbn);
+  async _trackingBook(isbn: string,book:BookRecord) {
+
     if (Object.keys(book).length === 0) {
       this.logger.warn(`trackingBook: Book not found for ISBN ${isbn}`);
       return;
@@ -327,7 +327,6 @@ export class BooksService {
       await this.redis.hsetnx('popularity:meta', isbn, JSON.stringify(book));
     } catch (error) {
       this.logger.error('trackBook error', error);
-      throw new InternalServerErrorException('track book failed');
     }
   }
 }
