@@ -49,7 +49,7 @@ cacheable.install(httpsAgent);
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env'],
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
     }),
     DatabaseModule,
     ThrottlerModule.forRoot({

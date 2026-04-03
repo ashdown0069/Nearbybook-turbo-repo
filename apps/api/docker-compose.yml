@@ -5,12 +5,10 @@
 # 왜 이런 구조인가?
 # - 백엔드를 로컬에서 실행하면 HMR(Hot Module Reload)이 빨라 개발 효율이 높음
 # - DB/Redis는 설치 없이 Docker로 일관된 버전을 보장
-# - Coolify 프로덕션 환경과 동일한 PostgreSQL 16, Redis 7 버전 사용
+# - 프로덕션 환경과 동일한 PostgreSQL 16, Redis 7 버전 사용
 # ============================================
 
 services:
-  # ---- PostgreSQL ----
-  # Coolify 프로덕션과 동일한 16 버전 사용
   db:
     image: postgres:16-alpine
     container_name: nearbybook-db
