@@ -6,7 +6,7 @@ export default defineConfig({
   out: './src/database/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL_PRODUCTION!,
+    url: process.env.DATABASE_URL!,
   },
   verbose: true,
   strict: true,
