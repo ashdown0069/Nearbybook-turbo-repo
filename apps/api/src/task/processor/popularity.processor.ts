@@ -25,6 +25,22 @@ export class PopularityProcessor extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
+    // rename 전에 키 존재 여부 확인 — 없으면 처리할 데이터 없음
+    const countExists = await this.redis.exists(REDIS_KEYS.POPULARITY_COUNT);
+    const metaExists = await this.redis.exists(REDIS_KEYS.POPULARITY_META);
+    const date = new Date()
+      .toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' })
+      .slice(0, 16)
+      .replace(/[: ]/g, '-')
+      .replace('T', '-');
+    if (!countExists || !metaExists) {
+      this.logger.log(`popularity processor: no data to process, ${date}`);
+      // 한쪽만 있는 경우 정리
+      if (countExists) await this.redis.del(REDIS_KEYS.POPULARITY_COUNT);
+      if (metaExists) await this.redis.del(REDIS_KEYS.POPULARITY_META);
+      return;
+    }
+
     /**
      * Race condition 방지
      * 읽기 - 작업 - 삭제 사이에 다른 요청이 들어올 경우
@@ -40,7 +56,7 @@ export class PopularityProcessor extends WorkerHost {
         REDIS_KEYS.POPULARITY_META_PROCESSING,
       );
     } catch (error) {
-      this.logger.warn('popularity processor: no data to process', error);
+      this.logger.warn('popularity processor: rename failed', error);
       return;
     }
 
