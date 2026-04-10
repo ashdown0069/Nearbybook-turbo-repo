@@ -2,7 +2,7 @@ import {
   Tooltip as TooltipContainer,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@repo/ui/components/tooltip";
 
 export default function Tooltip({
   children,

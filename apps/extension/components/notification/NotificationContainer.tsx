@@ -1,6 +1,6 @@
 import React from "react";
 import NotificationSwitch from "./NotificationSwitch";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@repo/ui/components/separator";
 
 export default function Notification() {
   return (

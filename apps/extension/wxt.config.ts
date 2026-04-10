@@ -1,11 +1,15 @@
 import { defineConfig } from "wxt";
 import tailwindcss from "@tailwindcss/vite";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   ALADIN_BOOK_URL_PATTERN,
   KYOBO_BOOK_URL_PATTERN,
   NAVER_BOOK_URL_PATTERN,
   YES24_BOOK_URL_PATTERN,
 } from "./const";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   manifest: {
@@ -25,6 +29,15 @@ export default defineConfig({
 
   vite: () => ({
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        "@workspace/ui": path.resolve(__dirname, "../../packages/ui"),
+      },
+      // packages/ui가 자체 node_modules/react(19.2.0)를 갖고 있어
+      // extension의 루트 react(19.1.0)와 이중 인스턴스가 된다.
+      // dedupe로 Vite가 항상 루트의 단일 React를 사용하도록 강제한다.
+      dedupe: ["react", "react-dom"],
+    },
   }),
   modules: ["@wxt-dev/module-react"],
 });

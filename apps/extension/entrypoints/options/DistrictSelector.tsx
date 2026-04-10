@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/button";
 import { useState, useEffect } from "react";
 import {
   Select,
@@ -8,7 +8,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@repo/ui/components/select";
 import {
   PROVINCES,
   SELECT_KOREAN_ADMINISTRATIVE_DISTRICTS_CODE_AND_NAME,

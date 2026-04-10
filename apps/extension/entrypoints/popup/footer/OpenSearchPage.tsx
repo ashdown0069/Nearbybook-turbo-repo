@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/button";
 import { Search } from "lucide-react";
 
 export default function OpenSearchPage() {

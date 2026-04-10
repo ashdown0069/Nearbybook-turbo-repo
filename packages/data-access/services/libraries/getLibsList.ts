@@ -9,7 +9,7 @@ import type { Library } from "@repo/types";
 export const getLibsList = async (
   axiosInstance: AxiosInstance,
   region: string,
-  dtlRegion?: string
+  dtlRegion?: string,
 ): Promise<Library[]> => {
   return axiosInstance
     .get("/libraries/searchbyregion", {
@@ -24,7 +24,7 @@ export const getLibsList = async (
 export const useGetRegionLibsList = (
   axiosInstance: AxiosInstance,
   region: string,
-  dtlRegion: string
+  dtlRegion: string,
 ) => {
   return useQuery({
     queryKey: ["useGetRegionLibsList", region, dtlRegion],
@@ -36,7 +36,7 @@ export const useGetRegionLibsList = (
 
 export const useGetLibsList = (
   axiosInstance: AxiosInstance,
-  selectedRegions: string[]
+  selectedRegions: string[],
 ) => {
   return useQueries({
     queries: selectedRegions.map((region) => ({
@@ -50,10 +50,10 @@ export const useGetLibsList = (
       return results.reduce(
         (acc, result, index) => {
           const regionKey = selectedRegions[index];
-          acc[regionKey] = result;
+          acc[regionKey as string] = result;
           return acc;
         },
-        {} as Record<string, UseQueryResult<Library[], Error>>
+        {} as Record<string, UseQueryResult<Library[], Error>>,
       );
     },
   });

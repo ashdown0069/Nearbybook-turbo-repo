@@ -1,6 +1,6 @@
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@repo/ui/components/switch";
 import useAsync from "react-use/lib/useAsync";
-import { Button } from "../ui/button";
+import { Button } from "@repo/ui/components/button";
 import {
   getNotifications,
   setNotifications,
