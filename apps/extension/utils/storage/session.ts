@@ -11,46 +11,35 @@ export const extTabStateStore = storage.defineItem<tabStateSessionStore>(
 
 interface FindSessionTabStateProps {
   ISBN?: string;
-  tabUrl?: string;
 }
 
 export const FindSessionTabState = async ({
   ISBN,
-  tabUrl,
 }: FindSessionTabStateProps) => {
   const data = await extTabStateStore.getValue();
-  return data.session.find(
-    (item) =>
-      (tabUrl && item.tabUrl === tabUrl) || (ISBN && item.ISBN === ISBN),
-  );
+  return data.session.find((item) => ISBN && item.ISBN === ISBN);
 };
 export const getSessionTabState = async () => {
   return await extTabStateStore.getValue();
 };
 
-export const setSessionTabState = async (
-  ISBN: tabState["ISBN"],
-  TITLE: tabState["TITLE"],
-  foundDataLength: tabState["foundDataLength"],
-  tabUrl: tabState["tabUrl"],
-  libraries: tabState["libraries"],
-) => {
+export const setSessionTabState = async (state: tabState) => {
   try {
     const data = await getSessionTabState();
-    if (data.session.find((item) => item.ISBN === ISBN)) {
-      return true;
+    const length = data.session.length;
+
+    if (length > 50) {
+      // 세션이 50개 이상이면 가장 오래된 세션 제거
+      data.session.shift();
     }
+
+    // 기존에 동일한 ISBN이 있다면 제외하고 새로운 상태를 추가 (업데이트 효과)
+    const filteredSession = data.session.filter(
+      (item) => item.ISBN !== state.ISBN,
+    );
+
     await extTabStateStore.setValue({
-      session: [
-        ...data.session,
-        {
-          ISBN,
-          TITLE,
-          foundDataLength,
-          tabUrl,
-          libraries,
-        },
-      ],
+      session: [...filteredSession, state],
     });
     return true;
   } catch (error) {

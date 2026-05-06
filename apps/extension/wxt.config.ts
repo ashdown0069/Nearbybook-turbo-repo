@@ -29,6 +29,9 @@ export default defineConfig({
 
   vite: () => ({
     plugins: [tailwindcss()],
+    esbuild: {
+      legalComments: "none", // 주석 제거
+    },
     resolve: {
       alias: {
         "@workspace/ui": path.resolve(__dirname, "../../packages/ui"),

@@ -1,165 +1,87 @@
-import { getKyoboInfoFromDOM } from "./kyobo/contentScript";
-import { getYES24InfoFromDOM } from "./yes24/contentScript";
-import { isKyoboURL } from "./kyobo/url";
-import { isYES24URL } from "./yes24/url";
-import { parsedSiteData, PopupStatus, Tab, tabState } from "@/types/types";
-// import { getLibsByISBN } from "@/api/getLibsByISBN";
-import { getLibsByISBNExtension } from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
+import { Tab, PopupStatus, tabState } from "@/types/types";
+import { findSiteConfig, getBookInfo } from "./services/siteService";
+import { getLibraryData } from "./services/libraryService";
 import {
-  setSessionTabState,
-  FindSessionTabState,
-} from "@/utils/storage/session";
-import { setBadgeText } from "@/utils/badge";
-import {
-  createNotification,
-  getNotifications,
-} from "@/utils/storage/notification";
-import { isAladinURL } from "./aladin/url";
-import { getAladinInfoFromDOM } from "./aladin/contentScript";
-import { isNaverBookURL } from "./naverbook/url";
-import { getNaverInfoFromDOM } from "./naverbook/contentScript";
-import { getDistrictPreference } from "@/utils/storage/district";
-
-interface SiteConfig {
-  name: string;
-  isMatch: (url: string) => boolean;
-  getBookInfoFromSite: (tabId: number) => Promise<parsedSiteData>;
-}
-
-const SUPPORTED_SITES: SiteConfig[] = [
-  {
-    name: "kyobo",
-    isMatch: isKyoboURL,
-    getBookInfoFromSite: getKyoboInfoFromDOM,
-  },
-  {
-    name: "yes24",
-    isMatch: isYES24URL,
-    getBookInfoFromSite: getYES24InfoFromDOM,
-  },
-  {
-    name: "aladin",
-    isMatch: isAladinURL,
-    getBookInfoFromSite: getAladinInfoFromDOM,
-  },
-  {
-    name: "naver",
-    isMatch: isNaverBookURL,
-    getBookInfoFromSite: getNaverInfoFromDOM,
-  },
-];
-
-const findSiteConfig = (url: string) => {
-  return SUPPORTED_SITES.find((site) => site.isMatch(url));
-};
-
-const getBookInfo = async (siteConfig: SiteConfig, tabId: number) => {
-  const { ISBN, TITLE } = await siteConfig.getBookInfoFromSite(tabId);
-  if (!ISBN) {
-    throw new Error("ISBN not found");
-  }
-  return { ISBN, TITLE };
-};
-
-const getLibraryData = async (ISBN: string, TITLE: string, tabUrl: string) => {
-  let tabState = await FindSessionTabState({ ISBN });
-
-  if (!tabState) {
-    const districtPreference = await getDistrictPreference();
-    const libraries = await getLibsByISBNExtension(
-      axiosInstance,
-      ISBN,
-      districtPreference.SiDo.code,
-      districtPreference.SiGunGu.code,
-    );
-    tabState = {
-      ISBN,
-      TITLE,
-      foundDataLength: libraries.length,
-      tabUrl,
-      libraries,
-    };
-    await setSessionTabState(ISBN, TITLE, libraries.length, tabUrl, libraries);
-  }
-
-  return tabState;
-};
+  updateExtensionIcon,
+  updateBadge,
+  sendLibraryNotification,
+} from "./services/uiService";
+import { getNotifications } from "@/utils/storage/notification";
+import { FindSessionTabState } from "@/utils/storage/session";
 
 export const processBookStoreSite = async (
   tabInfo: Tab,
   notifiedTabs: Map<number, string>,
+  signal?: AbortSignal,
 ): Promise<{
   status: PopupStatus;
   data?: tabState;
 }> => {
-  if (!tabInfo.id) return { status: "error" };
+  if (!tabInfo.id || !tabInfo.url) return { status: "error" };
 
   const siteConfig = findSiteConfig(tabInfo.url);
 
-  //지원사이트 X
   if (!siteConfig) {
-    // browser.action.disable();
-    await browser.action.setIcon({
-      tabId: tabInfo.id,
-      path: {
-        "16": "/icon/16.png",
-        "32": "/icon/32.png",
-      },
-    });
-    await setBadgeText("");
+    await updateExtensionIcon(tabInfo.id, false);
+    await updateBadge("");
     return { status: "notSupport" };
   }
 
   try {
-    await browser.action.setIcon({
-      tabId: tabInfo.id,
-      path: {
-        "16": "/icon/16_ON.png",
-        "32": "/icon/32_ON.png",
-      },
-    });
-    await setBadgeText(0);
+    await updateExtensionIcon(tabInfo.id, true);
 
-    const { ISBN, TITLE } = await getBookInfo(siteConfig, tabInfo.id);
-    const { foundDataLength, libraries } = await getLibraryData(
-      ISBN,
-      TITLE,
-      tabInfo.url,
-    );
+    let state: tabState;
+    try {
+      const { ISBN, TITLE } = await getBookInfo(siteConfig, tabInfo.id);
 
-    await setBadgeText(foundDataLength);
+      // 세션 저장소에서 캐시 데이터 확인 (ISBN 기준)
+      const cachedState = await FindSessionTabState({
+        ISBN,
+      });
 
-    const isNotificationDelivered = notifiedTabs.get(tabInfo.id) === ISBN;
-    const status = await getNotifications();
-    //알림 보내기
+      if (cachedState) {
+        // 캐시 히트: 데이터는 사용하되 URL은 현재 탭의 URL로 최신화
+        state = {
+          ...cachedState,
+          tabUrl: tabInfo.url,
+        };
+      } else {
+        // 캐시 미스: 도서관 데이터 API 호출
+        state = await getLibraryData(ISBN, TITLE, tabInfo.url, signal);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "needsSetup") {
+        throw error;
+      }
+      return { status: "error" };
+    }
+
+    const foundCount = state.regionResult?.foundDataLength ?? 0;
+    await updateBadge(foundCount);
+
+    // 알림 처리
+    const isNotificationDelivered = notifiedTabs.get(tabInfo.id) === state.ISBN;
+    const notificationStatus = await getNotifications();
+
     if (
-      status.isNotificationsEnabled &&
-      foundDataLength > 0 &&
+      notificationStatus.isNotificationsEnabled &&
+      foundCount > 0 &&
       !isNotificationDelivered
     ) {
-      const notificationTitle = `책 소장 도서관 찾기`;
-      const notificationDescription = `${TITLE}을(를) 소장하고 있는 ${foundDataLength} 곳의 도서관을 찾았습니다`;
-      await createNotification(
-        notificationTitle,
-        notificationDescription,
-        ISBN,
-      );
-      notifiedTabs.set(tabInfo.id, ISBN);
+      await sendLibraryNotification(state.TITLE, state.ISBN, foundCount);
+      notifiedTabs.set(tabInfo.id, state.ISBN);
     }
 
     return {
       status: "complete",
-      data: {
-        TITLE,
-        ISBN,
-        foundDataLength,
-        libraries,
-      } as unknown as tabState,
+      data: state,
     };
   } catch (error) {
-    console.log("bg process", error);
-    await setBadgeText("0");
+    if (error instanceof Error && error.message === "needsSetup") {
+      return { status: "needsSetup" };
+    }
+    console.error("[processBookStoreSite]", error);
+    await updateBadge(0);
     return { status: "error" };
   }
 };

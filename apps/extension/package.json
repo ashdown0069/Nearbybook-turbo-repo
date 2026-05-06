@@ -2,10 +2,10 @@
   "name": "extension",
   "description": "nearbybook extension",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.1.2",
   "type": "module",
   "scripts": {
-    "dev": "wxt --port 3000",
+    "dev": "wxt --port 3100",
     "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",

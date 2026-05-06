@@ -1,4 +1,4 @@
-import DistrictSelector from "./DistrictSelector";
+import SearchSettings from "./SearchSettings";
 import Notification from "@/components/notification/NotificationContainer";
 
 export default function Options() {
@@ -6,8 +6,8 @@ export default function Options() {
     <section className="p-10">
       <div className="mx-auto flex w-[768px] flex-col gap-10">
         <div className="rounded-md border border-green-300 p-3 shadow-md">
-          <div className="p-3 text-left text-2xl text-black">지역 설정</div>
-          <DistrictSelector />
+          <div className="p-3 text-left text-2xl text-black">검색 설정</div>
+          <SearchSettings />
         </div>
         <div className="rounded-md border border-green-300 p-3 shadow-md">
           <div className="p-3 text-left text-2xl text-black">알림 설정</div>

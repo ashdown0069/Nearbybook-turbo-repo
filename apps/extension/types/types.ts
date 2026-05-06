@@ -15,12 +15,35 @@ export interface userDistrictState {
   siGunGu: district;
 }
 
+export interface searchSettingStoreType {
+  SiDo: district;
+  SiGunGu: district;
+  library: { libCode: string; libName: string };
+  defaultTab: "region" | "library";
+}
+
+export interface regionResult {
+  libraries: Library[];
+  foundDataLength: number;
+}
+
+export interface libraryResult {
+  libCode: string;
+  libName: string;
+  hasBook: boolean;
+  loanAvailable: boolean | null;
+  bookCode: string | null;
+  shelfLocation: string | null;
+  address: string | null;
+  homepage: string | null;
+}
+
 export interface tabState {
   tabUrl: string;
   ISBN: string;
   TITLE: string;
-  foundDataLength: number;
-  libraries: Library[];
+  regionResult: regionResult | null;
+  libraryResult: libraryResult | null;
 }
 
 export interface tabStateSessionStore {
@@ -70,21 +93,18 @@ export type PopupStatus =
   | "pending"
   | "complete"
   | "error"
-  | "notSupport";
+  | "notSupport"
+  | "needsSetup"
+  | "retry";
 
 export interface BackgroundPopupState {
   status: PopupStatus;
   port: Browser.runtime.Port | null;
   data?: tabState;
-  district?: districtPreferenceStoreType;
+  searchSetting?: searchSettingStoreType;
 }
+
 export type PopupPortMessage = Pick<
   BackgroundPopupState,
-  "status" | "data" | "district"
+  "status" | "data" | "searchSetting"
 >;
-
-export interface districtPreferenceStoreType {
-  SiDo: district;
-  SiGunGu: district;
-  AdjacencySiGunGuList: district[];
-}
