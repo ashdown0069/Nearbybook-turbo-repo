@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import LibInfo from "../_components/LibInfo";
 import type { Library } from "@repo/types";
 
-describe("LibInfo Component", () => {
+describe("LibInfo 컴포넌트", () => {
   const mockLibData: Omit<
     Library,
     "hasBook" | "hasBook" | "latitude" | "longitude"
@@ -18,7 +18,7 @@ describe("LibInfo Component", () => {
     // longitude: "126.9780",
   };
 
-  it("should render all library information correctly", () => {
+  it("모든 도서관 정보를 올바르게 렌더링해야 한다", () => {
     render(<LibInfo {...mockLibData} />);
 
     // 1. 도서관 이름과 주소 렌더링 확인

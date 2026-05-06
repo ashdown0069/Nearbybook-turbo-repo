@@ -39,7 +39,7 @@ export function useMapInteraction(
         },
       );
     }
-  }, [setShowSearchBtn]);
+  }, [mapRef, setRegion, setShowSearchBtn]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -54,7 +54,7 @@ export function useMapInteraction(
       naver.maps.Event.removeListener(dragendListener);
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
-  }, []); // map instance가 준비된 후 바인딩
+  }, [mapRef]);
 
   return { showSearchBtn, handleSearchAgain };
 }

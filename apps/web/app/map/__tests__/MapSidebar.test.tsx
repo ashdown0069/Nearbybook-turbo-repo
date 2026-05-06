@@ -34,7 +34,7 @@ jest.mock("@/components/common/ExtensionPromotion", () => ({
   ),
 }));
 
-describe("MapSidebar Component", () => {
+describe("MapSidebar 컴포넌트", () => {
   const mockBook: Book = {
     authors: "테스트 저자",
     bookImageURL: "http://example.com/book.jpg",
@@ -45,7 +45,7 @@ describe("MapSidebar Component", () => {
     vol: "1권",
   };
 
-  it("should render BookInfo and other components when a book is provided", () => {
+  it("도서 정보가 제공되면 BookInfo와 다른 컴포넌트들을 렌더링해야 한다", () => {
     render(<MapSidebar book={mockBook} />);
 
     //컴포넌트 렌더링 확인
@@ -57,7 +57,7 @@ describe("MapSidebar Component", () => {
     expect(screen.getByTestId("feedback")).toBeInTheDocument();
   });
 
-  it("should render an error message when the book is null", () => {
+  it("도서 정보가 null일 경우 에러 메시지를 렌더링해야 한다", () => {
     render(<MapSidebar book={null} />);
 
     // 1. book prop이 null이므로 오류 메시지가 렌더링되어야 합니다.

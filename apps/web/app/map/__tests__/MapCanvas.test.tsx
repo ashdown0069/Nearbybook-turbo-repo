@@ -19,7 +19,7 @@ jest.mock("next/dynamic", () => () => {
   return DynamicComponent;
 });
 
-describe("MapCanvas", () => {
+describe("MapCanvas 컴포넌트", () => {
   const mockMapRef = { current: "mock-map-instance" };
   const mockHandleSearchAgain = jest.fn();
   const mockLibraryList: Library[] = [
@@ -56,7 +56,7 @@ describe("MapCanvas", () => {
     });
   });
 
-  it("renders the map container", () => {
+  it("지도 컨테이너를 렌더링해야 한다", () => {
     // This test checks if the container with id "map" is rendered.
     // Note: Since id="map" is on the root div of the component,
     // we can use container.firstChild or verify by ID.
@@ -70,7 +70,7 @@ describe("MapCanvas", () => {
     expect(container.firstChild).toHaveClass("relative h-full w-full md:w-2/3");
   });
 
-  it("initializes the map with correct coordinates", () => {
+  it("올바른 좌표로 지도를 초기화해야 한다", () => {
     render(
       <MapCanvas libraryList={mockLibraryList} isbn={mockIsbn} />
     );
@@ -81,7 +81,7 @@ describe("MapCanvas", () => {
     });
   });
 
-  it("calls useMapMarkers with correct arguments", () => {
+  it("올바른 인자로 useMapMarkers를 호출해야 한다", () => {
     render(
       <MapCanvas libraryList={mockLibraryList} isbn={mockIsbn} />
     );
@@ -95,7 +95,7 @@ describe("MapCanvas", () => {
   });
 
 
-  it("renders region info when region data exists", () => {
+  it("지역 데이터가 존재할 때 지역 정보를 렌더링해야 한다", () => {
     render(
       <MapCanvas libraryList={mockLibraryList} isbn={mockIsbn} />
     );
@@ -103,7 +103,7 @@ describe("MapCanvas", () => {
     expect(screen.getByText("서울특별시 중구")).toBeInTheDocument();
   });
 
-  it("does not render region info when region data is missing", () => {
+  it("지역 데이터가 없을 때 지역 정보를 렌더링하지 않아야 한다", () => {
     (useMapStore as unknown as jest.Mock).mockReturnValue({
       myLat: 37.5665,
       myLng: 126.978,
@@ -118,7 +118,7 @@ describe("MapCanvas", () => {
     expect(screen.queryByText(/서울특별시/)).not.toBeInTheDocument();
   });
 
-  it("renders 'Search Again' button when showSearchBtn is true", () => {
+  it("showSearchBtn이 true일 때 '다시 검색하기' 버튼을 렌더링해야 한다", () => {
     (useMapInteraction as jest.Mock).mockReturnValue({
       showSearchBtn: true,
       handleSearchAgain: mockHandleSearchAgain,
@@ -132,7 +132,7 @@ describe("MapCanvas", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("calls handleSearchAgain when 'Search Again' button is clicked", () => {
+  it("'다시 검색하기' 버튼을 클릭했을 때 handleSearchAgain을 호출해야 한다", () => {
     (useMapInteraction as jest.Mock).mockReturnValue({
       showSearchBtn: true,
       handleSearchAgain: mockHandleSearchAgain,

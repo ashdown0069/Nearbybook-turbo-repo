@@ -2,15 +2,13 @@
 import { cn } from "@/lib/utils";
 import { Library } from "@repo/types";
 import LibInfo from "./LibInfo";
-import LoanStatusButton from "./LoanStatusButton";
+import BookLoanInfo from "./BookLoanInfo";
 import { useMedia } from "react-use";
 import MapDrawer from "./MapDrawer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
 } from "@repo/ui/components/card";
 export default function MapOverlayContent({
@@ -63,13 +61,8 @@ export default function MapOverlayContent({
         />
       </CardContent>
       {hasBook && isbn && (
-        <CardFooter className="flex flex-col items-center justify-center gap-1">
-          <CardDescription className="text-xs text-gray-700">
-            대출 여부는 조회일 기준 전날의 대출 상태를 확인합니다.
-          </CardDescription>
-          <CardAction className="w-full">
-            <LoanStatusButton isbn={isbn} libCode={libCode} isMobile={false} />
-          </CardAction>
+        <CardFooter className="flex flex-col items-center justify-center gap-1 px-4">
+          <BookLoanInfo isbn={isbn} libCode={libCode} />
         </CardFooter>
       )}
     </Card>

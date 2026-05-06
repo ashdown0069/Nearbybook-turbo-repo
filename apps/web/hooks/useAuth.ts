@@ -1,50 +1,54 @@
-"use client";
+/**
+ * 계획중, 회원 기능
+ */
 
-import { useMemo } from "react";
-import { getCookie } from "cookies-next";
-import { decodeJwt } from "jose";
-import { JwtPayload } from "@repo/types";
+// "use client";
 
-interface AuthUser {
-  id: string;
-  email: string;
-  nickname: string | null;
-}
+// import { useMemo } from "react";
+// import { getCookie } from "cookies-next";
+// import { decodeJwt } from "jose";
+// import { JwtPayload } from "@repo/types";
 
-interface AuthState {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-}
+// interface AuthUser {
+//   id: string;
+//   email: string;
+//   nickname: string | null;
+// }
 
-export function useAuth(): AuthState {
-  return useMemo(() => {
-    if (typeof window === "undefined") {
-      return { user: null, isAuthenticated: false };
-    }
+// interface AuthState {
+//   user: AuthUser | null;
+//   isAuthenticated: boolean;
+// }
 
-    const accessToken = getCookie("accessToken") as string | undefined;
+// export function useAuth(): AuthState {
+//   return useMemo(() => {
+//     if (typeof window === "undefined") {
+//       return { user: null, isAuthenticated: false };
+//     }
 
-    if (!accessToken) {
-      return { user: null, isAuthenticated: false };
-    }
+//     const accessToken = getCookie("accessToken") as string | undefined;
 
-    try {
-      const decoded = decodeJwt(accessToken) as JwtPayload;
+//     if (!accessToken) {
+//       return { user: null, isAuthenticated: false };
+//     }
 
-      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-        return { user: null, isAuthenticated: false };
-      }
+//     try {
+//       const decoded = decodeJwt(accessToken) as JwtPayload;
 
-      return {
-        user: {
-          id: decoded.sub,
-          email: decoded.email,
-          nickname: decoded.nickname,
-        },
-        isAuthenticated: true,
-      };
-    } catch {
-      return { user: null, isAuthenticated: false };
-    }
-  }, []);
-}
+//       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+//         return { user: null, isAuthenticated: false };
+//       }
+
+//       return {
+//         user: {
+//           id: decoded.sub,
+//           email: decoded.email,
+//           nickname: decoded.nickname,
+//         },
+//         isAuthenticated: true,
+//       };
+//     } catch {
+//       return { user: null, isAuthenticated: false };
+//     }
+//   }, []);
+// }

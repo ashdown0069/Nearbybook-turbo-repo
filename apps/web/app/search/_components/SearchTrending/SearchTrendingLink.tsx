@@ -16,7 +16,7 @@ export default function SearchTrendingLink({
   const prefetchBook = useCallback(
     async () =>
       await PrefetchSearchBooks(axiosInstance, queryClient, "isbn", isbn, "1"),
-    [],
+    [queryClient, isbn],
   );
 
   const ref = useHoverAction(prefetchBook);

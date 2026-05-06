@@ -28,7 +28,7 @@ export const submitFeedback = async (prev: any, formData: FormData) => {
       rawData.content,
       rawData.email,
     );
-  } catch (error) {
+  } catch {
     return {
       isError: true,
       message: "알수없는 오류가 발생했습니다.",

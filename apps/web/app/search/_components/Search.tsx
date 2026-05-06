@@ -62,7 +62,7 @@ export default function Search() {
         `/search?query=${encodeURIComponent(value)}&mode=isbn&pageNo=1`,
       );
     },
-    [mode, router],
+    [router],
   );
 
   const handleFocus = useCallback(() => {

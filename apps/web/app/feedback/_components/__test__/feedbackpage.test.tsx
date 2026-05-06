@@ -1,5 +1,5 @@
 import FeedbackPage from "../../page";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import userEvent from "@testing-library/user-event";
 import { useActionState } from "react";
@@ -19,7 +19,7 @@ jest.mock("@/app/feedback/action", () => ({
   submitFeedback: jest.fn(),
 }));
 
-describe("FeedbackPage", () => {
+describe("FeedbackPage 컴포넌트", () => {
   const mockUseActionState = useActionState as jest.Mock;
   let mockAction: jest.Mock;
 
@@ -36,7 +36,7 @@ describe("FeedbackPage", () => {
     ]);
   });
 
-  it("should render the FeedbackPage component", () => {
+  it("FeedbackPage 컴포넌트를 렌더링해야 한다", () => {
     render(<FeedbackPage />);
     expect(
       screen.getByRole("heading", { name: "피드백을 남겨주세요" }),
@@ -48,7 +48,7 @@ describe("FeedbackPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("should submit the feedback form when the button is clicked", async () => {
+  it("버튼을 클릭했을 때 피드백 양식을 제출해야 한다", async () => {
     const user = userEvent.setup();
     render(<FeedbackPage />);
     await user.type(screen.getByLabelText("제목"), "테스트 제목");
@@ -59,7 +59,7 @@ describe("FeedbackPage", () => {
     expect(mockAction).toHaveBeenCalledTimes(1);
   });
 
-  it("should render error message when an error occurs", () => {
+  it("에러 발생 시 에러 메시지를 렌더링해야 한다", () => {
     const errorState = { isError: true, message: "테스트 에러 메시지" };
     // useActionState가 에러 상태를 반환하도록 재설정
     mockUseActionState.mockImplementation((actionFn, initialState) => [

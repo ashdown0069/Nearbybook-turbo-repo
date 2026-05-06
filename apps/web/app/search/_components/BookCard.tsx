@@ -60,14 +60,14 @@ export default function BookCard({
         );
       }
     },
-    [isbn],
+    [queryClient],
   );
 
   const prefetchBookByISBN = useCallback(
     async (isbn: string) => {
       await prefetchBook(axiosInstance, queryClient, isbn);
     },
-    [isbn],
+    [queryClient],
   );
 
   const ref = useHoverAction(() => {
@@ -119,6 +119,9 @@ export default function BookCard({
               <p className="max-w-[150px] truncate">{publisher}</p>
               {publisher && publicationYear && <span>•</span>}
               <span>{publicationYear}</span>
+            </div>
+            <div className="text-muted-foreground mt-1 text-xs">
+              ISBN - {isbn}
             </div>
           </CardContent>
 

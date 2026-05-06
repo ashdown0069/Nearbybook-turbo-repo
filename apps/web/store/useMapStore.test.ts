@@ -3,12 +3,12 @@ import { useMapStore } from "./useMapStore";
 
 const initialState = useMapStore.getState();
 
-describe("useMapStore", () => {
+describe("useMapStore 스토어", () => {
   beforeEach(() => {
     useMapStore.setState(initialState);
   });
 
-  it("should have correct initial state", () => {
+  it("올바른 초기 상태를 가져야 한다", () => {
     const state = useMapStore.getState();
     expect(state.region).toBeUndefined();
     expect(state.dtl_region).toBeUndefined();
@@ -17,7 +17,7 @@ describe("useMapStore", () => {
     expect(state.status).toBe("loading");
   });
 
-  it("should set region and detail region correctly", () => {
+  it("지역과 상세 지역을 올바르게 설정해야 한다", () => {
     const newRegion = { code: "11", name: "서울특별시" };
     const newDtlRegion = { code: "11010", name: "종로구" };
 
@@ -30,7 +30,7 @@ describe("useMapStore", () => {
     expect(state.dtl_region).toEqual(newDtlRegion);
   });
 
-  it("should set my position correctly", () => {
+  it("내 위치를 올바르게 설정해야 한다", () => {
     const lat = 37.5665;
     const lng = 126.978;
 
@@ -43,7 +43,7 @@ describe("useMapStore", () => {
     expect(state.myLng).toBe(lng);
   });
 
-  it("should set status correctly", () => {
+  it("상태를 올바르게 설정해야 한다", () => {
     act(() => {
       useMapStore.getState().setStatus("success");
     });
@@ -55,7 +55,7 @@ describe("useMapStore", () => {
     expect(useMapStore.getState().status).toBe("error");
   });
 
-  it("should reset regions correctly", () => {
+  it("지역 정보를 올바르게 초기화해야 한다", () => {
     const newRegion = { code: "11", name: "서울특별시" };
     const newDtlRegion = { code: "11010", name: "종로구" };
     act(() => {

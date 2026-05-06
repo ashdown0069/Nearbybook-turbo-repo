@@ -5,7 +5,7 @@ import { axiosInstance } from "@/lib/axios";
 import { useGetPopularLoanBooks } from "@repo/data-access";
 
 export default function PopularBooks() {
-  const { data, isLoading, isError } = useGetPopularLoanBooks(axiosInstance);
+  const { data, isLoading } = useGetPopularLoanBooks(axiosInstance);
 
   if (isLoading) {
     return <div>Loading...</div>;

@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import ThanksPage from "../../thanks/page";
 
-describe("Feedback Thanks Page", () => {
-  it("should render the ThanksPage component correctly", () => {
+describe("피드백 감사 페이지", () => {
+  it("ThanksPage 컴포넌트를 올바르게 렌더링해야 한다", () => {
     render(<ThanksPage />);
     const heading = screen.getByRole("heading", {
       name: /제출이 완료되었습니다!/i,

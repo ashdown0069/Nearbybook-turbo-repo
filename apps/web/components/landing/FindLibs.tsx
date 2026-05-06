@@ -1,4 +1,3 @@
-import Link from "next/link";
 import React from "react";
 import MainPromoteCard from "./MainPromoteCard";
 import { MapPin } from "lucide-react";

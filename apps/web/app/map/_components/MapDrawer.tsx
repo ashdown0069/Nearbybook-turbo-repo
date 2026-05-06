@@ -3,19 +3,17 @@
 "use client";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@repo/ui/components/drawer";
 import type { Library } from "@repo/types";
 import { Bed, BriefcaseBusiness, House, Phone } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
-import LoanStatusButton from "./LoanStatusButton";
+import BookLoanInfo from "./BookLoanInfo";
 
 export default function MapDrawer({
   libName,
@@ -25,24 +23,20 @@ export default function MapDrawer({
   operatingTime,
   tel,
   hasBook,
-  children,
   isOpen,
   libCode,
   isbn,
   setIsOpen,
 }: Omit<Library, "latitude" | "longitude"> & {
   isbn?: string;
-  children?: React.ReactNode;
-  loanStatusComponent?: React.ReactNode;
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   useEffect(() => {
     setIsOpen(true);
-  }, []);
+  }, [setIsOpen]);
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      {/* <DrawerTrigger>{children}</DrawerTrigger> */}
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>{libName}</DrawerTitle>
@@ -72,14 +66,7 @@ export default function MapDrawer({
           </div>
         </div>
         <DrawerFooter className="pb-8">
-          {hasBook && isbn && (
-            <>
-              <LoanStatusButton isbn={isbn} libCode={libCode} isMobile />{" "}
-              <p className="text-center text-xs text-gray-700">
-                대출 여부는 조회일 기준 전날의 대출 상태를 확인합니다.
-              </p>
-            </>
-          )}
+          {hasBook && isbn && <BookLoanInfo isbn={isbn} libCode={libCode} />}
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

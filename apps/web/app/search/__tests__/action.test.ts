@@ -9,12 +9,12 @@ beforeEach(() => {
   (redirect as unknown as jest.Mock).mockClear();
 });
 
-describe("searchAction Server Action", () => {
+describe("searchAction 서버 액션", () => {
   const prevState = {}; // 이전 상태 (현재 로직에서는 사용되지 않음)
 
   // --- 유효성 검사 실패 케이스 ---
-  describe("Validation Failures", () => {
-    it("has no query", async () => {
+  describe("유효성 검사 실패 케이스", () => {
+    it("검색어가 없을 경우", async () => {
       const formData = new FormData();
       formData.append("query", "");
       formData.append("mode", "title");
@@ -30,7 +30,7 @@ describe("searchAction Server Action", () => {
       expect(redirect).not.toHaveBeenCalled();
     });
 
-    it("is less than 2 char", async () => {
+    it("검색어가 2글자 미만일 경우", async () => {
       const formData = new FormData();
       formData.append("query", "책");
       formData.append("mode", "title");
@@ -46,7 +46,7 @@ describe("searchAction Server Action", () => {
       expect(redirect).not.toHaveBeenCalled();
     });
 
-    it("is not ISBN format", async () => {
+    it("ISBN 형식이 아닐 경우", async () => {
       const formData = new FormData();
       formData.append("query", "12345abc");
       formData.append("mode", "isbn");
@@ -62,7 +62,7 @@ describe("searchAction Server Action", () => {
       expect(redirect).not.toHaveBeenCalled();
     });
 
-    it("is not 13 char ISBN", async () => {
+    it("ISBN이 13자리가 아닐 경우", async () => {
       const formData = new FormData();
       formData.append("query", "123456789012"); // 12자리
       formData.append("mode", "isbn");
@@ -80,8 +80,8 @@ describe("searchAction Server Action", () => {
   });
 
   // --- 유효성 검사 성공 및 리다이렉트 케이스 ---
-  describe("Validation Success and Redirect", () => {
-    it("is valid query and mode", async () => {
+  describe("유효성 검사 성공 및 리다이렉트", () => {
+    it("유효한 검색어와 모드일 경우", async () => {
       const query = "자바스크립트";
       const formData = new FormData();
       formData.append("query", query);
@@ -98,7 +98,7 @@ describe("searchAction Server Action", () => {
       expect(redirect).toHaveBeenCalledTimes(1);
     });
 
-    it("is valid ISBN", async () => {
+    it("유효한 ISBN일 경우", async () => {
       const query = "9788966262281";
       const formData = new FormData();
       formData.append("query", query);
@@ -111,7 +111,7 @@ describe("searchAction Server Action", () => {
       expect(redirect).toHaveBeenCalledTimes(1);
     });
 
-    it("is valid query with special characters", async () => {
+    it("특수 문자가 포함된 유효한 검색어일 경우", async () => {
       const query = "C++ & C#";
       const formData = new FormData();
       formData.append("query", query);

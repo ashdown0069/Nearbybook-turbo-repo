@@ -32,11 +32,11 @@ jest.mock("@/lib/axios", () => ({
     axiosInstance: {}
 }));
 
-describe("Map Component", () => {
+describe("Map 컴포넌트", () => {
   const mockRefetchLibs = jest.fn();
   const mockRefetchBook = jest.fn();
 
-  // Common props for the Map component
+  // Map 컴포넌트의 공통 Props
   const defaultProps = {
     isbn: "1234567890",
     region: "test-region",
@@ -46,7 +46,7 @@ describe("Map Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Default mock implementation for useMapStore state
+    // useMapStore 상태의 기본 모킹 구현
     (useMapStore as unknown as jest.Mock).mockReturnValue({
       region: { code: "123" },
       dtl_region: { code: "456" },
@@ -56,8 +56,8 @@ describe("Map Component", () => {
     });
   });
 
-  it("renders LoadingScreen when data is loading", () => {
-    // Mock hooks to return loading state
+  it("데이터 로딩 중일 때 로딩 화면을 렌더링해야 한다", () => {
+    // 로딩 상태를 반환하도록 훅 모킹
     (useGetLibsByISBN as jest.Mock).mockReturnValue({
       isLoading: true,
       data: null,
@@ -73,8 +73,8 @@ describe("Map Component", () => {
     expect(screen.getByTestId("loading-screen")).toBeInTheDocument();
   });
 
-  it("renders ErrorScreen when there is an error in libraries fetching", () => {
-    // Mock hooks to return error state
+  it("도서관 정보를 가져오는 중 에러가 발생하면 에러 화면을 렌더링해야 한다", () => {
+    // 에러 상태를 반환하도록 훅 모킹
     (useGetLibsByISBN as jest.Mock).mockReturnValue({
       isLoading: false,
       isError: true,
@@ -90,8 +90,8 @@ describe("Map Component", () => {
     expect(screen.getByTestId("error-screen")).toBeInTheDocument();
   });
 
-  it("renders ErrorScreen when there is an error in book fetching", () => {
-      // Mock hooks to return error state
+  it("도서 정보를 가져오는 중 에러가 발생하면 에러 화면을 렌더링해야 한다", () => {
+      // 에러 상태를 반환하도록 훅 모킹
       (useGetLibsByISBN as jest.Mock).mockReturnValue({
         isLoading: false,
         isError: false,
@@ -107,7 +107,7 @@ describe("Map Component", () => {
       expect(screen.getByTestId("error-screen")).toBeInTheDocument();
     });
 
-  it("calls refetch functions when ErrorScreen is clicked", () => {
+  it("에러 화면 클릭 시 refetch 함수들을 호출해야 한다", () => {
     (useGetLibsByISBN as jest.Mock).mockReturnValue({
       isLoading: false,
       isError: true,
@@ -122,12 +122,12 @@ describe("Map Component", () => {
     render(<Map {...defaultProps} />);
     fireEvent.click(screen.getByTestId("error-screen"));
     
-    // Both refetch functions should be called
+    // 두 refetch 함수 모두 호출되어야 함
     expect(mockRefetchLibs).toHaveBeenCalled();
     expect(mockRefetchBook).toHaveBeenCalled();
   });
 
-  it("renders MapSidebar and MapCanvas when data is successfully loaded", () => {
+  it("데이터가 성공적으로 로드되면 MapSidebar와 MapCanvas를 렌더링해야 한다", () => {
     (useGetLibsByISBN as jest.Mock).mockReturnValue({
       isLoading: false,
       data: [{ hasBook: true }],
@@ -144,8 +144,8 @@ describe("Map Component", () => {
     expect(screen.getByTestId("map-canvas")).toBeInTheDocument();
   });
 
-  it("shows toast warning when no libraries have the book", () => {
-    // Mock data where hasBook is false for all libraries
+  it("도서를 보유한 도서관이 없으면 경고 토스트를 표시해야 한다", () => {
+    // 모든 도서관이 도서를 보유하지 않은 상태로 모킹
      (useGetLibsByISBN as jest.Mock).mockReturnValue({
       isLoading: false,
       data: [{ hasBook: false }, { hasBook: false }],
@@ -158,16 +158,16 @@ describe("Map Component", () => {
     });
 
     render(<Map {...defaultProps} />);
-    // Verify toast warning is called with specific message
+    // 특정 메시지와 함께 토스트 경고가 호출되었는지 확인
     expect(toast.warning).toHaveBeenCalledWith("검색 결과가 없습니다.");
   });
 
-  it("does not render main content if location data (myLat/myLng) is missing", () => {
+  it("위치 정보(myLat/myLng)가 없으면 주요 컨텐츠를 렌더링하지 않아야 한다", () => {
      (useMapStore as unknown as jest.Mock).mockReturnValue({
         region: { code: "123" },
         dtl_region: { code: "456" },
         status: "idle",
-        myLat: undefined, // Missing location
+        myLat: undefined, // 위치 정보 누락
         myLng: undefined,
       });
 

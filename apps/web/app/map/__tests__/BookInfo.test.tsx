@@ -9,7 +9,7 @@ jest.mock("next/image", () => ({
   },
 }));
 
-describe("BookInfo Component", () => {
+describe("BookInfo 컴포넌트", () => {
   // 테스트에 사용할 기본 책 정보 객체
   const mockBook: Book = {
     authors: "테스트 저자",
@@ -21,7 +21,7 @@ describe("BookInfo Component", () => {
     vol: "1권",
   };
 
-  it("should render all book information correctly when all props are provided", () => {
+  it("모든 prop이 제공되었을 때 모든 도서 정보를 올바르게 렌더링해야 한다", () => {
     render(<BookInfo book={mockBook} />);
 
     // 1. 책 제목과 권(vol) 정보가 올바르게 표시되는지 확인
@@ -42,7 +42,7 @@ describe("BookInfo Component", () => {
     expect(screen.getByText(`ISBN: ${mockBook.isbn}`)).toBeInTheDocument();
   });
 
-  it("should display a placeholder when bookImageURL is not provided", () => {
+  it("bookImageURL이 제공되지 않았을 때 플레이스홀더를 표시해야 한다", () => {
     // bookImageURL이 없는 mock 데이터 생성
     const bookWithoutImage = { ...mockBook, bookImageURL: "" };
     render(<BookInfo book={bookWithoutImage} />);
@@ -54,7 +54,7 @@ describe("BookInfo Component", () => {
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
-  it("should not display volume information if 'vol' is not provided", () => {
+  it("'vol' 정보가 제공되지 않았을 때 권 정보를 표시하지 않아야 한다", () => {
     // vol이 없는 mock 데이터 생성
     const bookWithoutVol = { ...mockBook, vol: "" };
     render(<BookInfo book={bookWithoutVol} />);

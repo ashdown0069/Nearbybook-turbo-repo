@@ -1,16 +1,20 @@
-import { setCookie, deleteCookie } from "cookies-next";
+/**
+ * 계획중, 회원 기능
+ */
 
-const COOKIE_OPTIONS = {
-  maxAge: 60 * 60 * 24 * 7,
-  path: "/",
-};
+// import { setCookie, deleteCookie } from "cookies-next";
 
-export function setAuthCookies(accessToken: string, refreshToken: string) {
-  setCookie("accessToken", accessToken, COOKIE_OPTIONS);
-  setCookie("refreshToken", refreshToken, COOKIE_OPTIONS);
-}
+// const COOKIE_OPTIONS = {
+//   maxAge: 60 * 60 * 24 * 7,
+//   path: "/",
+// };
 
-export function clearAuthCookies() {
-  deleteCookie("accessToken", { path: "/" });
-  deleteCookie("refreshToken", { path: "/" });
-}
+// export function setAuthCookies(accessToken: string, refreshToken: string) {
+//   setCookie("accessToken", accessToken, COOKIE_OPTIONS);
+//   setCookie("refreshToken", refreshToken, COOKIE_OPTIONS);
+// }
+
+// export function clearAuthCookies() {
+//   deleteCookie("accessToken", { path: "/" });
+//   deleteCookie("refreshToken", { path: "/" });
+// }

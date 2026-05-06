@@ -1,62 +1,65 @@
 import { createAxiosInstance } from "@repo/data-access";
-import { getCookie } from "cookies-next";
-import { setAuthCookies, clearAuthCookies } from "./auth";
+// import { getCookie } from "cookies-next";
+// import { setAuthCookies, clearAuthCookies } from "./auth";
 
 export const axiosInstance = createAxiosInstance(
   process.env.NEXT_PUBLIC_BACKEND_URL!,
 );
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const accessToken = getCookie("accessToken");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+/**
+ * 계획중, 로그인 상태에 따른 토큰 자동 갱신 로직
+ */
+// axiosInstance.interceptors.request.use(
+//   (config) => {
+//       const accessToken = getCookie("accessToken");
+//       if (accessToken) {
+//         config.headers.Authorization = `Bearer ${accessToken}`;
+//       }
+//       return config;
+//   },
+//   (error) => Promise.reject(error),
+// );
 
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+//     if (error.response?.status === 401 && !originalRequest._retry) {
+//       originalRequest._retry = true;
 
-      const refreshToken = getCookie("refreshToken");
+//       const refreshToken = getCookie("refreshToken");
 
-      if (!refreshToken) {
-        clearAuthCookies();
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
-        }
-        return Promise.reject(error);
-      }
+//       if (!refreshToken) {
+//         clearAuthCookies();
+//         if (typeof window !== "undefined") {
+//           window.location.href = "/auth/login";
+//         }
+//         return Promise.reject(error);
+//       }
 
-      try {
-        const response = await axiosInstance.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh`,
-          { refreshToken },
-        );
+//       try {
+//         const response = await axiosInstance.post(
+//           `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/refresh`,
+//           { refreshToken },
+//         );
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-          response.data;
+//         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+//           response.data;
 
-        setAuthCookies(newAccessToken, newRefreshToken);
+//         setAuthCookies(newAccessToken, newRefreshToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return axiosInstance(originalRequest);
-      } catch {
-        clearAuthCookies();
-        if (typeof window !== "undefined") {
-          window.location.href = "/auth/login";
-        }
-        return Promise.reject(error);
-      }
-    }
+//         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+//         return axiosInstance(originalRequest);
+//       } catch {
+//         clearAuthCookies();
+//         if (typeof window !== "undefined") {
+//           window.location.href = "/auth/login";
+//         }
+//         return Promise.reject(error);
+//       }
+//     }
 
-    return Promise.reject(error);
-  },
-);
+//     return Promise.reject(error);
+//   },
+// );

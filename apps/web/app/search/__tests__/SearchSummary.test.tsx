@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import SearchSummary from "../_components/SearchSummary";
 
-describe("SearchSummary component", () => {
-  it("should render the SearchSummary component correctly", () => {
+describe("SearchSummary 컴포넌트", () => {
+  it("SearchSummary 컴포넌트를 올바르게 렌더링해야 한다", () => {
     render(<SearchSummary numFound={10} />);
 
     expect(screen.getByText("10")).toBeInTheDocument();
   });
 
-  it("should render warning text when numFound is greater than 50", () => {
+  it("numFound가 50보다 클 때 경고 텍스트를 렌더링해야 한다", () => {
     render(<SearchSummary numFound={60} />);
 
     expect(

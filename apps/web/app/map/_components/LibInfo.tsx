@@ -9,7 +9,6 @@ export default function LibInfo({
   closed,
   operatingTime,
   tel,
-  libCode,
 }: Omit<Library, "hasBook" | "latitude" | "longitude">) {
   return (
     <div className="flex flex-col items-center gap-1 p-3">

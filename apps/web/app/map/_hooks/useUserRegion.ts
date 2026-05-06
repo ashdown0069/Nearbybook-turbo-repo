@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useMapStore } from "@/store/useMapStore";
 import type { Region } from "@/types/type";
@@ -26,30 +26,36 @@ export function useUserRegion({
     })),
   );
 
-  const updateRegionAndCookie = (
-    siDo: { code: string; name: string },
-    siGunGu: { code: string; name: string },
-  ) => {
-    setRegion(siDo, siGunGu);
+  const updateRegionAndCookie = useCallback(
+    (
+      siDo: { code: string; name: string },
+      siGunGu: { code: string; name: string },
+    ) => {
+      setRegion(siDo, siGunGu);
 
-    setRegionCookie({
-      region: siDo.code,
-      dtlRegion: siGunGu.code,
-    });
-  };
-
-  const setFallbackLocation = (msg?: string) => {
-    if (msg) {
-      toast.error(msg, {
-        style: { fontSize: "16px" },
-        duration: 5000,
-        descriptionClassName: "text-sm py-3",
-        description: "브라우저의 위치 정보 권한을 확인해주세요.",
+      setRegionCookie({
+        region: siDo.code,
+        dtlRegion: siGunGu.code,
       });
-    }
-    setRegion(DEFAULT_REGION, DEFAULT_DISTRICT);
-    setStatus("success");
-  };
+    },
+    [setRegion],
+  );
+
+  const setFallbackLocation = useCallback(
+    (msg?: string) => {
+      if (msg) {
+        toast.error(msg, {
+          style: { fontSize: "16px" },
+          duration: 5000,
+          descriptionClassName: "text-sm py-3",
+          description: "브라우저의 위치 정보 권한을 확인해주세요.",
+        });
+      }
+      setRegion(DEFAULT_REGION, DEFAULT_DISTRICT);
+      setStatus("success");
+    },
+    [setRegion, setStatus],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -144,5 +150,13 @@ export function useUserRegion({
     return () => {
       cancelled = true;
     };
-  }, [regionProp, detailRegionProp]);
+  }, [
+    regionProp,
+    detailRegionProp,
+    setFallbackLocation,
+    setMyPosition,
+    setRegion,
+    setStatus,
+    updateRegionAndCookie,
+  ]);
 }
