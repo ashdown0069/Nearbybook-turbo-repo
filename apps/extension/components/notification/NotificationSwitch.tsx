@@ -33,7 +33,7 @@ export default function NotificationSwitch() {
         </div>
       </div>
       <Switch
-        checked={state.value?.isNotificationsEnabled}
+        checked={state.value?.isNotificationsEnabled ?? false}
         onCheckedChange={handleToggle}
         className="h-7 w-12 data-[state=checked]:bg-green-500"
         thumbClassName="h-6 w-6 data-[state=checked]:translate-x-5"
