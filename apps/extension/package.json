@@ -12,7 +12,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare || true"
+    "postinstall": ""
   },
   "dependencies": {
     "@repo/data-access": "*",
