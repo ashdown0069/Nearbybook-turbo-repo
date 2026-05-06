@@ -5,7 +5,8 @@ export const getLibsByISBNExtension = async (
   axiosInstance: AxiosInstance,
   isbn: string,
   region: string,
-  dtlRegion: string
+  dtlRegion: string,
+  signal?: AbortSignal,
 ) => {
   const response = await axiosInstance.get<Library[]>(
     "/libraries/searchbyisbn/extension",
@@ -15,7 +16,8 @@ export const getLibsByISBNExtension = async (
         region,
         dtlRegion,
       },
-    }
+      signal,
+    },
   );
 
   return response.data;

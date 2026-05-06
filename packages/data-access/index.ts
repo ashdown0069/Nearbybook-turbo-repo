@@ -27,9 +27,11 @@ import {
 } from "./services/books/searchBook";
 import { sendFeedback } from "./services/sendFeedBack";
 import {
+  getLibsList,
   useGetLibsList,
   useGetRegionLibsList,
 } from "./services/libraries/getLibsList";
+import { searchBookLocation } from "./services/books/searchBookLocation";
 import { getLibsByISBNExtension } from "./services/libraries/getLibsByISBNExtension";
 import { signup, useSignup } from "./services/auth/signup";
 import { login, useLogin } from "./services/auth/login";
@@ -38,9 +40,12 @@ import {
   getAutoCompleteResult,
   useGetAutoCompleteResult,
 } from "./services/meilisearch/autocomplete";
+import { getLibInfo } from "./services/libraries/getLibInfo";
 export {
   searchBook,
+  searchBookLocation,
   getLibsByISBNExtension,
+  getLibsList,
   useGetLibsList,
   useGetRegionLibsList,
   sendFeedback,
@@ -65,4 +70,5 @@ export {
   refreshToken,
   getAutoCompleteResult,
   useGetAutoCompleteResult,
+  getLibInfo,
 };

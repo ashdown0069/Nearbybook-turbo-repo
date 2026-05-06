@@ -31,6 +31,7 @@ import type {
   MonthlyKeywordsResponse,
   ReadQtResponse,
   NewArrivalBookResponse,
+  searchBookLocationResponse,
 } from "./LibBigdataApiResponse";
 
 import { NaverBookAdvResponse } from "./NaverBookApi";
@@ -68,5 +69,6 @@ export type {
   MonthlyKeywordsResponse,
   ReadQtResponse,
   NewArrivalBookResponse,
+  searchBookLocationResponse,
   NaverBookAdvResponse,
 };

@@ -514,3 +514,11 @@ export interface NewArrivalBookResponse {
     }[];
   };
 }
+
+//20. 2번 요청에 대한 응답변형
+export interface searchBookLocationResponse {
+  hasBook: boolean;
+  libName: string;
+  shelfLocation: string;
+  bookCode: string;
+}
