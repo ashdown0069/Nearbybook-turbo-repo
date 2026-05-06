@@ -9,7 +9,7 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { BookDto, BooksResponseDto } from './dto/res/books.dto';
 import { AutoCompleteDto } from './dto/req/autocomplete.dto';
 import { AutocompleteResponseDto } from './dto/res/autocomplete.dto';
-import { SearchBookLocationDto } from './dto/req/search-book-location.dto.ts';
+import { SearchBookLocationDto } from './dto/req/search-book-location.dto';
 
 @Controller('books')
 export class BooksController {
