@@ -57,3 +57,4 @@ packages/types/src/**/*.js.map
 # temp
 apps/scraper
 docs
+*.pdf
