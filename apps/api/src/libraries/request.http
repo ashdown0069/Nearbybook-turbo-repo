@@ -12,3 +12,6 @@ GET http://api.nearbybook.kr/libraries/searchbyregion?region=11
 
 ### 도서관 찾기 구, 군 기준
 GET http://localhost:4001/libraries/searchbyregion?region=11&dtlRegion=11060
+
+### 도서관 코드로 특정 도서관 정보 가져오기
+GET http://localhost:4001/libraries/getLibInfo?libCode=111020

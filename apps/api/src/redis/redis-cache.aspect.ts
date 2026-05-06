@@ -37,7 +37,14 @@ export class RedisCacheAspect implements LazyDecorator<any, RedisCacheOptions> {
         this.logger.error(`Redis GET 실패, 원본 실행: ${error}`);
       }
 
-      const result = await method(...args);
+      const result = await (async () => {
+        try {
+          return await method(...args);
+        } catch (e) {
+          console.error(`[Aspect] Error during method execution:`, e);
+          throw e;
+        }
+      })();
 
       if (result != null) {
         try {

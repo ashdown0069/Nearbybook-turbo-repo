@@ -13,7 +13,7 @@ export class CommonService {
   ) {
     //dev 환경에서는 비활성화
     if (process.env.NODE_ENV === 'development') {
-      console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+      console.log('개발 환경 sendMessageToDiscord 실행됨', title, description);
       return true;
     }
     feedbackEmail = feedbackEmail ?? '없음'; // feedbackEmail이 undefined 또는 null이면 'test'를 할당

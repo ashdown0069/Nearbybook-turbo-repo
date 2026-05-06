@@ -123,4 +123,21 @@ export class LibrariesDbService {
       );
     }
   }
+
+  async findByLibCode(libCode: string) {
+    try {
+      const result = await this.db
+        .select()
+        .from(schema.libraries)
+        .where(eq(schema.libraries.libCode, libCode))
+        .limit(1);
+
+      return result[0] || null;
+    } catch (error) {
+      this.logger.error('findByLibCode Error', error);
+      throw new InternalServerErrorException(
+        'DB에서 도서관 데이터를 가져오는 데 실패했습니다',
+      );
+    }
+  }
 }

@@ -41,6 +41,10 @@ export class MeiliSearchTaskService {
   })
   @RedisLock({ key: 'cron:bookScraper', ttlSeconds: 3600 })
   async monthStartBookScrapingJob() {
+    if (process.env.NODE_ENV === 'development') {
+      this.logger.warn('개발 환경에서는 작업을 건너뜁니다.');
+      return;
+    }
     const updatedRecords = await this.saveScrapedDataToDB().catch(() => null);
     if (!updatedRecords) return;
 

@@ -26,6 +26,10 @@ export class GovLibraryBigDataTaskService {
   })
   @RedisLock({ key: 'cron:libraryRefresh', ttlSeconds: 3600 })
   async refreshLibraries() {
+    if (process.env.NODE_ENV === 'development') {
+      this.logger.warn('개발 환경에서는 작업을 건너뜁니다.');
+      return;
+    }
     this.logger.log('도서관 정보 최신화 시작...');
 
     try {
@@ -96,9 +100,7 @@ export class GovLibraryBigDataTaskService {
               dtlCode,
             );
             total += libs.length;
-            this.logger.log(
-              `${cityName} ${dtlName} ${libs.length}건 저장완료`,
-            );
+            this.logger.log(`${cityName} ${dtlName} ${libs.length}건 저장완료`);
           } catch (error) {
             this.logger.error(
               `[${dtlCode}] ${dtlName} DB 저장 실패`,

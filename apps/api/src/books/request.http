@@ -6,8 +6,9 @@ GET  http://localhost:4001/books/search?query=9791194383437&mode=isbn&pageNo=1
 //책 1개 상세검색
 //9788409783076
 //9791141602451
+//9788936439743
 ###
-GET  http://localhost:4001/books/search/9788936439743
+GET  http://localhost:4001/books/search/9791141602451
 
 //배포판
 ###
@@ -35,3 +36,7 @@ GET  http://localhost:4001/books/searchNaver/9788936439743
 
 ###
 GET  http://localhost:4001/books/tracking/9791141602451
+
+
+###
+GET  http://localhost:4001/books/searchBookLocation?isbn=9791141602451&libCode=111445&pageNo=1

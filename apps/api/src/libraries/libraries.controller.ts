@@ -53,4 +53,11 @@ export class LibrariesController {
       query.dtlRegion ? query.dtlRegion.toString() : undefined,
     );
   }
+
+  //extension에서 도서관 코드로 도서관 정보 가져오기용
+  @Serialize(LibraryResponseDto)
+  @Get('/getLibInfo')
+  async getLibInfo(@Query('libCode') libCode: string) {
+    return await this.librariesDbService.findByLibCode(libCode);
+  }
 }

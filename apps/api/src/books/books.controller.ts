@@ -9,6 +9,7 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { BookDto, BooksResponseDto } from './dto/res/books.dto';
 import { AutoCompleteDto } from './dto/req/autocomplete.dto';
 import { AutocompleteResponseDto } from './dto/res/autocomplete.dto';
+import { SearchBookLocationDto } from './dto/req/search-book-location.dto.ts';
 
 @Controller('books')
 export class BooksController {
@@ -35,7 +36,10 @@ export class BooksController {
     );
   }
 
-  @UseInterceptors(CacheInterceptor)
+  /**
+   *  @UseInterceptors(CacheInterceptor)
+   * 컨트롤러에 캐싱추가하면 안됨, 서비스로직에서 가지고있음
+   */
   @Serialize(BookDto)
   @Get('/search/:isbn')
   async searchBook(@Param('isbn') isbn: string) {
@@ -66,6 +70,16 @@ export class BooksController {
   @Get('/popularloanbooks')
   async getPopularLoanBooks() {
     return await this.booksService.getPopularLoanBooks();
+  }
+
+  // @UseInterceptors(CacheInterceptor)
+  @Get('/searchBookLocation')
+  async searchBookLocation(@Query() query: SearchBookLocationDto) {
+    return await this.booksService.searchBookLocation(
+      query.libCode,
+      query.isbn,
+      query.pageNo,
+    );
   }
 
   @Get('searchNaver/:isbn')

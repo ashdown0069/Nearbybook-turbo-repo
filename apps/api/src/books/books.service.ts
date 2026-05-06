@@ -13,12 +13,17 @@ import { CommonService } from 'src/common/common.service';
 import { formatDate, getDateRange } from 'src/utils';
 import { XMLParser } from 'fast-xml-parser';
 import { RedisCache } from 'src/redis/redis-cache.decorator';
-import { SrchDtlListResponse, NaverBookAdvResponse } from '@repo/types';
-import { REDIS_CLIENT } from 'src/constant/tokens';
+import {
+  NaverBookAdvResponse,
+  ItemSrchResponse,
+  BookExistResponse,
+} from '@repo/types';
+import { REDIS_CLIENT, REDIS_KEYS } from 'src/constant/tokens';
 import Redis from 'ioredis';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { BookDto } from './dto/res/books.dto';
 import { BookRecord } from 'src/database/schema';
+import { SearchBookLocationDto } from './dto/req/search-book-location.dto';
 
 @Injectable()
 export class BooksService {
@@ -34,7 +39,7 @@ export class BooksService {
    * 책 검색으로는 검색결과가 없지만 도서 소장 도서관 검색에는
    * 도서가 검색되는 경우가 있어 Naver api로 한번 더 검색
    */
-  // @RedisCache({ ttl: 3600 })
+  @RedisCache({ ttl: 3600 })
   async searchBook__naver(isbn: searchBookDto['isbn']) {
     try {
       const resultXML = await this.httpService.axiosRef.get(
@@ -101,12 +106,12 @@ export class BooksService {
 
       const detail = response.detail;
       if (!Array.isArray(detail) || detail.length === 0) {
-        return this.searchBook__naver(isbn);
+        return await this.searchBook__naver(isbn);
       }
 
       const foundBook = detail[0]?.book;
       if (!foundBook) {
-        return this.searchBook__naver(isbn);
+        return await this.searchBook__naver(isbn);
       }
       return foundBook;
     } catch (error) {
@@ -121,6 +126,61 @@ export class BooksService {
       }
     }
   }
+
+  async searchBookLocation(
+    libCode: SearchBookLocationDto['libCode'],
+    isbn: SearchBookLocationDto['isbn'],
+    pageNo: SearchBookLocationDto['pageNo'] = 1,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.httpService.get(`/itemSrch`, {
+          params: {
+            type: 'ALL',
+            libCode: libCode,
+            isbn13: isbn,
+            authKey: process.env.LIBRARY_BIGDATA_API_KEY,
+            pageSize: 12,
+            format: 'json',
+            pageNo: pageNo,
+          },
+        }),
+      );
+
+      const response = result.data.response as ItemSrchResponse;
+      if (+response.resultNum <= 0) {
+        return {
+          hasBook: false,
+          libName: response.libNm,
+          shelfLocation: '',
+          bookCode: '',
+        };
+      }
+      const bookCode =
+        response.docs[0].doc.class_no +
+        '-' +
+        response.docs[0].doc.callNumbers[0].callNumber.book_code;
+      const shelfLocation =
+        response.docs[0].doc.callNumbers[0].callNumber.shelf_loc_name;
+      const libName = response.libNm;
+
+      return {
+        hasBook: true,
+        libName,
+        shelfLocation,
+        bookCode,
+      };
+    } catch (error) {
+      this.logger.error('searchBookLocation service error', error);
+      await this.commonService.sendMessageToDiscord(
+        'searchBookLocation service error',
+        JSON.stringify(error),
+        'Error',
+      );
+      throw new InternalServerErrorException('can not get library book list');
+    }
+  }
+
   @Serialize(BookDto)
   async searchBooks(
     mode: searchBooksDto['mode'],
@@ -259,7 +319,10 @@ export class BooksService {
     }
   }
 
-  async getBookLoanStatus(isbn: string, libCode: number) {
+  async getBookLoanStatus(
+    isbn: string,
+    libCode: number,
+  ): Promise<BookExistResponse['result']> {
     try {
       const response = await lastValueFrom(
         this.httpService.get(`/bookExist`, {
@@ -316,15 +379,16 @@ export class BooksService {
     }
   }
 
-  async _trackingBook(isbn: string,book:BookRecord) {
-
+  async _trackingBook(isbn: string, book: BookRecord) {
     if (Object.keys(book).length === 0) {
       this.logger.warn(`trackingBook: Book not found for ISBN ${isbn}`);
       return;
     }
     try {
-      await this.redis.hincrby('popularity:count', isbn, 1);
-      await this.redis.hsetnx('popularity:meta', isbn, JSON.stringify(book));
+      const pipeline = this.redis.pipeline();
+      pipeline.hincrby(REDIS_KEYS.POPULARITY_COUNT, isbn, 1);
+      pipeline.hsetnx(REDIS_KEYS.POPULARITY_META, isbn, JSON.stringify(book));
+      await pipeline.exec();
     } catch (error) {
       this.logger.error('trackBook error', error);
     }

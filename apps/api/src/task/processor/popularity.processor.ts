@@ -34,10 +34,7 @@ export class PopularityProcessor extends WorkerHost {
       .replace(/[: ]/g, '-')
       .replace('T', '-');
     if (!countExists || !metaExists) {
-      this.logger.log(`popularity processor: no data to process, ${date}`);
-      // 한쪽만 있는 경우 정리
-      if (countExists) await this.redis.del(REDIS_KEYS.POPULARITY_COUNT);
-      if (metaExists) await this.redis.del(REDIS_KEYS.POPULARITY_META);
+      this.logger.log(`popularity processor: skipping process, missing count or meta, ${date}`);
       return;
     }
 
@@ -55,7 +52,11 @@ export class PopularityProcessor extends WorkerHost {
         REDIS_KEYS.POPULARITY_META,
         REDIS_KEYS.POPULARITY_META_PROCESSING,
       );
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message?.includes('ERR no such key')) {
+        this.logger.log(`popularity processor: key already processed or missing during rename, skipping`);
+        return;
+      }
       this.logger.warn('popularity processor: rename failed', error);
       return;
     }
