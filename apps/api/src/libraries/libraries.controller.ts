@@ -15,7 +15,7 @@ export class LibrariesController {
   ) {}
 
   //도서(isbn사용) 소장 도서관 검색 (지역 전체 도서관 리턴)
-  @CacheTTL(60 * 30)
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
   @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
   @Get('/searchbyisbn')
@@ -42,7 +42,9 @@ export class LibrariesController {
   }
 
   //공공 도서관 찾기용
-  // @Serialize(LibraryResponseDto)
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @UseInterceptors(CacheInterceptor)
+  @Serialize(LibraryResponseDto)
   @Get('/searchbyregion')
   async findLibrariesByRegion(
     @Query()
@@ -55,6 +57,7 @@ export class LibrariesController {
   }
 
   //extension에서 도서관 코드로 도서관 정보 가져오기용
+  @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
   @Get('/getLibInfo')
   async getLibInfo(@Query('libCode') libCode: string) {

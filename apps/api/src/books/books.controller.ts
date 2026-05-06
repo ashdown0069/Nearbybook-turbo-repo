@@ -15,7 +15,7 @@ import { SearchBookLocationDto } from './dto/req/search-book-location.dto';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
-  //메일리서치 자동완성
+  //메일리서치 자동완성, 캐싱 x
   @Get('/autocomplete')
   @Serialize(AutocompleteResponseDto)
   async getAutocompleteSuggestions(@Query() query: AutoCompleteDto) {
@@ -37,7 +37,6 @@ export class BooksController {
   }
 
   /**
-   *  @UseInterceptors(CacheInterceptor)
    * 컨트롤러에 캐싱추가하면 안됨, 서비스로직에서 가지고있음
    */
   @Serialize(BookDto)
@@ -72,7 +71,8 @@ export class BooksController {
     return await this.booksService.getPopularLoanBooks();
   }
 
-  // @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @UseInterceptors(CacheInterceptor)
   @Get('/searchBookLocation')
   async searchBookLocation(@Query() query: SearchBookLocationDto) {
     return await this.booksService.searchBookLocation(
@@ -91,10 +91,4 @@ export class BooksController {
     }
     return await this.booksService.searchBook__naver(isbn);
   }
-
-  //컨트롤러로 노출되면 안됨 추후 삭제
-  // @Get('/tracking/:isbn')
-  // async trackingBook(@Param('isbn') isbn: string) {
-  //   return await this.booksService._trackingBook(isbn);
-  // }
 }
