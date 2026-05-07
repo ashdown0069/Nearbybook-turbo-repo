@@ -2,11 +2,7 @@ import type { libraryResult } from "@/types/types";
 import FoundAtLibrary from "./FoundAtLibrary";
 import NotFoundAtLibrary from "./NotFoundAtLibrary";
 
-export default function LibraryTab({
-  data,
-}: {
-  data: libraryResult | null;
-}) {
+export default function LibraryTab({ data }: { data: libraryResult | null }) {
   if (!data) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-slate-400">
@@ -30,6 +26,7 @@ export default function LibraryTab({
         loanAvailable={data.loanAvailable}
         bookCode={data.bookCode}
         shelfLocation={data.shelfLocation}
+        address={data.address}
       />
     </div>
   );

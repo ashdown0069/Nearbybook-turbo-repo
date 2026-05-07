@@ -19,8 +19,8 @@ export default defineBackground(() => {
   });
 
   browser.tabs.onActivated.addListener(async (activeInfo) => {
-    controller.abort(); // 이전 요청 취소
-    controller = new AbortController(); // 새로운 컨트롤러 생성
+    // controller.abort(); // 이전 요청 취소
+    // controller = new AbortController(); // 새로운 컨트롤러 생성
     await handleTabActivation(
       activeInfo.tabId,
       notifiedTabs,
@@ -31,16 +31,16 @@ export default defineBackground(() => {
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.url?.startsWith("chrome://")) return;
     if (changeInfo.status === "complete" && tab.active) {
-      controller.abort(); // 이전 요청 취소
-      controller = new AbortController(); // 새로운 컨트롤러 생성
+      // controller.abort(); // 이전 요청 취소
+      // controller = new AbortController(); // 새로운 컨트롤러 생성
       await handleTabActivation(tabId, notifiedTabs, controller.signal);
     }
   });
 
   // 3. 팝업 연결 핸들러
   browser.runtime.onConnect.addListener(async (port) => {
-    controller.abort(); // 이전 요청 취소
-    controller = new AbortController(); // 새로운 컨트롤러 생성
+    // controller.abort(); // 이전 요청 취소
+    // controller = new AbortController(); // 새로운 컨트롤러 생성
     console.log("onConnect 이벤트 발생, 포트 이름:", port.name);
     await handlePopupConnect(port, notifiedTabs, controller.signal);
   });
