@@ -80,7 +80,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster richColors position="top-center" />
+        <Toaster
+          richColors
+          position="top-center"
+          swipeDirections={["left", "right"]}
+        />
         <QueryProvider>{children}</QueryProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
         {process.env.NODE_ENV === "production" && <SpeedInsights />}

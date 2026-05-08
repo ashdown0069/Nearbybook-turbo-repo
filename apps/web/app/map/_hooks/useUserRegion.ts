@@ -13,6 +13,7 @@ import {
 
 const DEFAULT_REGION = { code: "11", name: "서울특별시" };
 const DEFAULT_DISTRICT = { code: "11010", name: "종로구" };
+const DEFAULT_COORDS = { lat: 37.57295, lng: 126.979357 }; // 서울 시청
 
 export function useUserRegion({
   region: regionProp,
@@ -52,9 +53,10 @@ export function useUserRegion({
         });
       }
       setRegion(DEFAULT_REGION, DEFAULT_DISTRICT);
+      setMyPosition(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
       setStatus("success");
     },
-    [setRegion, setStatus],
+    [setRegion, setStatus, setMyPosition],
   );
 
   useEffect(() => {
