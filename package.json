@@ -7,8 +7,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "prepare": "husky",
-    "postinstall": "npm install rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
