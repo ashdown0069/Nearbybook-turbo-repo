@@ -14,7 +14,7 @@ WORKDIR /app
 
 # 패키지 설정 파일 복사 및 의존성 설치
 COPY --from=prepare /app/out/json/ .
-RUN rm -f package-lock.json && npm install
+RUN npm ci
 
 # 전체 소스 코드 복사 및 빌드
 COPY --from=prepare /app/out/full/ .
