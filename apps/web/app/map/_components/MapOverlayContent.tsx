@@ -21,17 +21,6 @@ export default function MapOverlayContent({
   const isWide = useMedia("(min-width: 480px)")
   const [isOpen, setIsOpen] = useState(false)
 
-  // const closeDrawer = useCallback(() => {
-  //   setIsOpen(false)
-  // }, [])
-
-  // const onPopState = useCallback(() => {
-  //   if (isWide && isOpen) {
-  //     window.history.forward()
-  //   }
-  //   closeDrawer()
-  // }, [isWide, isOpen, closeDrawer])
-
   if (!isWide) {
     return (
       <MapDrawer
@@ -46,7 +35,6 @@ export default function MapOverlayContent({
         hasBook={hasBook}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        // onPopState={onPopState}
       />
     )
   }
