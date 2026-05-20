@@ -10,5 +10,5 @@ export default function LoadingSpinner() {
         strokeWidth="5"
       ></circle>
     </svg>
-  );
+  )
 }

@@ -1,12 +1,12 @@
-import { createDecorator } from '@toss/nestjs-aop';
+import { createDecorator } from "@toss/nestjs-aop"
 
-export const REDIS_LOCK_DECORATOR = Symbol('REDIS_LOCK_DECORATOR');
+export const REDIS_LOCK_DECORATOR = Symbol("REDIS_LOCK_DECORATOR")
 
 export interface RedisLockOptions {
   /** 락 키 (예: 'cron:bookScraper') */
-  key: string;
+  key: string
   /** 락 TTL (초). 작업 예상 최대 소요시간의 2배로 설정 권장 */
-  ttlSeconds: number;
+  ttlSeconds: number
 }
 
 /**
@@ -17,4 +17,4 @@ export interface RedisLockOptions {
  * async handleCron() { ... }
  */
 export const RedisLock = (options: RedisLockOptions) =>
-  createDecorator(REDIS_LOCK_DECORATOR, options);
+  createDecorator(REDIS_LOCK_DECORATOR, options)

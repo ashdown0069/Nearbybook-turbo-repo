@@ -5,10 +5,10 @@
 //   CardFooter,
 //   CardHeader,
 //   CardTitle,
-// } from "@repo/ui/components/card";
+// } from "@workspace/ui/components/card";
 
 // import React from "react";
-// import { Book } from "@repo/types";
+// import { Book } from "@workspace/types";
 // import Image from "next/image";
 // import { ImageIcon } from "lucide-react";
 

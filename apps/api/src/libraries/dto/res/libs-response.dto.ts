@@ -1,36 +1,36 @@
-import { Expose } from 'class-transformer';
+import { Expose } from "class-transformer"
 
 export class LibraryResponseDto {
   @Expose()
-  hasBook: boolean;
+  hasBook: boolean
 
   @Expose()
-  libCode: string;
+  libCode: string
 
   @Expose()
-  libName: string;
+  libName: string
 
   @Expose()
-  address: string;
+  address: string
 
   @Expose()
-  tel: string;
+  tel: string
 
   @Expose()
-  fax: string;
+  fax: string
 
   @Expose()
-  latitude: string;
+  latitude: string
 
   @Expose()
-  longitude: string;
+  longitude: string
 
   @Expose()
-  homepage: string;
+  homepage: string
 
   @Expose()
-  closed: string;
+  closed: string
 
   @Expose()
-  operatingTime: string;
+  operatingTime: string
 }

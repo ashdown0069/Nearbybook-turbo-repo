@@ -1,4 +1,4 @@
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 
 export interface district {
   name: string;

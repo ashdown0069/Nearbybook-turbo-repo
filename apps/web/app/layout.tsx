@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import QueryProvider from "@/components/providers/QueryProvider";
-import { Toaster } from "@repo/ui/components/sonner";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import setupPreconnect from "@/lib/setupPreconnect";
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import QueryProvider from "@/components/providers/QueryProvider"
+import { Toaster } from "@workspace/ui/components/sonner"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
+import "@workspace/ui/globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
+})
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nearbybook.kr"),
@@ -67,16 +67,23 @@ export const metadata: Metadata = {
     "naver-site-verification": "fd7a5241bb1117aa50198b99b3a8793bd94c553e",
     "google-site-verification": "NuiHvK8Jv1J0x3YNrz-vO08kJnbRtIHjyBAf1B6AnTE",
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
-  setupPreconnect();
   return (
     <html lang="ko">
+      <head>
+        <link rel="preconnect" href="https://api.nearbybook.kr" />
+        <link rel="preconnect" href="https://search.nearbybook.kr" />
+        <link rel="preconnect" href="https://image.aladin.co.kr" />
+        <link rel="preconnect" href="http://image.aladin.co.kr" />
+        <link rel="preconnect" href="http://shopping-phinf.pstatic.net" />
+        <link rel="preconnect" href="https://bookthumb-phinf.pstatic.net" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -85,10 +92,12 @@ export default function RootLayout({
           position="top-center"
           swipeDirections={["left", "right"]}
         />
-        <QueryProvider>{children}</QueryProvider>
-        {process.env.NODE_ENV === "production" && <Analytics />}
-        {process.env.NODE_ENV === "production" && <SpeedInsights />}
+        <QueryProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </QueryProvider>
+        {process.env.NODE_ENV === "production" ? <Analytics /> : null}
+        {process.env.NODE_ENV === "production" ? <SpeedInsights /> : null}
       </body>
     </html>
-  );
+  )
 }

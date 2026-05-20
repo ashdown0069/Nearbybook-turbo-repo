@@ -2,7 +2,7 @@ import {
   Tooltip as TooltipContainer,
   TooltipContent,
   TooltipTrigger,
-} from "@repo/ui/components/tooltip";
+} from "@workspace/ui/components/tooltip"
 
 export default function Tooltip({
   children,
@@ -10,10 +10,10 @@ export default function Tooltip({
   contentClassName,
   triggerClassName,
 }: {
-  children: React.ReactNode;
-  tooltipText: string;
-  triggerClassName?: string;
-  contentClassName?: string;
+  children: React.ReactNode
+  tooltipText: string
+  triggerClassName?: string
+  contentClassName?: string
 }) {
   return (
     <TooltipContainer>
@@ -24,5 +24,5 @@ export default function Tooltip({
         {tooltipText}
       </TooltipContent>
     </TooltipContainer>
-  );
+  )
 }

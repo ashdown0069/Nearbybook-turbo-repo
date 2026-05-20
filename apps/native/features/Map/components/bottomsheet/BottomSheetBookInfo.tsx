@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { Book } from "@repo/types";
+import { Book } from "@workspace/types";
 import { Bookmark, BookPlus } from "lucide-react-native";
 import Button from "@/components/Button";
 import { useBookDataBase } from "@/db/service/Book";

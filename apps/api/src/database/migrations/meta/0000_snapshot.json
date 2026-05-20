@@ -62,9 +62,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -145,12 +143,8 @@
           "name": "refresh_tokens_user_id_users_id_fk",
           "tableFrom": "refresh_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -279,9 +273,7 @@
         "books_isbn_unique": {
           "name": "books_isbn_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "isbn"
-          ]
+          "columns": ["isbn"]
         }
       },
       "policies": {},
@@ -340,12 +332,8 @@
           "name": "detail_regions_region_code_regions_code_fk",
           "tableFrom": "detail_regions",
           "tableTo": "regions",
-          "columnsFrom": [
-            "region_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["region_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -355,9 +343,7 @@
         "detail_regions_dtl_region_code_unique": {
           "name": "detail_regions_dtl_region_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "dtl_region_code"
-          ]
+          "columns": ["dtl_region_code"]
         }
       },
       "policies": {},
@@ -464,12 +450,8 @@
           "name": "libraries_region_code_regions_code_fk",
           "tableFrom": "libraries",
           "tableTo": "regions",
-          "columnsFrom": [
-            "region_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
+          "columnsFrom": ["region_code"],
+          "columnsTo": ["code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -477,12 +459,8 @@
           "name": "libraries_dtl_region_code_detail_regions_dtl_region_code_fk",
           "tableFrom": "libraries",
           "tableTo": "detail_regions",
-          "columnsFrom": [
-            "dtl_region_code"
-          ],
-          "columnsTo": [
-            "dtl_region_code"
-          ],
+          "columnsFrom": ["dtl_region_code"],
+          "columnsTo": ["dtl_region_code"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -492,9 +470,7 @@
         "libraries_lib_code_unique": {
           "name": "libraries_lib_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "lib_code"
-          ]
+          "columns": ["lib_code"]
         }
       },
       "policies": {},
@@ -542,9 +518,7 @@
         "regions_code_unique": {
           "name": "regions_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},

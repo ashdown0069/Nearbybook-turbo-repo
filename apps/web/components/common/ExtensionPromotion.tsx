@@ -1,24 +1,22 @@
-"use client";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
+"use client"
+import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useMountedState } from "react-use"
 
 export default function ExtensionPromotion({
   className,
 }: {
-  className?: string;
+  className?: string
 }) {
-  const [extensionStoreUrl, setExtensionStoreUrl] = useState<string>();
-  useEffect(() => {
-    //whale 브라우저일 경우 웨일스토어로 이동
-    //아니면 크롬 웹스토어로 이동
-    const agent = window.navigator.userAgent;
-    if (agent.includes("Whale")) {
-      setExtensionStoreUrl(process.env.NEXT_PUBLIC_EXTENSION_WHALE_STORE_URL);
-    } else {
-      setExtensionStoreUrl(process.env.NEXT_PUBLIC_EXTENSION_STORE_URL);
-    }
-  }, []);
+  const isMounted = useMountedState()
+
+  const extensionStoreUrl =
+    isMounted() &&
+    typeof window !== "undefined" &&
+    window.navigator.userAgent.includes("Whale")
+      ? process.env.NEXT_PUBLIC_EXTENSION_WHALE_STORE_URL
+      : process.env.NEXT_PUBLIC_EXTENSION_STORE_URL
+
   return (
     <Link
       href={extensionStoreUrl || "#"}
@@ -26,7 +24,7 @@ export default function ExtensionPromotion({
       rel="noopener noreferrer"
       className={cn(
         "block rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-100",
-        className,
+        className
       )}
     >
       <div className="flex items-center">
@@ -37,5 +35,5 @@ export default function ExtensionPromotion({
         </p>
       </div>
     </Link>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 import { keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
 

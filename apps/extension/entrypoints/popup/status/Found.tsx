@@ -1,5 +1,5 @@
-import { Button } from "@repo/ui/components/button";
-import { CheckCircle2 } from "lucide-react";
+import { Button } from "@workspace/ui/components/button"
+import { CheckCircle2 } from "lucide-react"
 
 export default function Found({
   title,
@@ -8,13 +8,13 @@ export default function Found({
   detailRegion,
   isbn,
 }: {
-  title: string;
-  foundLibsLen: number;
-  region: string;
-  detailRegion: string;
-  isbn: string;
+  title: string
+  foundLibsLen: number
+  region: string
+  detailRegion: string
+  isbn: string
 }) {
-  const ExternalSiteURL = `${import.meta.env.WXT_EXTERNAL_URL}/map?isbn=${isbn}&region=${region}&dtl_region=${detailRegion}`;
+  const ExternalSiteURL = `${import.meta.env.WXT_EXTERNAL_URL}/map?isbn=${isbn}&region=${region}&dtl_region=${detailRegion}`
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-5 px-3">
@@ -25,21 +25,21 @@ export default function Found({
             {foundLibsLen}곳에서 찾았어요
           </span>
         </div>
-        <p className="max-w-56 text-center text-base font-bold">{title}</p>
+        <p className="max-w-56 text-center text-xl font-bold">{title}</p>
       </div>
-      <div className="w-full max-w-56 space-y-2">
+      <div className="w-full max-w-64 space-y-2">
         <Button
           asChild
-          className="w-full cursor-pointer bg-green-500 hover:bg-green-400"
+          className="w-full cursor-pointer bg-green-500 p-5 hover:bg-green-400!"
         >
           <a href={ExternalSiteURL} target="_blank" rel="noopener noreferrer">
             소장 도서관 보기
           </a>
         </Button>
         <p className="text-center text-xs text-slate-400">
-          외부 지도 사이트로 이동
+          외부 지도 사이트로 이동합니다.
         </p>
       </div>
     </div>
-  );
+  )
 }

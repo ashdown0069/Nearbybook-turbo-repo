@@ -1,31 +1,31 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useDebounce } from "react-use";
-import { BookOpen } from "lucide-react";
-import { useGetAutoCompleteResult } from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
+import { useState } from "react"
+import { useDebounce } from "react-use"
+import { BookOpen } from "lucide-react"
+import { useGetAutoCompleteResult } from "@workspace/data-access"
+import { axiosInstance } from "@/lib/axios"
 import {
   Command,
   CommandList,
   CommandGroup,
   CommandItem,
-} from "@repo/ui/components/command";
+} from "@workspace/ui/components/command"
 
 interface AutocompleteProps {
-  query: string;
-  mode: "title" | "isbn";
-  isOpen: boolean;
-  onSelect: (value: string) => void;
+  query: string
+  mode: "title" | "isbn"
+  isOpen: boolean
+  onSelect: (value: string) => void
 }
 
 interface Hit {
-  title: string;
-  isbn: string;
-  authors: string;
-  publisher: string;
-  publicationYear: string;
-  vol: string | null;
+  title: string
+  isbn: string
+  authors: string
+  publisher: string
+  publicationYear: string
+  vol: string | null
 }
 
 export default function Autocomplete({
@@ -34,17 +34,13 @@ export default function Autocomplete({
   isOpen,
   onSelect,
 }: AutocompleteProps) {
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("")
 
-  useDebounce(() => setDebouncedQuery(query), 300, [query]);
+  useDebounce(() => setDebouncedQuery(query), 300, [query])
 
-  const { data } = useGetAutoCompleteResult(
-    axiosInstance,
-    debouncedQuery,
-    mode,
-  );
+  const { data } = useGetAutoCompleteResult(axiosInstance, debouncedQuery, mode)
 
-  if (!isOpen || !data?.hits?.length) return null;
+  if (!isOpen || !data?.hits?.length) return null
 
   return (
     <div className="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
@@ -77,5 +73,5 @@ export default function Autocomplete({
         </CommandList>
       </Command>
     </div>
-  );
+  )
 }

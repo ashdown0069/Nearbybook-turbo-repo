@@ -1,22 +1,22 @@
-import { Switch } from "@repo/ui/components/switch";
-import useAsync from "react-use/lib/useAsync";
-import { Button } from "@repo/ui/components/button";
+import { Switch } from "@workspace/ui/components/switch"
+import { useAsync } from "react-use"
+import { Button } from "@workspace/ui/components/button"
 import {
   getNotifications,
   setNotifications,
   createNotification,
-} from "@/utils/storage/notification";
+} from "@/utils/storage/notification"
 
 export default function NotificationSwitch() {
   const handleToggle = async (checked: boolean) => {
-    return await setNotifications(checked);
-  };
-  const state = useAsync(getNotifications, [handleToggle]);
+    return await setNotifications(checked)
+  }
+  const state = useAsync(getNotifications, [handleToggle])
 
   //3번째 인수 TEST로 넣어야 버튼눌러도 리스너에서 반응안함
   const testNotification = () => {
-    return createNotification("알림 테스트", "잠시 후에 사라집니다.", "TEST");
-  };
+    return createNotification("알림 테스트", "잠시 후에 사라집니다.", "TEST")
+  }
 
   return (
     <div className="flex h-16 items-center justify-between p-5">
@@ -36,8 +36,8 @@ export default function NotificationSwitch() {
         checked={state.value?.isNotificationsEnabled ?? false}
         onCheckedChange={handleToggle}
         className="h-7 w-12 data-[state=checked]:bg-green-500"
-        thumbClassName="h-6 w-6 data-[state=checked]:translate-x-5"
+        // thumbClassName="h-6 w-6 data-[state=checked]:translate-x-5"
       />
     </div>
-  );
+  )
 }

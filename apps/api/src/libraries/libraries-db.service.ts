@@ -3,35 +3,35 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, sql } from 'drizzle-orm';
-import { DATABASE_CONNECTION } from 'src/database/database.provider';
-import * as schema from 'src/database/schema';
+} from "@nestjs/common"
+import { NodePgDatabase } from "drizzle-orm/node-postgres"
+import { and, eq, sql } from "drizzle-orm"
+import { DATABASE_CONNECTION } from "src/database/database.provider"
+import * as schema from "src/database/schema"
 
 // API 응답에서 넘어오는 도서관 데이터 형태
 // 공공 도서관 빅데이터 API는 모든 필드를 문자열로 반환
-export type LibraryApiData = Record<string, string>;
+export type LibraryApiData = Record<string, string>
 
 @Injectable()
 export class LibrariesDbService {
-  private readonly logger = new Logger(LibrariesDbService.name);
+  private readonly logger = new Logger(LibrariesDbService.name)
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: NodePgDatabase<typeof schema>
   ) {}
 
   async upsertLibrary(
     lib: LibraryApiData,
     regionCode: string,
-    dtlRegionCode: string | null,
+    dtlRegionCode: string | null
   ): Promise<void> {
     await this.db
       .insert(schema.libraries)
       .values({
         libCode: lib.libCode,
         libName: lib.libName,
-        address: lib.address ?? '',
+        address: lib.address ?? "",
         tel: lib.tel,
         fax: lib.fax,
         latitude: lib.latitude,
@@ -46,7 +46,7 @@ export class LibrariesDbService {
         target: schema.libraries.libCode,
         set: {
           libName: lib.libName,
-          address: lib.address ?? '',
+          address: lib.address ?? "",
           tel: lib.tel,
           fax: lib.fax,
           latitude: lib.latitude,
@@ -57,15 +57,15 @@ export class LibrariesDbService {
           regionCode,
           dtlRegionCode,
         },
-      });
+      })
   }
 
   async upsertLibraries(
     libs: LibraryApiData[],
     regionCode: string,
-    dtlRegionCode: string,
+    dtlRegionCode: string
   ): Promise<void> {
-    if (libs.length === 0) return;
+    if (libs.length === 0) return
 
     await this.db
       .insert(schema.libraries)
@@ -73,7 +73,7 @@ export class LibrariesDbService {
         libs.map((lib) => ({
           libCode: lib.libCode,
           libName: lib.libName,
-          address: lib.address ?? '',
+          address: lib.address ?? "",
           tel: lib.tel,
           fax: lib.fax,
           latitude: lib.latitude,
@@ -83,7 +83,7 @@ export class LibrariesDbService {
           operatingTime: lib.operatingTime,
           regionCode,
           dtlRegionCode,
-        })),
+        }))
       )
       .onConflictDoUpdate({
         target: schema.libraries.libCode,
@@ -100,7 +100,7 @@ export class LibrariesDbService {
           regionCode: sql`excluded.region_code`,
           dtlRegionCode: sql`excluded.dtl_region_code`,
         },
-      });
+      })
   }
 
   async findByRegionCode(region: string, dtlRegion?: string) {
@@ -113,14 +113,14 @@ export class LibrariesDbService {
             eq(schema.libraries.regionCode, region),
             dtlRegion
               ? eq(schema.libraries.dtlRegionCode, dtlRegion)
-              : undefined,
-          ),
-        );
+              : undefined
+          )
+        )
     } catch (error) {
-      this.logger.error('findByRegionCode Error', error);
+      this.logger.error("findByRegionCode Error", error)
       throw new InternalServerErrorException(
-        'DB에서 도서관 데이터를 가져오는 데 실패했습니다',
-      );
+        "DB에서 도서관 데이터를 가져오는 데 실패했습니다"
+      )
     }
   }
 
@@ -130,14 +130,14 @@ export class LibrariesDbService {
         .select()
         .from(schema.libraries)
         .where(eq(schema.libraries.libCode, libCode))
-        .limit(1);
+        .limit(1)
 
-      return result[0] || null;
+      return result[0] || null
     } catch (error) {
-      this.logger.error('findByLibCode Error', error);
+      this.logger.error("findByLibCode Error", error)
       throw new InternalServerErrorException(
-        'DB에서 도서관 데이터를 가져오는 데 실패했습니다',
-      );
+        "DB에서 도서관 데이터를 가져오는 데 실패했습니다"
+      )
     }
   }
 }

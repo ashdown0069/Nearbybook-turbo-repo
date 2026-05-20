@@ -5,7 +5,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import type { AxiosInstance } from "axios";
-import type { Library } from "@repo/types";
+import type { Library } from "@workspace/types";
 export const getLibsList = async (
   axiosInstance: AxiosInstance,
   region: string,

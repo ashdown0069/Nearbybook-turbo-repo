@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const isMaintenance = process.env.MAINTENANCE === "true";
+  const { pathname } = request.nextUrl
+  const isMaintenance = process.env.MAINTENANCE === "true"
   if (isMaintenance) {
     if (pathname === "/maintenance") {
-      return NextResponse.next();
+      return NextResponse.next()
     }
-    return NextResponse.rewrite(new URL("/maintenance", request.url));
+    return NextResponse.rewrite(new URL("/maintenance", request.url))
   }
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 export const config = {
@@ -24,4 +24,4 @@ export const config = {
      */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
-};
+}

@@ -1,4 +1,4 @@
-import { BookList } from "@repo/types";
+import { BookList } from "@workspace/types";
 import {
   keepPreviousData,
   QueryClient,

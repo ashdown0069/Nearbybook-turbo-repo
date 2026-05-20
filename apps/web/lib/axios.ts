@@ -1,10 +1,10 @@
-import { createAxiosInstance } from "@repo/data-access";
+import { createAxiosInstance } from "@workspace/data-access"
 // import { getCookie } from "cookies-next";
 // import { setAuthCookies, clearAuthCookies } from "./auth";
 
 export const axiosInstance = createAxiosInstance(
-  process.env.NEXT_PUBLIC_BACKEND_URL!,
-);
+  process.env.NEXT_PUBLIC_BACKEND_URL!
+)
 
 /**
  * 계획중, 로그인 상태에 따른 토큰 자동 갱신 로직

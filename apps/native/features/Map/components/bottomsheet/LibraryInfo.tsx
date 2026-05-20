@@ -1,5 +1,5 @@
 //BottomSheet에서 사용하거나 BottomSheetCarousel의 renderItem 으로사용하거나
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 import { Pressable, Text, View } from "react-native";
 import { ExternalLink } from "@/components/external-link";
 import {
@@ -10,7 +10,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-react-native";
-import { useGetBookLoanStatus } from "@repo/data-access";
+import { useGetBookLoanStatus } from "@workspace/data-access";
 import { axiosInstance } from "@/lib/axios";
 import { useCurrentBookStore } from "@/store/useCurrentBook";
 import TextWithIcon from "@/components/TextWithIcon";

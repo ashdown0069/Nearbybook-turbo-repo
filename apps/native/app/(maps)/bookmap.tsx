@@ -12,7 +12,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { useMapInit } from "@/hooks/useMapInit";
 import { openSettingsAlert } from "@/utils/permissionAlert";
-import { useGetLibsByISBN } from "@repo/data-access";
+import { useGetLibsByISBN } from "@workspace/data-access";
 import { axiosInstance } from "@/lib/axios";
 import { useCurrentRegion } from "@/hooks/useCurrentRegion";
 import { useCurrentBookStore } from "@/store/useCurrentBook";
@@ -26,7 +26,7 @@ import {
   MapLoading,
   MapMyLocationBtn,
 } from "@/features/Map/components";
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 import LibraryInfo from "@/features/Map/components/bottomsheet/LibraryInfo";
 import SearchInfo from "@/components/BottomSheet/SearchInfo";
 import BottomSheetBookInfo from "@/features/Map/components/bottomsheet/BottomSheetBookInfo";

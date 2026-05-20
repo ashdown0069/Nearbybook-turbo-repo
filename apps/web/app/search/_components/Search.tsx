@@ -1,29 +1,29 @@
-"use client";
-import Form from "next/form";
-import { Search as SearchIcon } from "lucide-react";
-import { Input } from "@repo/ui/components/input";
-import { Button } from "@repo/ui/components/button";
+"use client"
+import Form from "next/form"
+import { Search as SearchIcon } from "lucide-react"
+import { Input } from "@workspace/ui/components/input"
+import { Button } from "@workspace/ui/components/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui/components/select";
-import { useActionState, useCallback, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { searchAction } from "../action";
-import { useDebounce } from "react-use";
-import { useQueryClient } from "@tanstack/react-query";
-import { PrefetchSearchBooks } from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
-import Autocomplete from "./Autocomplete";
+} from "@workspace/ui/components/select"
+import { useActionState, useCallback, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
+import { searchAction } from "../action"
+import { useDebounce } from "react-use"
+import { useQueryClient } from "@tanstack/react-query"
+import { PrefetchSearchBooks } from "@workspace/data-access"
+import { axiosInstance } from "@/lib/axios"
+import Autocomplete from "./Autocomplete"
 
 interface SearchState {
-  query: string;
-  mode: "title" | "isbn";
-  error: string | null;
-  success: boolean;
+  query: string
+  mode: "title" | "isbn"
+  error: string | null
+  success: boolean
 }
 
 export default function Search() {
@@ -34,69 +34,69 @@ export default function Search() {
       success: false,
       query: "",
       mode: "title" as const,
-    },
-  );
+    }
+  )
 
-  const [query, setQuery] = useState(state.query);
-  const [mode, setMode] = useState(state.mode);
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const router = useRouter();
-  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const [query, setQuery] = useState(state.query)
+  const [mode, setMode] = useState(state.mode)
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   useDebounce(
     async () => {
       if (query) {
-        await PrefetchSearchBooks(axiosInstance, queryClient, mode, query, "1");
+        await PrefetchSearchBooks(axiosInstance, queryClient, mode, query, "1")
       }
     },
     500,
-    [query, mode],
-  );
+    [query, mode]
+  )
 
   const handleSelect = useCallback(
     (value: string) => {
-      setQuery(value);
-      setIsOpen(false);
+      setQuery(value)
+      setIsOpen(false)
       router.push(
-        `/search?query=${encodeURIComponent(value)}&mode=isbn&pageNo=1`,
-      );
+        `/search?query=${encodeURIComponent(value)}&mode=isbn&pageNo=1`
+      )
     },
-    [router],
-  );
+    [router]
+  )
 
   const handleFocus = useCallback(() => {
     if (blurTimeoutRef.current) {
-      clearTimeout(blurTimeoutRef.current);
+      clearTimeout(blurTimeoutRef.current)
     }
     if (query.length > 0) {
-      setIsOpen(true);
+      setIsOpen(true)
     }
-  }, [query]);
+  }, [query])
 
   const handleBlur = useCallback(() => {
     blurTimeoutRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 150);
-  }, []);
+      setIsOpen(false)
+    }, 150)
+  }, [])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setQuery(value);
-      setIsOpen(value.length > 0);
+      const value = e.target.value
+      setQuery(value)
+      setIsOpen(value.length > 0)
     },
-    [],
-  );
+    []
+  )
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Escape") {
-        setIsOpen(false);
+        setIsOpen(false)
       }
     },
-    [],
-  );
+    []
+  )
 
   return (
     <div className="h-fit w-full max-w-2xl px-4 py-4">
@@ -160,5 +160,5 @@ export default function Search() {
         {state.error ? <p>{state.error}</p> : " "}
       </div>
     </div>
-  );
+  )
 }

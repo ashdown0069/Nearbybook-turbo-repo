@@ -3,19 +3,19 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
-    },
-    "moduleResolution": "bundler"
+      "@/*": [
+        "./src/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ]
+    }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts",
-    "db/index.native.js",
-    "db/model/schema.js",
-    "db/model/Book-bookmarkSchema.js",
-    "db/model/Library-bookmarkSchema.js"
+    "nativewind-env.d.ts"
   ]
 }

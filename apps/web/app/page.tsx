@@ -1,27 +1,27 @@
-import BrowserExtension from "@/components/landing/BrowserExtension";
-import FindLibs from "@/components/landing/FindLibs";
-import PopularBooks from "@/components/landing/PopularBooks";
-import Search from "@/app/search/_components/Search";
+import BrowserExtension from "@/components/landing/BrowserExtension"
+import FindLibs from "@/components/landing/FindLibs"
+import PopularBooks from "@/components/landing/PopularBooks"
+import Search from "@/app/search/_components/Search"
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
-} from "@tanstack/react-query";
-import { Info } from "lucide-react";
-import { prefetchPopularLoanBooks } from "@repo/data-access";
-import Nav from "@/components/landing/Nav";
-import SearchTrending from "./search/_components/SearchTrending/SearchTrending";
-import { prefetchGetTrendingBooks } from "@repo/data-access";
-import Footer from "@/components/landing/Footer";
-import { axiosInstance } from "@/lib/axios";
+} from "@tanstack/react-query"
+import { Info } from "lucide-react"
+import { prefetchPopularLoanBooks } from "@workspace/data-access"
+import Nav from "@/components/landing/Nav"
+import SearchTrending from "./search/_components/SearchTrending/SearchTrending"
+import { prefetchGetTrendingBooks } from "@workspace/data-access"
+import Footer from "@/components/landing/Footer"
+import { axiosInstance } from "@/lib/axios"
 
 export default async function Home() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient()
 
   await Promise.allSettled([
     prefetchPopularLoanBooks(axiosInstance, queryClient),
     prefetchGetTrendingBooks(axiosInstance, queryClient),
-  ]);
+  ])
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -38,7 +38,7 @@ export default async function Home() {
       "query-input": "required name=search_term_string",
     },
     description: "집 근처 공공 도서관에서 읽고 싶은 책을 찾아보세요.",
-  };
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -70,5 +70,5 @@ export default async function Home() {
         <Footer />
       </main>
     </HydrationBoundary>
-  );
+  )
 }

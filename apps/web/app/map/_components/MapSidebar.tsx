@@ -1,13 +1,13 @@
-import BookInfo from "./BookInfo";
-import Notification from "./Notification";
-import Search from "@/app/search/_components/Search";
-import Feedback from "@/components/common/Feedback";
-import ExtensionPromotion from "@/components/common/ExtensionPromotion";
-import Logo from "@/components/common/Logo";
-import type { Book } from "@repo/types";
+import BookInfo from "./BookInfo"
+import Notification from "./Notification"
+import Search from "@/app/search/_components/Search"
+import Feedback from "@/components/common/Feedback"
+import ExtensionPromotion from "@/components/common/ExtensionPromotion"
+import Logo from "@/components/common/Logo"
+import type { Book } from "@workspace/types"
 
 interface MapSidebarProps {
-  book: Book | null;
+  book: Book | null
 }
 
 export default function MapSidebar({ book }: MapSidebarProps) {
@@ -38,5 +38,5 @@ export default function MapSidebar({ book }: MapSidebarProps) {
       </div>
       <Feedback />
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 
 export default function NotFoundBooks({ title }: { title?: string }) {
   return (
@@ -12,9 +12,9 @@ export default function NotFoundBooks({ title }: { title?: string }) {
           )}
           {title && (
             <p className="mt-2 text-base text-gray-500">
-              요청하신 '
-              <span className="font-bold text-green-600">{title}</span>' 을(를)
-              소유한 도서관을 찾지 못했습니다.
+              요청하신 {"'"}
+              <span className="font-bold text-green-600">{title}</span> {"'"}{" "}
+              을(를) 소유한 도서관을 찾지 못했습니다.
             </p>
           )}
         </div>
@@ -35,5 +35,5 @@ export default function NotFoundBooks({ title }: { title?: string }) {
         </div>
       </div>
     </div>
-  );
+  )
 }

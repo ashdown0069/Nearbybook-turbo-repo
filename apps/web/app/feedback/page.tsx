@@ -1,15 +1,15 @@
-"use client";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Textarea } from "@repo/ui/components/textarea";
-import { useActionState } from "react";
-import { submitFeedback } from "./action";
+"use client"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import { Textarea } from "@workspace/ui/components/textarea"
+import { useActionState } from "react"
+import { submitFeedback } from "./action"
 
 export default function FeedbackPage() {
   const [state, action, isPending] = useActionState(submitFeedback, {
     isError: false,
     message: "",
-  });
+  })
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 p-4 sm:p-24">
       <div className="w-full max-w-2xl">
@@ -90,5 +90,5 @@ export default function FeedbackPage() {
         </form>
       </div>
     </main>
-  );
+  )
 }

@@ -5,7 +5,7 @@ import {
   SearchResultInfo,
 } from "@/features/Search";
 import { axiosInstance } from "@/lib/axios";
-import { useSearchBooksByTitle } from "@repo/data-access";
+import { useSearchBooksByTitle } from "@workspace/data-access";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,7 +14,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BookItem from "@/features/Book/components/BookItem";
 import { useCurrentBookStore } from "@/store/useCurrentBook";
 import BookBottomSheetModal from "@/components/BottomSheet/BookBottomSheetModal";
-import { Book } from "@repo/types";
+import { Book } from "@workspace/types";
 import SaveBookOnTheShelf from "@/features/Map/components/bottomsheet/SaveBookOnTheShelf";
 import FindOnTheMap from "@/features/Map/components/bottomsheet/FindOnTheMap";
 import Loading from "@/components/Loading";

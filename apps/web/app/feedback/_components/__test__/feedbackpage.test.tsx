@@ -29,7 +29,7 @@ describe("FeedbackPage 컴포넌트", () => {
     mockAction = jest.fn();
 
     // useActionState가 [state, action, isPending] 배열을 반환하도록 설정
-    mockUseActionState.mockImplementation((actionFn, initialState) => [
+    mockUseActionState.mockImplementation((_actionFn, initialState) => [
       initialState, // 초기 상태
       mockAction, // 모의 액션 함수
       false, // 초기 isPending 상태
@@ -62,7 +62,7 @@ describe("FeedbackPage 컴포넌트", () => {
   it("에러 발생 시 에러 메시지를 렌더링해야 한다", () => {
     const errorState = { isError: true, message: "테스트 에러 메시지" };
     // useActionState가 에러 상태를 반환하도록 재설정
-    mockUseActionState.mockImplementation((actionFn, initialState) => [
+    mockUseActionState.mockImplementation((_actionFn, _initialState) => [
       errorState,
       mockAction,
       false,

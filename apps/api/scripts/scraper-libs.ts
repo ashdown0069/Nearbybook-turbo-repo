@@ -17,23 +17,23 @@
  *  - 덕분에 dtlRegionCode를 쿼리 파라미터 값으로 정확히 설정 가능
  */
 
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/app.module';
-import { LibrariesService } from 'src/libraries/libraries.service';
+import { NestFactory } from "@nestjs/core"
+import { AppModule } from "src/app.module"
+import { LibrariesService } from "src/libraries/libraries.service"
 import {
   SI_DO_CODE_AND_NAME,
   DISTRICTS_CODE_AND_NAME,
-} from '../src/constant/region-codes';
-import * as schema from 'src/database/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { closeConnection, getDb } from './connection';
-import { ConfigService } from '@nestjs/config';
+} from "../src/constant/region-codes"
+import * as schema from "src/database/schema"
+import { NodePgDatabase } from "drizzle-orm/node-postgres"
+import { closeConnection, getDb } from "./connection"
+import { ConfigService } from "@nestjs/config"
 
 async function upsertLibrary(
   db: NodePgDatabase<typeof schema>,
   lib: Record<string, string>,
   regionCode: string,
-  dtlRegionCode: string | null,
+  dtlRegionCode: string | null
 ) {
   await db
     .insert(schema.libraries)
@@ -41,7 +41,7 @@ async function upsertLibrary(
       libCode: lib.libCode,
       libName: lib.libName,
       // address가 notNull이므로 API가 빈 값을 반환하는 경우 빈 문자열로 대체
-      address: lib.address ?? '',
+      address: lib.address ?? "",
       tel: lib.tel,
       fax: lib.fax,
       latitude: lib.latitude,
@@ -57,7 +57,7 @@ async function upsertLibrary(
       target: schema.libraries.libCode,
       set: {
         libName: lib.libName,
-        address: lib.address ?? '',
+        address: lib.address ?? "",
         tel: lib.tel,
         fax: lib.fax,
         latitude: lib.latitude,
@@ -68,20 +68,20 @@ async function upsertLibrary(
         regionCode,
         dtlRegionCode,
       },
-    });
+    })
 }
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(AppModule);
-  const config = app.get(ConfigService);
-  const librariesService = app.get(LibrariesService);
-  const db = getDb(config.get('DATABASE_URL'));
+  const app = await NestFactory.createApplicationContext(AppModule)
+  const config = app.get(ConfigService)
+  const librariesService = app.get(LibrariesService)
+  const db = getDb(config.get("DATABASE_URL"))
 
   try {
     // ─── 1단계: regions 테이블 채우기 ──────────────────────────────────────
     // SI_DO_CODE_AND_NAME: [{ name: '서울특별시', code: '11' }, ...]
     // regions.code에 unique 제약이 있으므로 중복 실행 시에도 안전하게 upsert
-    console.log('📍 1단계: 광역 지역 코드 삽입 중...');
+    console.log("📍 1단계: 광역 지역 코드 삽입 중...")
     for (const { code, name } of SI_DO_CODE_AND_NAME) {
       await db
         .insert(schema.regions)
@@ -89,25 +89,25 @@ async function bootstrap() {
         .onConflictDoUpdate({
           target: schema.regions.code,
           set: { name },
-        });
+        })
     }
-    console.log(`   ✓ ${SI_DO_CODE_AND_NAME.length}개 광역 지역 완료`);
+    console.log(`   ✓ ${SI_DO_CODE_AND_NAME.length}개 광역 지역 완료`)
 
     // ─── 2단계: detailRegions 테이블 채우기 ───────────────────────────────
     // DISTRICTS_CODE_AND_NAME: { '서울특별시': [{ name, code, adjacency }] }
     // SI_DO_CODE_AND_NAME.name으로 regionCode를 찾아 FK 관계 설정
     // adjacency(인접 구역) 정보는 화면 UI용이므로 스크래퍼에서는 저장하지 않음
-    console.log('📍 2단계: 세부 지역 코드 삽입 중...');
-    let dtlCount = 0;
+    console.log("📍 2단계: 세부 지역 코드 삽입 중...")
+    let dtlCount = 0
     for (const [cityName, districts] of Object.entries(
-      DISTRICTS_CODE_AND_NAME,
+      DISTRICTS_CODE_AND_NAME
     )) {
-      const regionEntry = SI_DO_CODE_AND_NAME.find((r) => r.name === cityName);
+      const regionEntry = SI_DO_CODE_AND_NAME.find((r) => r.name === cityName)
       if (!regionEntry) {
         console.warn(
-          `  ⚠ regionCode 매핑 실패: "${cityName}" (region-codes.ts 확인 필요)`,
-        );
-        continue;
+          `  ⚠ regionCode 매핑 실패: "${cityName}" (region-codes.ts 확인 필요)`
+        )
+        continue
       }
       for (const district of districts) {
         await db
@@ -121,68 +121,68 @@ async function bootstrap() {
           .onConflictDoUpdate({
             target: schema.detailRegions.dtlRegionCode,
             set: { dtlRegionName: district.name, name: district.name },
-          });
-        dtlCount++;
+          })
+        dtlCount++
       }
     }
-    console.log(`   ✓ ${dtlCount}개 세부 지역 완료`);
+    console.log(`   ✓ ${dtlCount}개 세부 지역 완료`)
 
     // ─── 3단계: 도서관 데이터 크롤링 & upsert ──────────────────────────────
     // 왜 구/군 단위로 반복하는가:
     //   공공 도서관 API는 응답에 dtlRegionCode를 포함하지 않으므로
     //   dtl_region 파라미터로 조회하여 쿼리값을 그대로 dtlRegionCode로 사용
     // 예외: DISTRICTS_CODE_AND_NAME에 없는 지역(구역 미정의)은 광역 코드만으로 조회
-    console.log('📚 3단계: 도서관 정보 크롤링 시작...');
-    let total = 0;
+    console.log("📚 3단계: 도서관 정보 크롤링 시작...")
+    let total = 0
     for (const { code: regionCode, name: cityName } of SI_DO_CODE_AND_NAME) {
-      const districts = DISTRICTS_CODE_AND_NAME[cityName] ?? [];
+      const districts = DISTRICTS_CODE_AND_NAME[cityName] ?? []
 
       if (districts.length === 0) {
         // 세종특별자치시 등 DISTRICTS_CODE_AND_NAME 미정의 지역
-        console.log(`  [${regionCode}] ${cityName} → 지역 단위 일괄 조회`);
+        console.log(`  [${regionCode}] ${cityName} → 지역 단위 일괄 조회`)
         const libs = await librariesService.fetchRegionLibraryList(
-          Number(regionCode),
-        );
+          Number(regionCode)
+        )
         for (const lib of libs) {
           await upsertLibrary(
             db,
             lib as Record<string, string>,
             regionCode,
-            null,
-          );
-          total++;
+            null
+          )
+          total++
         }
       } else {
         // 구/군 단위 개별 조회 → dtlRegionCode를 정확히 매핑
         for (const district of districts) {
           const libs = await librariesService.fetchRegionLibraryList(
             Number(regionCode),
-            Number(district.code),
-          );
+            Number(district.code)
+          )
           for (const lib of libs) {
             await upsertLibrary(
               db,
               lib as Record<string, string>,
               regionCode,
-              district.code,
-            );
-            total++;
+              district.code
+            )
+            total++
           }
         }
         console.log(
-          `  [${regionCode}] ${cityName}: ${districts.length}개 구역, ${total}건 누적`,
-        );
+          `  [${regionCode}] ${cityName}: ${districts.length}개 구역, ${total}건 누적`
+        )
       }
     }
 
-    console.log(`\n✅ 작업 완료 (총 ${total}건 처리)`);
+    console.log(`\n✅ 작업 완료 (총 ${total}건 처리)`)
   } catch (error) {
-    console.error('❌ 작업 실패', error);
+    console.error("❌ 작업 실패", error)
   } finally {
-    await closeConnection();
-    await app.close();
-    process.exit(0);
+    await closeConnection()
+    await app.close()
+    process.exit(0)
   }
 }
 
-bootstrap();
+bootstrap()

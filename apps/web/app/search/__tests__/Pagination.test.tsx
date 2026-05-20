@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 
 // Mock next/link to prevent navigation errors in jsdom
 jest.mock("next/link", () => {
-  return ({ children, href, ...rest }: any) => {
+  const MockLink = ({ children, href, ...rest }: any) => {
     return (
       <a
         href={href}
@@ -20,6 +20,8 @@ jest.mock("next/link", () => {
       </a>
     );
   };
+  MockLink.displayName = "MockLink";
+  return MockLink;
 });
 
 describe("PaginationWithIcon 컴포넌트", () => {

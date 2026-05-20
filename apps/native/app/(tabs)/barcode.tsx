@@ -7,7 +7,7 @@ import SaveBookOnTheShelf from "@/features/Map/components/bottomsheet/SaveBookOn
 import { axiosInstance } from "@/lib/axios";
 import { useCurrentBookStore } from "@/store/useCurrentBook";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useSearchBook } from "@repo/data-access";
+import { useSearchBook } from "@workspace/data-access";
 import { router, useFocusEffect } from "expo-router";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {

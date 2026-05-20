@@ -1,10 +1,10 @@
-import { Module, Global } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
-import { REDIS_CLIENT } from 'src/constant/tokens';
-import { DistributedLockService } from 'src/redis/distributed-lock.service';
-import { RedisLockAspect } from 'src/redis/redis-lock.aspect';
-import { RedisCacheAspect } from './redis-cache.aspect';
+import { Module, Global } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
+import Redis from "ioredis"
+import { REDIS_CLIENT } from "src/constant/tokens"
+import { DistributedLockService } from "src/redis/distributed-lock.service"
+import { RedisLockAspect } from "src/redis/redis-lock.aspect"
+import { RedisCacheAspect } from "./redis-cache.aspect"
 
 @Global()
 @Module({
@@ -12,7 +12,7 @@ import { RedisCacheAspect } from './redis-cache.aspect';
     {
       provide: REDIS_CLIENT,
       useFactory: (config: ConfigService) => {
-        return new Redis(config.get('REDIS_URL'));
+        return new Redis(config.get("REDIS_URL"))
       },
       inject: [ConfigService],
     },

@@ -1,6 +1,6 @@
-import type { regionResult, searchSettingStoreType } from "@/types/types";
-import Found from "./Found";
-import NotFound from "./NotFound";
+import type { regionResult, searchSettingStoreType } from "@/types/types"
+import Found from "./Found"
+import NotFound from "./NotFound"
 
 export default function RegionTab({
   data,
@@ -8,17 +8,17 @@ export default function RegionTab({
   isbn,
   searchSetting,
 }: {
-  data: regionResult | null;
-  title: string;
-  isbn: string;
-  searchSetting: searchSettingStoreType;
+  data: regionResult | null
+  title: string
+  isbn: string
+  searchSetting: searchSettingStoreType
 }) {
   if (!data || data.foundDataLength === 0) {
     return (
       <div className="h-full">
         <NotFound title={title} />
       </div>
-    );
+    )
   }
 
   return (
@@ -31,5 +31,5 @@ export default function RegionTab({
         isbn={isbn}
       />
     </div>
-  );
+  )
 }

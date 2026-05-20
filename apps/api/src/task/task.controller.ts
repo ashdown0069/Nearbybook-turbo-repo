@@ -1,12 +1,12 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { GovLibraryBigDataTaskService } from './GovLibraryBigdataTask.service';
-import { MeiliSearchTaskService } from './MeiliSearchTask.service';
+import { Controller, Get, Post } from "@nestjs/common"
+import { GovLibraryBigDataTaskService } from "./GovLibraryBigdataTask.service"
+import { MeiliSearchTaskService } from "./MeiliSearchTask.service"
 
-@Controller('task')
+@Controller("task")
 export class TaskController {
   constructor(
     private readonly govLibraryBigDataTaskService: GovLibraryBigDataTaskService,
-    private readonly meiliSearchTaskService: MeiliSearchTaskService,
+    private readonly meiliSearchTaskService: MeiliSearchTaskService
   ) {}
 
   // 도서관 정보 최신화 크론잡 테스트 용

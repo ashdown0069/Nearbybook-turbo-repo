@@ -1,8 +1,8 @@
-import { Button } from "@repo/ui/components/button";
-import { Search } from "lucide-react";
+import { Button } from "@workspace/ui/components/button"
+import { Search } from "lucide-react"
 
 export default function OpenSearchPage() {
-  const ExternalSiteURL = `${import.meta.env.WXT_EXTERNAL_URL}`;
+  const ExternalSiteURL = `${import.meta.env.WXT_EXTERNAL_URL}`
   return (
     <Tooltip tooltipText="책 검색 사이트로 이동합니다.">
       <Button
@@ -15,5 +15,5 @@ export default function OpenSearchPage() {
         </a>
       </Button>
     </Tooltip>
-  );
+  )
 }

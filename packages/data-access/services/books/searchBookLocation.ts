@@ -1,5 +1,5 @@
 import type { AxiosInstance } from "axios";
-import type { searchBookLocationResponse } from "@repo/types";
+import type { searchBookLocationResponse } from "@workspace/types";
 
 export const searchBookLocation = async (
   axiosInstance: AxiosInstance,

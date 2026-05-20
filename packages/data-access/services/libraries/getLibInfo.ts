@@ -1,4 +1,4 @@
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 import type { AxiosInstance } from "axios";
 
 //extension에서 도서관 코드로 도서관 정보 가져오기용

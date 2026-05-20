@@ -1,6 +1,6 @@
 import type { AxiosInstance } from "axios";
 import { keepPreviousData, QueryClient, useQuery } from "@tanstack/react-query";
-import { Book } from "@repo/types";
+import { Book } from "@workspace/types";
 
 export const searchBook = async (
   axiosInstance: AxiosInstance,

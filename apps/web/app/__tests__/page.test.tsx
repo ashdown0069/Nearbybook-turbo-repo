@@ -3,14 +3,57 @@ import Page from "../page";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // 하위 컴포넌트들 모킹
-jest.mock("@/components/landing/Nav", () => () => <div data-testid="nav">Nav</div>);
-jest.mock("@/components/landing/MainPromoteCard", () => () => <div data-testid="main-promote-card">MainPromoteCard</div>);
-jest.mock("@/components/landing/PopularBooks", () => () => <div data-testid="popular-books">PopularBooks</div>);
-jest.mock("@/components/landing/BrowserExtension", () => () => <div data-testid="browser-extension">BrowserExtension</div>);
-jest.mock("@/components/landing/FindLibs", () => () => <div data-testid="find-libs">FindLibs</div>);
-jest.mock("@/components/landing/Footer", () => () => <div data-testid="footer">Footer</div>);
-jest.mock("@/app/search/_components/Search", () => () => <div data-testid="search">Search</div>);
-jest.mock("@/app/search/_components/SearchTrending/SearchTrending", () => () => <div data-testid="search-trending">SearchTrending</div>);
+jest.mock("@/components/landing/Nav", () => {
+  const MockNav = () => <div data-testid="nav">Nav</div>;
+  MockNav.displayName = "MockNav";
+  return MockNav;
+});
+jest.mock("@/components/landing/MainPromoteCard", () => {
+  const MockMainPromoteCard = () => (
+    <div data-testid="main-promote-card">MainPromoteCard</div>
+  );
+  MockMainPromoteCard.displayName = "MockMainPromoteCard";
+  return MockMainPromoteCard;
+});
+jest.mock("@/components/landing/PopularBooks", () => {
+  const MockPopularBooks = () => (
+    <div data-testid="popular-books">PopularBooks</div>
+  );
+  MockPopularBooks.displayName = "MockPopularBooks";
+  return MockPopularBooks;
+});
+jest.mock("@/components/landing/BrowserExtension", () => {
+  const MockBrowserExtension = () => (
+    <div data-testid="browser-extension">BrowserExtension</div>
+  );
+  MockBrowserExtension.displayName = "MockBrowserExtension";
+  return MockBrowserExtension;
+});
+jest.mock("@/components/landing/FindLibs", () => {
+  const MockFindLibs = () => <div data-testid="find-libs">FindLibs</div>;
+  MockFindLibs.displayName = "MockFindLibs";
+  return MockFindLibs;
+});
+jest.mock("@/components/landing/Footer", () => {
+  const MockFooter = () => <div data-testid="footer">Footer</div>;
+  MockFooter.displayName = "MockFooter";
+  return MockFooter;
+});
+jest.mock("@/app/search/_components/Search", () => {
+  const MockSearch = () => <div data-testid="search">Search</div>;
+  MockSearch.displayName = "MockSearch";
+  return MockSearch;
+});
+jest.mock(
+  "@/app/search/_components/SearchTrending/SearchTrending",
+  () => {
+    const MockSearchTrending = () => (
+      <div data-testid="search-trending">SearchTrending</div>
+    );
+    MockSearchTrending.displayName = "MockSearchTrending";
+    return MockSearchTrending;
+  }
+);
 
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {

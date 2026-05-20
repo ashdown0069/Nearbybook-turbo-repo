@@ -31,12 +31,12 @@ export default function Notification() {
             </p>
             <ul className="mt-2 list-inside list-disc space-y-1 pl-1 text-xs text-gray-500">
               <li>
-                <strong className="text-gray-600">대도시:</strong> '구' 단위로
+                <strong className="text-gray-600">대도시:</strong> {"'"}구{"'"} 단위로
                 검색
               </li>
               <li>
-                <strong className="text-gray-600">그 외 지역:</strong> '시' 또는
-                '군' 단위로 검색
+                <strong className="text-gray-600">그 외 지역:</strong> {"'"}시{"'"} 또는
+                {"'"}군{"'"} 단위로 검색
               </li>
             </ul>
           </div>

@@ -1,30 +1,30 @@
-import { IsOptional, IsString, IsNotEmpty, MaxLength } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsOptional, IsString, IsNotEmpty, MaxLength } from "class-validator"
+import { Transform } from "class-transformer"
 
 export class TrackBookDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
   @Transform(({ value }) => value?.trim())
-  title: string;
+  title: string
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  authors?: string;
+  authors?: string
 
   @IsOptional()
   @IsString()
   @MaxLength(200)
-  publisher?: string;
+  publisher?: string
 
   @IsOptional()
   @IsString()
   @MaxLength(10)
-  publicationYear?: string;
+  publicationYear?: string
 
   @IsOptional()
   @IsString()
   @MaxLength(2048)
-  bookImageURL?: string;
+  bookImageURL?: string
 }

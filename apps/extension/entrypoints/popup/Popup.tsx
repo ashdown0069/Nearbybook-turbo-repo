@@ -1,40 +1,40 @@
-import LoadingBouncing from "@/components/LoadingBouncing";
-import { useEffect, useState } from "react";
-import { NotAvailable, NeedsSetup, RegionTab, LibraryTab } from "./status";
+import LoadingBouncing from "@/components/LoadingBouncing"
+import { useEffect, useState } from "react"
+import { NotAvailable, NeedsSetup, RegionTab, LibraryTab } from "./status"
 import {
   PopupPortMessage,
   PopupStatus,
   tabState,
   searchSettingStoreType,
-} from "@/types/types";
-import PopupFooter from "./footer/PopupFooter";
-import PopupWrapper from "./PopupWrapper";
+} from "@/types/types"
+import PopupFooter from "./footer/PopupFooter"
+import PopupWrapper from "./PopupWrapper"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ui/components/tabs";
+} from "@workspace/ui/components/tabs"
 
 function Popup() {
   const [popUpState, setPopUpState] = useState<{
-    status: PopupStatus;
-    tabState: tabState | undefined;
-    searchSetting: searchSettingStoreType | undefined;
+    status: PopupStatus
+    tabState: tabState | undefined
+    searchSetting: searchSettingStoreType | undefined
   }>({
     status: "pending",
     tabState: undefined,
     searchSetting: undefined,
-  });
-  const [activeTab, setActiveTab] = useState<"region" | "library">("region");
-  const isInitialLoad = useRef(true);
+  })
+  const [activeTab, setActiveTab] = useState<"region" | "library">("region")
+  const isInitialLoad = useRef(true)
   const isLoading =
-    popUpState.status === "idle" || popUpState.status === "pending";
+    popUpState.status === "idle" || popUpState.status === "pending"
 
   useEffect(() => {
     const port = browser.runtime.connect({
       name: "popup-port",
-    });
+    })
 
     port.onMessage.addListener((message: PopupPortMessage) => {
       if (message.status === "complete") {
@@ -42,23 +42,23 @@ function Popup() {
           status: message.status,
           tabState: message.data,
           searchSetting: message.searchSetting,
-        });
+        })
         if (isInitialLoad.current) {
-          setActiveTab(message.searchSetting?.defaultTab ?? "region");
-          isInitialLoad.current = false;
+          setActiveTab(message.searchSetting?.defaultTab ?? "region")
+          isInitialLoad.current = false
         }
       } else {
         setPopUpState((prev) => ({
           ...prev,
           status: message.status,
-        }));
+        }))
       }
-    });
+    })
 
     return () => {
-      port.disconnect();
-    };
-  }, []);
+      port.disconnect()
+    }
+  }, [])
 
   if (isLoading) {
     return (
@@ -67,12 +67,12 @@ function Popup() {
           <LoadingBouncing />
         </div>
       </PopupWrapper>
-    );
+    )
   }
 
   const renderContent = () => {
     if (popUpState.status === "needsSetup") {
-      return <NeedsSetup />;
+      return <NeedsSetup />
     }
 
     if (popUpState.status === "error") {
@@ -80,11 +80,11 @@ function Popup() {
         <div className="flex flex-1 items-center justify-center text-sm text-slate-500">
           오류가 발생했습니다. 종료 후 다시 시도해주세요
         </div>
-      );
+      )
     }
 
     if (popUpState.status === "notSupport") {
-      return <NotAvailable />;
+      return <NotAvailable />
     }
 
     if (
@@ -96,13 +96,16 @@ function Popup() {
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "region" | "library")}
-          className="flex flex-1 flex-col overflow-hidden p-2"
+          className="mt-3 flex flex-1 flex-col overflow-hidden p-2"
         >
-          <TabsList className="w-full shrink-0">
-            <TabsTrigger value="region" className="cursor-pointer">
+          <TabsList className="w-full shrink-0 py-5">
+            <TabsTrigger value="region" className="cursor-pointer py-4">
               지역 ({popUpState.tabState.regionResult?.foundDataLength ?? "-"})
             </TabsTrigger>
-            <TabsTrigger value="library" className="cursor-pointer truncate">
+            <TabsTrigger
+              value="library"
+              className="cursor-pointer truncate py-4 text-ellipsis"
+            >
               {popUpState.searchSetting.library.libName}
             </TabsTrigger>
           </TabsList>
@@ -118,11 +121,11 @@ function Popup() {
             <LibraryTab data={popUpState.tabState.libraryResult} />
           </TabsContent>
         </Tabs>
-      );
+      )
     }
 
-    return <NotAvailable />;
-  };
+    return <NotAvailable />
+  }
 
   return (
     <PopupWrapper
@@ -135,7 +138,7 @@ function Popup() {
     >
       {renderContent()}
     </PopupWrapper>
-  );
+  )
 }
 
-export default Popup;
+export default Popup

@@ -1,17 +1,15 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import Redis from 'ioredis';
-import { randomUUID } from 'crypto';
-import { REDIS_CLIENT } from 'src/constant/tokens';
+import { Inject, Injectable, Logger } from "@nestjs/common"
+import Redis from "ioredis"
+import { randomUUID } from "crypto"
+import { REDIS_CLIENT } from "src/constant/tokens"
 
 @Injectable()
 export class DistributedLockService {
-  private readonly logger = new Logger(DistributedLockService.name);
+  private readonly logger = new Logger(DistributedLockService.name)
   /** 인스턴스 고유 식별자 — 자신이 건 락만 해제할 수 있도록 보장 */
-  private readonly instanceId = randomUUID();
+  private readonly instanceId = randomUUID()
 
-  constructor(
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) {}
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   /**
    * 락 획득 시도
@@ -24,7 +22,7 @@ export class DistributedLockService {
    * @returns true면 락 획득 성공, false면 이미 다른 인스턴스가 점유 중
    */
   async tryAcquire(key: string, ttlSeconds: number): Promise<boolean> {
-    const lockKey = `lock:${key}`;
+    const lockKey = `lock:${key}`
     // SET key value NX EX ttl → 키가 없을 때만 설정하는 원자적 명령
     // NX: 키가 존재하지 않을 때만 SET (Not eXists)
     // EX: TTL을 초 단위로 설정 → 크래시 시 자동 해제 보장
@@ -32,19 +30,21 @@ export class DistributedLockService {
     const result = await this.redis.set(
       lockKey,
       this.instanceId,
-      'EX',
+      "EX",
       ttlSeconds,
-      'NX',
-    );
-    const acquired = result === 'OK';
+      "NX"
+    )
+    const acquired = result === "OK"
 
     if (acquired) {
-      this.logger.log(`Lock acquired: ${lockKey} (instance: ${this.instanceId})`);
+      this.logger.log(
+        `Lock acquired: ${lockKey} (instance: ${this.instanceId})`
+      )
     } else {
-      this.logger.warn(`Lock denied: ${lockKey} (held by another instance)`);
+      this.logger.warn(`Lock denied: ${lockKey} (held by another instance)`)
     }
 
-    return acquired;
+    return acquired
   }
 
   /**
@@ -59,7 +59,7 @@ export class DistributedLockService {
    * @returns true면 정상 해제, false면 소유권 불일치(이미 만료되었거나 다른 인스턴스 소유)
    */
   async release(key: string): Promise<boolean> {
-    const lockKey = `lock:${key}`;
+    const lockKey = `lock:${key}`
 
     // Lua 스크립트: KEYS[1]의 값이 ARGV[1](자신의 instanceId)과 일치하면 DEL
     // Redis는 Lua 스크립트를 단일 명령처럼 원자적으로 실행함
@@ -69,19 +69,19 @@ export class DistributedLockService {
       else
         return 0
       end
-    `;
+    `
 
-    const result = await this.redis.eval(script, 1, lockKey, this.instanceId);
-    const released = result === 1;
+    const result = await this.redis.eval(script, 1, lockKey, this.instanceId)
+    const released = result === 1
 
     if (released) {
-      this.logger.log(`Lock released: ${lockKey}`);
+      this.logger.log(`Lock released: ${lockKey}`)
     } else {
       this.logger.warn(
-        `Lock release failed: ${lockKey} (not owned by this instance)`,
-      );
+        `Lock release failed: ${lockKey} (not owned by this instance)`
+      )
     }
 
-    return released;
+    return released
   }
 }

@@ -1,33 +1,33 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Type } from "class-transformer"
 
 export class AutocompleteHitDto {
   @Expose()
-  title: string;
+  title: string
 
   @Expose()
-  authors: string;
+  authors: string
 
   @Expose()
-  isbn: string;
+  isbn: string
 
   @Expose()
-  publisher: string;
+  publisher: string
 
   @Expose()
-  publicationYear: string;
+  publicationYear: string
 
   @Expose()
-  vol: string;
+  vol: string
 }
 
 export class AutocompleteResponseDto {
   @Type(() => AutocompleteHitDto)
   @Expose()
-  hits: AutocompleteHitDto[];
+  hits: AutocompleteHitDto[]
 
   @Expose()
-  query: string;
+  query: string
 
   @Expose()
-  processingTimeMs: number;
+  processingTimeMs: number
 }

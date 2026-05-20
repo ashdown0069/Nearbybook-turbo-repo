@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Transform, Type } from "class-transformer"
 import {
   IsEnum,
   IsInt,
@@ -7,27 +7,27 @@ import {
   Min,
   IsISBN,
   ValidateIf,
-} from 'class-validator';
+} from "class-validator"
 
 export class searchBooksDto {
-  @IsEnum(['title', 'isbn'], {
-    message: 'mode must be either title or isbn',
+  @IsEnum(["title", "isbn"], {
+    message: "mode must be either title or isbn",
   })
   @IsNotEmpty()
-  mode: 'title' | 'isbn';
+  mode: "title" | "isbn"
 
   @Transform(({ value }) => {
-    return value.trim();
+    return value.trim()
   })
   @IsString()
   @IsNotEmpty()
-  @ValidateIf((object) => object.mode === 'isbn')
-  @IsISBN('13')
-  query: string;
+  @ValidateIf((object) => object.mode === "isbn")
+  @IsISBN("13")
+  query: string
 
   @IsNotEmpty()
   @IsInt()
   @Min(1)
   @Type(() => Number)
-  pageNo: number;
+  pageNo: number
 }

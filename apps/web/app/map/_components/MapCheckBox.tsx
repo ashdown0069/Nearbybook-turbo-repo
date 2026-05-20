@@ -1,32 +1,32 @@
-"use client";
-import Logo from "@/components/common/Logo";
+"use client"
+import Logo from "@/components/common/Logo"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@repo/ui/components/collapsible";
+} from "@workspace/ui/components/collapsible"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
-import { Checkbox } from "@repo/ui/components/checkbox";
-import { SI_DO_CODE_AND_NAME } from "@/const";
-import { cn } from "@/lib/utils";
-import { ChevronsUpDown } from "lucide-react";
-import { Button } from "@repo/ui/components/button";
+} from "@workspace/ui/components/card"
+import { Checkbox } from "@workspace/ui/components/checkbox"
+import { SI_DO_CODE_AND_NAME } from "@/const"
+import { cn } from "@/lib/utils"
+import { ChevronsUpDown } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
 
 type MapCheckBoxProps = {
-  selectedRegions: string[];
-  onRegionChange: (code: string, checked: boolean) => void;
-  onToggleAll: () => void;
-  isLoading?: boolean;
-  isError?: boolean;
-  libraryCount?: number;
-  className?: string;
-};
+  selectedRegions: string[]
+  onRegionChange: (code: string, checked: boolean) => void
+  onToggleAll: () => void
+  isLoading?: boolean
+  isError?: boolean
+  libraryCount?: number
+  className?: string
+}
 
 export default function MapCheckBox({
   selectedRegions,
@@ -37,13 +37,13 @@ export default function MapCheckBox({
   libraryCount,
   className,
 }: MapCheckBoxProps) {
-  const allCodes = SI_DO_CODE_AND_NAME.map((region) => region.code);
+  const allCodes = SI_DO_CODE_AND_NAME.map((region) => region.code)
   const handleRegionChange = (code: string, checked: boolean) => {
-    onRegionChange(code, checked);
-  };
+    onRegionChange(code, checked)
+  }
   const handleToggleAll = () => {
-    onToggleAll();
-  };
+    onToggleAll()
+  }
   return (
     <Collapsible defaultOpen>
       <Card className={cn("absolute top-4 left-4 w-80", className)}>
@@ -67,8 +67,7 @@ export default function MapCheckBox({
                 className={cn(
                   "min-w-32 cursor-pointer p-3 text-xs font-semibold transition",
                   selectedRegions.length === allCodes.length && "text-gray-700",
-                  selectedRegions.length !== allCodes.length &&
-                    "text-green-400",
+                  selectedRegions.length !== allCodes.length && "text-green-400"
                 )}
                 onClick={handleToggleAll}
               >
@@ -123,5 +122,5 @@ export default function MapCheckBox({
         </CollapsibleContent>
       </Card>
     </Collapsible>
-  );
+  )
 }

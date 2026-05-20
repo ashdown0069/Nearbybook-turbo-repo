@@ -1,5 +1,5 @@
 import React from "react";
-import type { Book } from "@repo/types";
+import type { Book } from "@workspace/types";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 

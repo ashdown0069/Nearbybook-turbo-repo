@@ -1,19 +1,19 @@
-"use client";
-import { Button } from "@repo/ui/components/button";
+"use client"
+import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardTitle,
   CardContent,
   CardHeader,
   CardFooter,
-} from "@repo/ui/components/card";
-import { AlertCircle, RefreshCw } from "lucide-react";
-import React from "react";
+} from "@workspace/ui/components/card"
+import { AlertCircle, RefreshCw } from "lucide-react"
+import React from "react"
 
 export default function ErrorScreen({
   resetErrorBoundary,
 }: {
-  resetErrorBoundary: () => void;
+  resetErrorBoundary: () => void
 }) {
   return (
     <section className="flex h-dvh w-screen flex-col items-center justify-center bg-white">
@@ -47,5 +47,5 @@ export default function ErrorScreen({
         </CardFooter>
       </Card>
     </section>
-  );
+  )
 }

@@ -122,9 +122,7 @@
         "books_isbn_unique": {
           "name": "books_isbn_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "isbn"
-          ]
+          "columns": ["isbn"]
         }
       },
       "policies": {},

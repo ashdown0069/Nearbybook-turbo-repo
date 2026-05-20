@@ -1,25 +1,24 @@
-"use client";
-import type { Book } from "@repo/types";
-import Image from "next/image";
-import { Image as ImageIcon } from "lucide-react";
-import { Button } from "@repo/ui/components/button";
-import Link from "next/link";
+"use client"
+import type { Book } from "@workspace/types"
+import Image from "next/image"
+import { Image as ImageIcon } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import Link from "next/link"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { getRegionCookie } from "@/lib/MapCookie";
-import { useHoverAction } from "@/hooks/useHoverAction";
-import { prefetchBook, PrefetchGetLibsByISBN } from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
+} from "@workspace/ui/components/card"
+import { useQueryClient } from "@tanstack/react-query"
+import { memo, useCallback } from "react"
+import { getRegionCookie } from "@/lib/MapCookie"
+import { useHoverAction } from "@/hooks/useHoverAction"
+import { prefetchBook, PrefetchGetLibsByISBN } from "@workspace/data-access"
+import { axiosInstance } from "@/lib/axios"
 
-export default function BookCard({
+const BookCard = memo(function BookCard({
   authors,
   bookImageURL,
   bookname,
@@ -44,44 +43,44 @@ export default function BookCard({
     datePublished: publicationYear,
     image: bookImageURL,
     url: `https://nearbybook.kr/map?isbn=${isbn}`,
-  };
-  const queryClient = useQueryClient();
+  }
+  const queryClient = useQueryClient()
   const prefetchMap = useCallback(
     async (isbn: string) => {
       //쿠키에 저장된 지역코드 있을 경우 프리페치
-      const region = getRegionCookie();
+      const region = getRegionCookie()
       if (region) {
         await PrefetchGetLibsByISBN(
           axiosInstance,
           queryClient,
           isbn,
           region.region,
-          region.dtlRegion,
-        );
+          region.dtlRegion
+        )
       }
     },
-    [queryClient],
-  );
+    [queryClient]
+  )
 
   const prefetchBookByISBN = useCallback(
     async (isbn: string) => {
-      await prefetchBook(axiosInstance, queryClient, isbn);
+      await prefetchBook(axiosInstance, queryClient, isbn)
     },
-    [queryClient],
-  );
+    [queryClient]
+  )
 
   const ref = useHoverAction(() => {
-    prefetchMap(isbn);
-    prefetchBookByISBN(isbn);
-  });
+    prefetchMap(isbn)
+    prefetchBookByISBN(isbn)
+  })
   return (
     <>
       <script
-        id="bookJsonLd"
+        id={`bookJsonLd-${isbn}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(bookJsonLd) }}
       />
-      <Card className="flex w-full max-w-4xl flex-1 flex-row overflow-hidden rounded-md p-0 transition-all hover:shadow-md">
+      <Card className="flex w-full max-w-4xl flex-1 flex-row overflow-hidden rounded-md p-0 transition-all">
         <div className="relative w-24 shrink-0 sm:w-32">
           {vol && (
             <div className="absolute top-2 left-2 z-10 flex size-8 items-center justify-center rounded-full bg-blue-500 text-xs text-white shadow-md">
@@ -97,7 +96,7 @@ export default function BookCard({
               sizes="(max-width: 640px) 96px, 128px"
             />
           ) : (
-            <div className="bg-muted text-muted-foreground flex h-full w-full flex-col items-center justify-center">
+            <div className="flex h-full w-full flex-col items-center justify-center bg-muted text-muted-foreground">
               <ImageIcon size={40} />
               <span className="mt-2 text-xs font-medium">No Image</span>
             </div>
@@ -115,28 +114,30 @@ export default function BookCard({
           </CardHeader>
 
           <CardContent className="p-4 pt-0">
-            <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-xs">
+            <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
               <p className="max-w-[150px] truncate">{publisher}</p>
               {publisher && publicationYear && <span>•</span>}
               <span>{publicationYear}</span>
             </div>
-            <div className="text-muted-foreground mt-1 text-xs">
+            <div className="mt-1 text-xs text-muted-foreground">
               ISBN - {isbn}
             </div>
           </CardContent>
 
-          <CardFooter className="justify-end p-4 pt-0">
+          <div className="flex justify-end p-4 pt-0">
             <Button
               asChild
               ref={ref}
               variant="secondary"
-              className="w-full bg-green-500 font-bold text-white hover:bg-green-400 sm:w-auto"
+              className="w-full bg-green-500 py-1 font-bold text-white hover:bg-green-400 sm:w-auto"
             >
               <Link href={`/map?isbn=${isbn}`}>소장 도서관 보기</Link>
             </Button>
-          </CardFooter>
+          </div>
         </div>
       </Card>
     </>
-  );
-}
+  )
+})
+
+export default BookCard

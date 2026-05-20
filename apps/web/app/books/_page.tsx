@@ -1,5 +1,5 @@
 // import React from "react";
-// import { Book } from "@repo/types";
+// import { Book } from "@workspace/types";
 
 // const BookMock = {
 //   authors: "test author",

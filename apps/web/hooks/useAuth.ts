@@ -7,7 +7,7 @@
 // import { useMemo } from "react";
 // import { getCookie } from "cookies-next";
 // import { decodeJwt } from "jose";
-// import { JwtPayload } from "@repo/types";
+// import { JwtPayload } from "@workspace/types";
 
 // interface AuthUser {
 //   id: string;

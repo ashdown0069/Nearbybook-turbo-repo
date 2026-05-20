@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import LibInfo from "../_components/LibInfo";
-import type { Library } from "@repo/types";
+import { render, screen } from "@testing-library/react"
+import LibInfo from "../_components/LibInfo"
+import type { Library } from "@workspace/types"
 
 describe("LibInfo 컴포넌트", () => {
   const mockLibData: Omit<
@@ -16,19 +16,19 @@ describe("LibInfo 컴포넌트", () => {
     libCode: "12345",
     // latitude: "37.5665",
     // longitude: "126.9780",
-  };
+  }
 
   it("모든 도서관 정보를 올바르게 렌더링해야 한다", () => {
-    render(<LibInfo {...mockLibData} />);
+    render(<LibInfo {...mockLibData} />)
 
     // 1. 도서관 이름과 주소 렌더링 확인
-    expect(screen.getByText(mockLibData.libName)).toBeInTheDocument();
-    expect(screen.getByText(mockLibData.address)).toBeInTheDocument();
+    expect(screen.getByText(mockLibData.libName)).toBeInTheDocument()
+    expect(screen.getByText(mockLibData.address)).toBeInTheDocument()
 
     // 2. href와 target 속성 확인
-    const homepageLink = screen.getByRole("link");
-    expect(homepageLink).toBeInTheDocument();
-    expect(homepageLink).toHaveAttribute("href", mockLibData.homepage);
-    expect(homepageLink).toHaveAttribute("target", "_blank");
-  });
-});
+    const homepageLink = screen.getByRole("link")
+    expect(homepageLink).toBeInTheDocument()
+    expect(homepageLink).toHaveAttribute("href", mockLibData.homepage)
+    expect(homepageLink).toHaveAttribute("target", "_blank")
+  })
+})

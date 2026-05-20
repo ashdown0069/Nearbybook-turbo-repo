@@ -1,24 +1,24 @@
-"use client";
+"use client"
 
-import { useMapStore } from "@/store/useMapStore";
-import { useUserRegion } from "../_hooks/useUserRegion";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import MapSidebar from "./MapSidebar";
-import LoadingScreen from "@/components/Loading";
-import ErrorScreen from "@/components/Error";
-import { useSearchBook } from "@repo/data-access";
-import MapCanvas from "./MapCanvas";
-import { MapProps } from "@/types/type";
-import { useShallow } from "zustand/shallow";
-import { useGetLibsByISBN } from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
+import { useMapStore } from "@/store/useMapStore"
+import { useUserRegion } from "../_hooks/useUserRegion"
+import { useEffect } from "react"
+import { toast } from "sonner"
+import MapSidebar from "./MapSidebar"
+import LoadingScreen from "@/components/Loading"
+import ErrorScreen from "@/components/Error"
+import { useSearchBook } from "@workspace/data-access"
+import MapCanvas from "./MapCanvas"
+import { MapProps } from "@/types/type"
+import { useShallow } from "zustand/shallow"
+import { useGetLibsByISBN } from "@workspace/data-access"
+import { axiosInstance } from "@/lib/axios"
 export default function Map({
   isbn,
   region: regionProp,
   dtlRegion: detailRegionProp,
 }: MapProps) {
-  useUserRegion({ region: regionProp, dtlRegion: detailRegionProp });
+  useUserRegion({ region: regionProp, dtlRegion: detailRegionProp })
   const { region, dtl_region, status, myLat, myLng } = useMapStore(
     useShallow((state) => ({
       region: state.region,
@@ -26,8 +26,8 @@ export default function Map({
       status: state.status,
       myLat: state.myLat,
       myLng: state.myLng,
-    })),
-  );
+    }))
+  )
 
   const {
     data: libsData,
@@ -38,29 +38,29 @@ export default function Map({
     axiosInstance,
     isbn,
     region?.code || "",
-    dtl_region?.code || "",
-  );
+    dtl_region?.code || ""
+  )
 
   const {
     data: bookData,
     isLoading: isBooksLoading,
     isError: isBooksError,
     refetch: refetchBook,
-  } = useSearchBook(axiosInstance, isbn);
+  } = useSearchBook(axiosInstance, isbn)
 
-  const isLoading = isLibsLoading || status == "loading" || isBooksLoading;
-  const hasData = libsData && bookData && myLat && myLng;
+  const isLoading = isLibsLoading || status == "loading" || isBooksLoading
+  const hasData = libsData && bookData && myLat && myLng
   useEffect(() => {
     if (
       libsData &&
       libsData.length > 0 &&
       libsData.every((lib) => !lib.hasBook)
     ) {
-      toast.warning("검색 결과가 없습니다.");
+      toast.warning("검색 결과가 없습니다.")
     }
-  }, [libsData]);
+  }, [libsData])
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen />
   }
 
   if (libsError || isBooksError) {
@@ -68,14 +68,14 @@ export default function Map({
       <ErrorScreen
         resetErrorBoundary={() => {
           if (libsError) {
-            refetchLibs();
+            refetchLibs()
           }
           if (isBooksError) {
-            refetchBook();
+            refetchBook()
           }
         }}
       />
-    );
+    )
   }
 
   return (
@@ -87,5 +87,5 @@ export default function Map({
         </>
       )}
     </div>
-  );
+  )
 }

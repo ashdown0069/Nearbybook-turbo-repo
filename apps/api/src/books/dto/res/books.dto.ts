@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Type } from "class-transformer"
 
 /**
  * @class BookDto
@@ -12,35 +12,35 @@ import { Expose, Type } from 'class-transformer';
  */
 export class BookDto {
   @Expose()
-  bookname: string;
+  bookname: string
 
   @Expose()
-  authors: string;
+  authors: string
 
   @Expose()
-  publisher: string;
+  publisher: string
 
-  @Expose({ name: 'publication_year' })
-  publicationYear: string;
+  @Expose({ name: "publication_year" })
+  publicationYear: string
 
-  @Expose({ name: 'isbn13' })
-  isbn: string;
-
-  @Expose()
-  vol: string;
+  @Expose({ name: "isbn13" })
+  isbn: string
 
   @Expose()
-  bookImageURL: string;
+  vol: string
+
+  @Expose()
+  bookImageURL: string
 }
 
 export class BooksResponseDto {
   @Expose()
-  pages: number;
+  pages: number
 
   @Type(() => BookDto)
-  @Expose({ name: 'books' })
-  books: BookDto[];
+  @Expose({ name: "books" })
+  books: BookDto[]
 
   @Expose()
-  numFound: number;
+  numFound: number
 }

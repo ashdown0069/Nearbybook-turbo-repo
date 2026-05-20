@@ -1,13 +1,14 @@
 {
-  "name": "nearbybook",
+  "name": "nearbybook-monorepo",
+  "version": "0.0.1",
   "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types",
-    "prepare": "husky"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
@@ -15,31 +16,22 @@
     "@commitlint/config-workspace-scopes": "^20.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.7.1",
-    "turbo": "^2.6.0",
-    "typescript": "5.9.2"
+    "@workspace/eslint-config": "*",
+    "@workspace/typescript-config": "*",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "turbo": "^2.8.17",
+    "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
-  "packageManager": "npm@11.6.2",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
-  "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "**/*.md": "prettier --write"
-  },
-  "version": "1.0.0",
-  "description": "This Turborepo starter is maintained by the Turborepo core team.",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module"
+  "overrides": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
 }

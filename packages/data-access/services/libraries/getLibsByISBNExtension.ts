@@ -1,4 +1,4 @@
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 import type { AxiosInstance } from "axios";
 
 export const getLibsByISBNExtension = async (

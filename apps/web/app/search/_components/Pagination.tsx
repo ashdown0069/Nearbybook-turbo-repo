@@ -2,21 +2,21 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
-} from "@repo/ui/components/pagination";
+} from "@workspace/ui/components/pagination"
 import {
   ChevronsLeft,
   ChevronsRight,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react";
-import Link from "next/link";
-import { buttonVariants } from "@repo/ui/components/button";
-import { cn } from "@/lib/utils";
+} from "lucide-react"
+import Link from "next/link"
+import { buttonVariants } from "@workspace/ui/components/button"
+import { cn } from "@/lib/utils"
 
 interface PaginationProps {
-  totalPages: number;
-  currentPage: number;
-  createPageUrl: (page: number) => string;
+  totalPages: number
+  currentPage: number
+  createPageUrl: (page: number) => string
 }
 
 export default function PaginationWithIcon({
@@ -26,34 +26,34 @@ export default function PaginationWithIcon({
 }: PaginationProps) {
   // 표시할 페이지 번호들을 계산하는 함수
   const getVisiblePages = () => {
-    const pageCount = 8;
+    const pageCount = 8
     // 1. 전체 페이지가 pageCount 이하일 경우, 모든 페이지 번호를 보여줌
     if (totalPages <= pageCount) {
       // Array.from()을 사용하여 1부터 totalPages까지의 배열 생성
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
 
-    let startPage = currentPage - Math.floor(pageCount / 2);
-    let endPage = currentPage + Math.floor(pageCount / 2) - 1;
+    let startPage = currentPage - Math.floor(pageCount / 2)
+    let endPage = currentPage + Math.floor(pageCount / 2) - 1
 
     if (startPage < 1) {
-      startPage = 1;
-      endPage = pageCount;
+      startPage = 1
+      endPage = pageCount
     }
 
     if (endPage > totalPages) {
-      endPage = totalPages;
-      startPage = totalPages - pageCount + 1;
+      endPage = totalPages
+      startPage = totalPages - pageCount + 1
     }
 
-    const pages = [];
+    const pages = []
     for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
+      pages.push(i)
     }
-    return pages;
-  };
+    return pages
+  }
 
-  const visiblePages = getVisiblePages();
+  const visiblePages = getVisiblePages()
 
   return (
     <Pagination className="my-5">
@@ -66,8 +66,8 @@ export default function PaginationWithIcon({
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
               currentPage === 1
-                ? "text-muted-foreground pointer-events-none"
-                : undefined,
+                ? "pointer-events-none text-muted-foreground"
+                : undefined
             )}
             aria-disabled={currentPage === 1}
             tabIndex={currentPage === 1 ? -1 : undefined}
@@ -83,8 +83,8 @@ export default function PaginationWithIcon({
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
               currentPage === 1
-                ? "text-muted-foreground pointer-events-none"
-                : undefined,
+                ? "pointer-events-none text-muted-foreground"
+                : undefined
             )}
             aria-disabled={currentPage === 1}
             tabIndex={currentPage === 1 ? -1 : undefined}
@@ -102,7 +102,7 @@ export default function PaginationWithIcon({
                 buttonVariants({
                   variant: currentPage === page ? "outline" : "ghost",
                   size: "icon",
-                }),
+                })
               )}
             >
               {page}
@@ -114,14 +114,14 @@ export default function PaginationWithIcon({
         <PaginationItem>
           <Link
             href={createPageUrl(
-              currentPage < totalPages ? currentPage + 1 : totalPages,
+              currentPage < totalPages ? currentPage + 1 : totalPages
             )}
             aria-label="Go to next page"
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
               currentPage === totalPages
-                ? "text-muted-foreground pointer-events-none"
-                : undefined,
+                ? "pointer-events-none text-muted-foreground"
+                : undefined
             )}
             aria-disabled={currentPage === totalPages}
             tabIndex={currentPage === totalPages ? -1 : undefined}
@@ -137,8 +137,8 @@ export default function PaginationWithIcon({
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
               currentPage === totalPages
-                ? "text-muted-foreground pointer-events-none"
-                : undefined,
+                ? "pointer-events-none text-muted-foreground"
+                : undefined
             )}
             aria-disabled={currentPage === totalPages}
             tabIndex={currentPage === totalPages ? -1 : undefined}
@@ -148,5 +148,5 @@ export default function PaginationWithIcon({
         </PaginationItem>
       </PaginationContent>
     </Pagination>
-  );
+  )
 }

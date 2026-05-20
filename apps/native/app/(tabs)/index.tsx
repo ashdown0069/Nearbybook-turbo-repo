@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useGetPopularLoanBooks } from "@repo/data-access";
+import { useGetPopularLoanBooks } from "@workspace/data-access";
 import { axiosInstance } from "@/lib/axios";
 import PopularBook from "@/features/Book/components/PopularBook";
 import PopularBookSkeleton from "@/features/Book/components/PopularBookSkeleton";

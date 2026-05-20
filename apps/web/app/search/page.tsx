@@ -1,42 +1,42 @@
-import React from "react";
-import Search from "@/app/search/_components/Search";
-import NotFoundBooks from "./_components/NotFoundBooks";
-import ExtensionPromotion from "@/components/common/ExtensionPromotion";
+import React, { Suspense } from "react"
+import Search from "@/app/search/_components/Search"
+import NotFoundBooks from "./_components/NotFoundBooks"
+import ExtensionPromotion from "@/components/common/ExtensionPromotion"
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
-} from "@tanstack/react-query";
-import dynamic from "next/dynamic";
+} from "@tanstack/react-query"
+import dynamic from "next/dynamic"
 // import SearchResult from "./_components/SearchResult";
-const SearchResult = dynamic(() => import("./_components/SearchResult"));
+const SearchResult = dynamic(() => import("./_components/SearchResult"))
 // import { PrefetchSearchBooks } from "@/services/books/searchBooks";
-import SearchTrending from "./_components/SearchTrending/SearchTrending";
+import SearchTrending from "./_components/SearchTrending/SearchTrending"
 // import { prefetchGetTrendingBooks } from "@/services/books/getTrendingBooks";
-import Logo from "@/components/common/Logo";
-import { Metadata } from "next";
+import Logo from "@/components/common/Logo"
+import { Metadata } from "next"
 import {
   prefetchGetTrendingBooks,
   PrefetchSearchBooks,
-} from "@repo/data-access";
-import { axiosInstance } from "@/lib/axios";
+} from "@workspace/data-access"
+import { axiosInstance } from "@/lib/axios"
 
 type Props = {
   searchParams: Promise<{
-    mode: "title" | "isbn";
-    query: string;
-    pageNo: string;
-  }>;
-};
+    mode: "title" | "isbn"
+    query: string
+    pageNo: string
+  }>
+}
 
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const params = await searchParams;
-  const { query } = params;
+  const params = await searchParams
+  const { query } = params
 
   if (query) {
-    const decodedQuery = decodeURIComponent(query);
+    const decodedQuery = decodeURIComponent(query)
     return {
       title: `${decodedQuery} 검색 결과`,
       description: `'${decodedQuery}'에 대한 도서 검색 결과입니다. 주변 도서관 소장 여부를 확인해보세요.`,
@@ -69,7 +69,7 @@ export async function generateMetadata({
           "max-image-preview": "large",
         },
       },
-    };
+    }
   }
 
   return {
@@ -100,24 +100,25 @@ export async function generateMetadata({
         "max-image-preview": "large",
       },
     },
-  };
+  }
 }
 
 //query, pageNo, mode
 export default async function SearchResultPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const queryClient = new QueryClient();
+  const params = await searchParams
+  const queryClient = new QueryClient()
+  const { query, mode, pageNo } = params
 
-  // 1. 초기 화면/검색 결과 화면 모두 Trending Books 프리패치
-  await prefetchGetTrendingBooks(axiosInstance, queryClient);
+  const hasQueryParams = params.query && params.mode && params.pageNo
 
-  const hasQueryParams = params.query && params.mode && params.pageNo;
-
-  // 2. 검색 조건이 있을 때만 검색 결과 프리패치
-  if (hasQueryParams) {
-    const { query, mode, pageNo } = params;
-    await PrefetchSearchBooks(axiosInstance, queryClient, mode, query, pageNo);
-  }
+  // 1. prefetchGetTrendingBooks 초기 화면/검색 결과 화면 모두 Trending Books 프리패치
+  // 2. hasQueryParams == true, 검색 조건이 있을 때만 검색 결과 프리패치
+  await Promise.all([
+    prefetchGetTrendingBooks(axiosInstance, queryClient),
+    hasQueryParams
+      ? PrefetchSearchBooks(axiosInstance, queryClient, mode, query, pageNo)
+      : Promise.resolve(),
+  ])
 
   return (
     <main className="">
@@ -136,13 +137,15 @@ export default async function SearchResultPage({ searchParams }: Props) {
           </section>
         ) : (
           // 검색 결과 화면
-          <SearchResult
-            query={params.query as string}
-            mode={params.mode as "title" | "isbn"}
-            pageNo={+params.pageNo}
-          />
+          <Suspense>
+            <SearchResult
+              query={params.query as string}
+              mode={params.mode as "title" | "isbn"}
+              pageNo={+params.pageNo}
+            />
+          </Suspense>
         )}
       </HydrationBoundary>
     </main>
-  );
+  )
 }

@@ -3,7 +3,7 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { eq, type DrizzleError } from "drizzle-orm";
 import { LibrariesTable } from "../schema";
 import { useDatabase } from "../provider";
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 
 export const useLibraryDataBase = () => {
   const [isError, setIsError] = useState(false);

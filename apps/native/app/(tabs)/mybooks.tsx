@@ -3,7 +3,7 @@ import FindOnTheMap from "@/features/Map/components/bottomsheet/FindOnTheMap";
 import BookBottomSheetModal from "@/components/BottomSheet/BookBottomSheetModal";
 import { useCurrentBookStore } from "@/store/useCurrentBook";
 import { type BottomSheetModal } from "@gorhom/bottom-sheet";
-import type { Book } from "@repo/types";
+import type { Book } from "@workspace/types";
 import React, { useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

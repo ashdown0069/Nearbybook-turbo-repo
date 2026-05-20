@@ -1,21 +1,21 @@
-import { Button } from "@repo/ui/components/button";
-import { useMapStore } from "@/store/useMapStore";
-import { Library } from "@repo/types";
-import { RotateCcw } from "lucide-react";
-import { useMapInit } from "@/app/map/_hooks/useMapInit";
-import { useMapMarkers } from "@/app/map/_hooks/useMapMarkers";
-import { useMapInteraction } from "@/app/map/_hooks/useMapInteraction";
-import { INDIGO_MARKER_HTML, GRAY_MARKER_HTML } from "@/app/map/_etc/constants";
-import dynamic from "next/dynamic";
-import { useCallback } from "react";
-import { useShallow } from "zustand/shallow";
+import { Button } from "@workspace/ui/components/button"
+import { useMapStore } from "@/store/useMapStore"
+import { Library } from "@workspace/types"
+import { RotateCcw } from "lucide-react"
+import { useMapInit } from "@/app/map/_hooks/useMapInit"
+import { useMapMarkers } from "@/app/map/_hooks/useMapMarkers"
+import { useMapInteraction } from "@/app/map/_hooks/useMapInteraction"
+import { INDIGO_MARKER_HTML, GRAY_MARKER_HTML } from "@/app/map/_etc/constants"
+import dynamic from "next/dynamic"
+import { useCallback } from "react"
+import { useShallow } from "zustand/shallow"
 const MapOverlayContent = dynamic(() => import("./MapOverlayContent"), {
   ssr: false,
-});
+})
 
 interface MapCanvasProps {
-  libraryList: Library[];
-  isbn: string;
+  libraryList: Library[]
+  isbn: string
 }
 
 export default function MapCanvas({ libraryList, isbn }: MapCanvasProps) {
@@ -25,31 +25,31 @@ export default function MapCanvas({ libraryList, isbn }: MapCanvasProps) {
       myLng: state.myLng,
       region: state.region,
       dtl_region: state.dtl_region,
-    })),
-  );
+    }))
+  )
   const { mapRef } = useMapInit({
     mapId: "map",
     initialCenter: { lat: myLat, lng: myLng },
-  });
+  })
 
   const getMarkerIcon = useCallback(
     (lib: Library) => (lib.hasBook ? INDIGO_MARKER_HTML : GRAY_MARKER_HTML),
-    [],
-  );
+    []
+  )
 
   const getOverlayContent = useCallback(
     (lib: Library) => <MapOverlayContent {...lib} isbn={isbn} />,
-    [isbn],
-  );
+    [isbn]
+  )
 
   useMapMarkers({
     mapRef,
     libraries: libraryList,
     getMarkerIcon,
     getOverlayContent,
-  });
+  })
 
-  const { showSearchBtn, handleSearchAgain } = useMapInteraction(mapRef);
+  const { showSearchBtn, handleSearchAgain } = useMapInteraction(mapRef)
 
   return (
     <div id="map" className="relative h-full w-full md:w-2/3">
@@ -69,5 +69,5 @@ export default function MapCanvas({ libraryList, isbn }: MapCanvasProps) {
         </Button>
       )}
     </div>
-  );
+  )
 }

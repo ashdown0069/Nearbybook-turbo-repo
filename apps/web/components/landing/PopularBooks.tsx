@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import BookCard from "@/app/search/_components/BookCard";
-import { axiosInstance } from "@/lib/axios";
-import { useGetPopularLoanBooks } from "@repo/data-access";
+import BookCard from "@/app/search/_components/BookCard"
+import { axiosInstance } from "@/lib/axios"
+import { useGetPopularLoanBooks } from "@workspace/data-access"
 
 export default function PopularBooks() {
-  const { data, isLoading } = useGetPopularLoanBooks(axiosInstance);
+  const { data, isLoading } = useGetPopularLoanBooks(axiosInstance)
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   return (
@@ -20,5 +20,5 @@ export default function PopularBooks() {
         {data && data.map((book, idx) => <BookCard key={idx} {...book} />)}
       </div>
     </section>
-  );
+  )
 }

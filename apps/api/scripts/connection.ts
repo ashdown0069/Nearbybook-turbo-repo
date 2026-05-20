@@ -1,9 +1,9 @@
-import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import * as schema from 'src/database/schema';
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres"
+import { Pool } from "pg"
+import * as schema from "src/database/schema"
 
-let pool: Pool | null = null;
-let db: NodePgDatabase<typeof schema> | null = null;
+let pool: Pool | null = null
+let db: NodePgDatabase<typeof schema> | null = null
 
 export function getDb(databaseUrl: string): NodePgDatabase<typeof schema> {
   if (!db) {
@@ -12,16 +12,16 @@ export function getDb(databaseUrl: string): NodePgDatabase<typeof schema> {
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
-    });
-    db = drizzle({ client: pool, schema, logger: false });
+    })
+    db = drizzle({ client: pool, schema, logger: false })
   }
-  return db;
+  return db
 }
 
 export async function closeConnection(): Promise<void> {
   if (pool) {
-    await pool.end();
-    pool = null;
-    db = null;
+    await pool.end()
+    pool = null
+    db = null
   }
 }

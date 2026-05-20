@@ -1,4 +1,4 @@
-import { Library } from "@repo/types";
+import { Library } from "@workspace/types";
 
 export const MOCK_LIBRARY_DATA: Library[] = [
   // hasBook: true (5개)

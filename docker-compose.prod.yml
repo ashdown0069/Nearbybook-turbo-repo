@@ -8,13 +8,9 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    # Swarm 모드에서는 image 필드가 필수
-    # 빌드된 이미지를 이 이름으로 태깅하여 Swarm이 노드에 분배
     image: nearbybook-api:latest
-    # 인스턴스 수: 원하는 만큼 조절
     deploy:
       replicas: 2
-      # Swarm 모드에서는 top-level restart 대신 deploy 안에 선언
       restart_policy:
         condition: on-failure
     expose:
@@ -27,9 +23,6 @@ services:
       - MEILISEARCH_HOST=${MEILISEARCH_HOST}
       - MEILISEARCH_SEARCH_API_KEY=${MEILISEARCH_SEARCH_API_KEY}
       - MEILISEARCH_ADMIN_API_KEY=${MEILISEARCH_ADMIN_API_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ACCESS_EXPIRES_IN=${JWT_ACCESS_EXPIRES_IN:-15m}
-      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-7d}
       - LIBRARY_BIGDATA_API_KEY=${LIBRARY_BIGDATA_API_KEY}
       - NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
       - NAVER_SECRET=${NAVER_SECRET}

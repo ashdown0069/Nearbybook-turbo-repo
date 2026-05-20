@@ -1,6 +1,6 @@
-import type { libraryResult } from "@/types/types";
-import FoundAtLibrary from "./FoundAtLibrary";
-import NotFoundAtLibrary from "./NotFoundAtLibrary";
+import type { libraryResult } from "@/types/types"
+import FoundAtLibrary from "./FoundAtLibrary"
+import NotFoundAtLibrary from "./NotFoundAtLibrary"
 
 export default function LibraryTab({ data }: { data: libraryResult | null }) {
   if (!data) {
@@ -8,7 +8,7 @@ export default function LibraryTab({ data }: { data: libraryResult | null }) {
       <div className="flex h-full items-center justify-center text-sm text-slate-400">
         도서관 정보를 불러올 수 없습니다
       </div>
-    );
+    )
   }
 
   if (!data.hasBook) {
@@ -16,7 +16,7 @@ export default function LibraryTab({ data }: { data: libraryResult | null }) {
       <div className="h-full">
         <NotFoundAtLibrary libName={data.libName} />
       </div>
-    );
+    )
   }
 
   return (
@@ -29,5 +29,5 @@ export default function LibraryTab({ data }: { data: libraryResult | null }) {
         address={data.address}
       />
     </div>
-  );
+  )
 }

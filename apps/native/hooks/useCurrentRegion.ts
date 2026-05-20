@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import * as Location from "expo-location";
 // import { getDistrictCode } from "@/utils/getLibCode";
 import { DEFAULT_REGION } from "@/constants";
-import { DistrictCode, DistrictName } from "@repo/types";
+import { DistrictCode, DistrictName } from "@workspace/types";
 import {
   SI_DO_CODE_AND_NAME,
   DISTRICTS_CODE_AND_NAME,

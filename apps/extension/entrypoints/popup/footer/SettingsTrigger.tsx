@@ -1,10 +1,10 @@
-import { Button } from "@repo/ui/components/button";
-import { Settings } from "lucide-react";
+import { Button } from "@workspace/ui/components/button"
+import { Settings } from "lucide-react"
 
 export default function SettingsTrigger({
   openOptionPage,
 }: {
-  openOptionPage: () => void;
+  openOptionPage: () => void
 }) {
   return (
     <Tooltip tooltipText="옵션 페이지로 이동합니다">
@@ -16,5 +16,5 @@ export default function SettingsTrigger({
         <Settings />
       </Button>
     </Tooltip>
-  );
+  )
 }

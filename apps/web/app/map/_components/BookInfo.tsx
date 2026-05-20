@@ -1,8 +1,8 @@
-"use client";
-import type { Book } from "@repo/types";
-import { ImageIcon } from "lucide-react";
-import Image from "next/image";
-import React from "react";
+"use client"
+import type { Book } from "@workspace/types"
+import { ImageIcon } from "lucide-react"
+import Image from "next/image"
+import React from "react"
 
 export default function BookInfo({ book }: { book: Book }) {
   return (
@@ -33,5 +33,5 @@ export default function BookInfo({ book }: { book: Book }) {
         <p className="text-xs text-gray-500">ISBN: {book.isbn}</p>
       </div>
     </div>
-  );
+  )
 }

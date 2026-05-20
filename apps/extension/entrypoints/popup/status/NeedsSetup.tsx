@@ -1,10 +1,10 @@
-import { Button } from "@repo/ui/components/button";
-import { Settings } from "lucide-react";
+import { Button } from "@workspace/ui/components/button"
+import { Settings } from "lucide-react"
 
 export default function NeedsSetup() {
   const handleOpenOptions = () => {
-    browser.runtime.openOptionsPage();
-  };
+    browser.runtime.openOptionsPage()
+  }
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6">
@@ -22,5 +22,5 @@ export default function NeedsSetup() {
         설정하기
       </Button>
     </div>
-  );
+  )
 }

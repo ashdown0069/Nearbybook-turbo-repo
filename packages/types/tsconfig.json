@@ -1,5 +1,11 @@
 {
-  "extends": "@repo/typescript-config/base.json",
+  "extends": "@workspace/typescript-config/base.json",
+  // "compilerOptions": {
+  //   "baseUrl": ".",
+  //   "paths": {
+  //     "@/*": ["./src/*"]
+  //   }
+  // },
   "compilerOptions": {
     "rootDir": "src",
     "noEmit": true

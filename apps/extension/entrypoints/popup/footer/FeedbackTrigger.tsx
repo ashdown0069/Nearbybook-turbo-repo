@@ -1,11 +1,11 @@
-import { Button } from "@repo/ui/components/button";
-import { MessageSquareText } from "lucide-react";
-import React from "react";
+import { Button } from "@workspace/ui/components/button"
+import { MessageSquareText } from "lucide-react"
+import React from "react"
 
 export default function FeedbackTrigger({
   openFeedbackPage,
 }: {
-  openFeedbackPage: () => void;
+  openFeedbackPage: () => void
 }) {
   return (
     <Tooltip tooltipText="피드백 페이지로 이동합니다.">
@@ -17,5 +17,5 @@ export default function FeedbackTrigger({
         <MessageSquareText />
       </Button>
     </Tooltip>
-  );
+  )
 }

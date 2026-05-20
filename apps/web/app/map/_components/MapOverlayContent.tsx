@@ -1,16 +1,12 @@
-"use client";
-import { cn } from "@/lib/utils";
-import { Library } from "@repo/types";
-import LibInfo from "./LibInfo";
-import BookLoanInfo from "./BookLoanInfo";
-import { useMedia } from "react-use";
-import MapDrawer from "./MapDrawer";
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@repo/ui/components/card";
+"use client"
+import { cn } from "@/lib/utils"
+import { Library } from "@workspace/types"
+import LibInfo from "./LibInfo"
+import BookLoanInfo from "./BookLoanInfo"
+import { useMedia } from "react-use"
+import MapDrawer from "./MapDrawer"
+import { useCallback, useEffect, useState } from "react"
+import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 export default function MapOverlayContent({
   libName,
   homepage,
@@ -22,8 +18,19 @@ export default function MapOverlayContent({
   isbn,
   hasBook,
 }: Library & { isbn?: string }) {
-  const isWide = useMedia("(min-width: 480px)");
-  const [isOpen, setIsOpen] = useState(false);
+  const isWide = useMedia("(min-width: 480px)")
+  const [isOpen, setIsOpen] = useState(false)
+
+  // const closeDrawer = useCallback(() => {
+  //   setIsOpen(false)
+  // }, [])
+
+  // const onPopState = useCallback(() => {
+  //   if (isWide && isOpen) {
+  //     window.history.forward()
+  //   }
+  //   closeDrawer()
+  // }, [isWide, isOpen, closeDrawer])
 
   if (!isWide) {
     return (
@@ -39,14 +46,15 @@ export default function MapOverlayContent({
         hasBook={hasBook}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        // onPopState={onPopState}
       />
-    );
+    )
   }
   return (
     <Card
       className={cn(
         "flex min-w-96 flex-col items-center justify-center gap-1 rounded-md bg-white py-3 shadow-2xl",
-        !hasBook && "h-36",
+        !hasBook && "h-36"
       )}
     >
       <CardContent>
@@ -61,10 +69,10 @@ export default function MapOverlayContent({
         />
       </CardContent>
       {hasBook && isbn && (
-        <CardFooter className="flex flex-col items-center justify-center gap-1 px-4">
+        <CardFooter className="flex flex-col items-center justify-center gap-1 bg-white px-4">
           <BookLoanInfo isbn={isbn} libCode={libCode} />
         </CardFooter>
       )}
     </Card>
-  );
+  )
 }

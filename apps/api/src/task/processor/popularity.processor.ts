@@ -1,41 +1,49 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Inject, Logger } from '@nestjs/common';
-import { Job } from 'bullmq';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { sql } from 'drizzle-orm';
-import Redis from 'ioredis';
-import { QUEUE_NAMES, REDIS_CLIENT } from 'src/constant/tokens';
-import { DATABASE_CONNECTION } from 'src/database/database.provider';
-import { MeilisearchService } from 'src/meilisearch/meilisearch.service';
-import * as schema from 'src/database/schema';
-import { type NewBookRecord } from 'src/database/schema';
-import { REDIS_KEYS } from 'src/constant/tokens';
+import { Processor, WorkerHost } from "@nestjs/bullmq"
+import { Inject, Logger } from "@nestjs/common"
+import { Job } from "bullmq"
+import { NodePgDatabase } from "drizzle-orm/node-postgres"
+import { sql } from "drizzle-orm"
+import Redis from "ioredis"
+import { QUEUE_NAMES, REDIS_CLIENT } from "src/constant/tokens"
+import { DATABASE_CONNECTION } from "src/database/database.provider"
+import { MeilisearchService } from "src/meilisearch/meilisearch.service"
+import * as schema from "src/database/schema"
+import { type NewBookRecord } from "src/database/schema"
+import { REDIS_KEYS } from "src/constant/tokens"
 
 @Processor(QUEUE_NAMES.POPULARITY)
 export class PopularityProcessor extends WorkerHost {
-  private readonly logger = new Logger(PopularityProcessor.name);
+  private readonly logger = new Logger(PopularityProcessor.name)
 
   constructor(
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
-    private readonly meilisearchService: MeilisearchService,
+    private readonly meilisearchService: MeilisearchService
   ) {
-    super();
+    super()
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
+    if (process.env.NODE_ENV === "development") {
+      this.logger.debug(
+        "popularity processor: running in development mode, skipping processing"
+      )
+      return
+    }
     // rename 전에 키 존재 여부 확인 — 없으면 처리할 데이터 없음
-    const countExists = await this.redis.exists(REDIS_KEYS.POPULARITY_COUNT);
-    const metaExists = await this.redis.exists(REDIS_KEYS.POPULARITY_META);
+    const countExists = await this.redis.exists(REDIS_KEYS.POPULARITY_COUNT)
+    const metaExists = await this.redis.exists(REDIS_KEYS.POPULARITY_META)
     const date = new Date()
-      .toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' })
+      .toLocaleString("sv-SE", { timeZone: "Asia/Seoul" })
       .slice(0, 16)
-      .replace(/[: ]/g, '-')
-      .replace('T', '-');
+      .replace(/[: ]/g, "-")
+      .replace("T", "-")
     if (!countExists || !metaExists) {
-      this.logger.log(`popularity processor: skipping process, missing count or meta, ${date}`);
-      return;
+      this.logger.log(
+        `popularity processor: skipping process, missing count or meta, ${date}`
+      )
+      return
     }
 
     /**
@@ -46,75 +54,77 @@ export class PopularityProcessor extends WorkerHost {
     try {
       await this.redis.rename(
         REDIS_KEYS.POPULARITY_COUNT,
-        REDIS_KEYS.POPULARITY_COUNT_PROCESSING,
-      );
+        REDIS_KEYS.POPULARITY_COUNT_PROCESSING
+      )
       await this.redis.rename(
         REDIS_KEYS.POPULARITY_META,
-        REDIS_KEYS.POPULARITY_META_PROCESSING,
-      );
+        REDIS_KEYS.POPULARITY_META_PROCESSING
+      )
     } catch (error: any) {
-      if (error.message?.includes('ERR no such key')) {
-        this.logger.log(`popularity processor: key already processed or missing during rename, skipping`);
-        return;
+      if (error.message?.includes("ERR no such key")) {
+        this.logger.log(
+          `popularity processor: key already processed or missing during rename, skipping`
+        )
+        return
       }
-      this.logger.warn('popularity processor: rename failed', error);
-      return;
+      this.logger.warn("popularity processor: rename failed", error)
+      return
     }
 
     const popularityData = await this.redis.hgetall(
-      REDIS_KEYS.POPULARITY_COUNT_PROCESSING,
-    );
+      REDIS_KEYS.POPULARITY_COUNT_PROCESSING
+    )
     const metaData = await this.redis.hgetall(
-      REDIS_KEYS.POPULARITY_META_PROCESSING,
-    );
+      REDIS_KEYS.POPULARITY_META_PROCESSING
+    )
 
-    const isbns = Object.keys(popularityData);
+    const isbns = Object.keys(popularityData)
     if (isbns.length === 0) {
-      await this.cleanupProcessingKeys();
-      return;
+      await this.cleanupProcessingKeys()
+      return
     }
 
     /**
      * metaData(책 정보) + popularityData(조회수)를 결합하여 DB insert용 레코드 생성
      * metaData는 _trackingBook에서 저장한 searchBook 결과 (data4library 또는 Naver API 형식)
      */
-    const records: NewBookRecord[] = [];
+    const records: NewBookRecord[] = []
     for (const isbn of isbns) {
-      const count = Number(popularityData[isbn]) || 0;
-      const raw = metaData[isbn];
-      if (!raw) continue;
+      const count = Number(popularityData[isbn]) || 0
+      const raw = metaData[isbn]
+      if (!raw) continue
 
-      let meta = null;
+      let meta = null
       try {
-        meta = JSON.parse(raw);
+        meta = JSON.parse(raw)
       } catch (error) {
         this.logger.error(
           `popularity processor: invalid meta for ISBN ${isbn}`,
-          error,
-        );
-        continue;
+          error
+        )
+        continue
       }
-      const title = (meta.bookname ?? '').trim();
-      if (!title) continue;
+      const title = (meta.bookname ?? "").trim()
+      if (!title) continue
 
       records.push({
         title,
         authors: meta.authors?.trim() || null,
         publisher: meta.publisher?.trim() || null,
         publicationYear:
-          (meta.publication_year ?? meta.publication_date ?? '')
+          (meta.publication_year ?? meta.publication_date ?? "")
             .trim()
             .slice(0, 4) || null,
         isbn,
         vol: meta.vol?.trim() || null,
         bookImageURL: meta.bookImageURL?.trim() || null,
         popularity: count,
-      });
+      })
     }
 
     if (records.length === 0) {
-      await this.cleanupProcessingKeys();
-      return;
+      await this.cleanupProcessingKeys()
+      return
     }
 
     /**
@@ -133,26 +143,26 @@ export class PopularityProcessor extends WorkerHost {
             popularity: sql`${schema.books.popularity} + excluded.popularity`,
           },
         })
-        .returning();
+        .returning()
 
-      this.logger.log(`${upsertedBooks.length} books popularity updated in DB`);
+      this.logger.log(`${upsertedBooks.length} books popularity updated in DB`)
 
       /**
        * MeiliSearch 동기화
        * returning()의 결과(BookRecord[])를 그대로 전달
        * addDocuments는 primary key(isbn) 기준 upsert이므로 기존 문서 자동 갱신
        */
-      await this.meilisearchService.addBooksDocuments(upsertedBooks, 'books');
-      this.logger.log(`${upsertedBooks.length} books synced to MeiliSearch`);
+      await this.meilisearchService.addBooksDocuments(upsertedBooks, "books")
+      this.logger.log(`${upsertedBooks.length} books synced to MeiliSearch`)
     } catch (error) {
-      this.logger.error('popularity processor error', error);
+      this.logger.error("popularity processor error", error)
     }
 
-    await this.cleanupProcessingKeys();
+    await this.cleanupProcessingKeys()
   }
 
   private async cleanupProcessingKeys() {
-    await this.redis.del(REDIS_KEYS.POPULARITY_COUNT_PROCESSING);
-    await this.redis.del(REDIS_KEYS.POPULARITY_META_PROCESSING);
+    await this.redis.del(REDIS_KEYS.POPULARITY_COUNT_PROCESSING)
+    await this.redis.del(REDIS_KEYS.POPULARITY_META_PROCESSING)
   }
 }
