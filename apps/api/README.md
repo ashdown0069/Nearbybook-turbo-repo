@@ -1,99 +1,158 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NearbyBook API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NearbyBook 및 NearbyBook 확장프로그램의 백엔드 서버
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Framework**: NestJS 10
+- **Database**: PostgreSQL 16 (Drizzle ORM)
+- **Cache**: Redis 7
+- **Runtime**: Node.js 22
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## 사전 준비
 
 ```bash
-$ npm install
+# 1. 의존성 설치 (모노레포 루트에서)
+npm install
+
+# 2. 환경변수 설정
+cp .env.example .env
+# .env 파일을 열어 실제 값을 채워주세요
 ```
 
-## Compile and run the project
+### 환경변수 목록
+
+| 변수명 | 설명 | 기본값 |
+|--------|------|--------|
+| `PORT` | 서버 포트 | `4001` |
+| `DATABASE_URL` | PostgreSQL 연결 URL | - |
+| `REDIS_URL` | Redis 연결 URL | - |
+| `LIBRARY_BIGDATA_API_KEY` | 도서관 정보나루 API 키 | - |
+| `DISCORD_WEBHOOK_URL` | Discord 웹훅 URL | - |
+| `NAVER_CLIENT_ID` | 네이버 API 클라이언트 ID | - |
+| `NAVER_SECRET` | 네이버 API 시크릿 | - |
+| `JWT_SECRET` | JWT 서명 키 | - |
+| `JWT_ACCESS_EXPIRES_IN` | Access Token 만료시간 | `15m` |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh Token 만료시간 | `7d` |
+
+---
+
+## 개발 환경
+
+### 1. DB / Redis 실행
+
+<!-- docker-compose.yml이 PostgreSQL과 Redis만 컨테이너로 띄우는 구조 -->
+<!-- 백엔드는 로컬에서 직접 실행하여 HMR(Hot Module Reload) 속도를 확보 -->
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# apps/api 디렉토리에서 실행
+docker compose up -d
 ```
 
-## Run tests
+| 컨테이너 | 포트 | 설명 |
+|-----------|------|------|
+| `nearbybook-db` | `5432` | PostgreSQL 16 |
+| `nearbybook-redis` | `6379` | Redis 7 |
+
+### 2. DB 마이그레이션
+
+<!-- Drizzle ORM으로 스키마를 관리 -->
+<!-- generate: SQL 마이그레이션 파일 생성, migrate: 실제 DB에 적용 -->
 
 ```bash
-# unit tests
-$ npm run test
+# 마이그레이션 파일 생성
+npm run db:generate
 
-# e2e tests
-$ npm run test:e2e
+# DB에 마이그레이션 적용
+npm run db:migrate
 
-# test coverage
-$ npm run test:cov
+# 스키마를 DB에 바로 반영 (개발용, 마이그레이션 파일 없이)
+npm run db:push
+
+# Drizzle Studio (DB GUI)
+npm run db:studio
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 3. 서버 실행
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+# 개발 모드
+npm run start:dev
+
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+서버가 `http://localhost:4001`에서 실행
 
-## Resources
+### 4. 개발 환경 종료
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+# 컨테이너 중지 (데이터 유지)
+docker compose down
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# 컨테이너 + 볼륨 데이터 모두 삭제
+docker compose down -v
+```
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 프로덕션 환경
 
-## Stay in touch
+### Docker 이미지 빌드
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+<!-- 멀티스테이지 빌드: deps → build → production -->
+<!-- 빌드 도구(typescript, nest-cli)가 최종 이미지에 포함되지 않아 이미지 크기 최소화 -->
+<!-- 빌드 컨텍스트가 모노레포 루트여야 packages/types 의존성을 해결할 수 있음 -->
 
-## License
+```bash
+# 모노레포 루트(NearbyBook)에서 실행
+docker build -f apps/api/Dockerfile -t nearbybook-api .
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# ARM 아키텍처용 빌드 -- 배포환경 Oracle cloud arm 4core 24GB RAM
+docker build --platform linux/arm64 -f apps/api/Dockerfile -t nearbybook-api .
+```
+
+### Docker 이미지 실행
+
+```bash
+# 기본 실행
+docker run -p 4001:4001 --env-file apps/api/.env nearbybook-api
+
+# 백그라운드 실행
+docker run -d -p 4001:4001 --env-file apps/api/.env nearbybook-api
+```
+
+### Docker 없이 실행
+
+```bash
+# 빌드 (TypeScript → JavaScript)
+npm run build
+
+# 프로덕션 모드 실행
+npm run start:prod
+```
+
+---
+
+## 테스트(준비 중)
+
+```bash
+# 단위 테스트
+npm run test
+
+# 워치 모드
+npm run test:watch
+
+# 커버리지
+npm run test:cov
+
+# E2E 테스트
+npm run test:e2e
+```
+
+## 코드 품질
+
+```bash
+# 린트
+npm run lint
+
+# 포맷팅
+npm run format
+```
