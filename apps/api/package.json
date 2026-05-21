@@ -58,6 +58,7 @@
     "@workspace/types": "*"
   },
   "devDependencies": {
+    "@workspace/eslint-config": "*",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
