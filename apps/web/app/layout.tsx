@@ -63,6 +63,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
   other: {
     "naver-site-verification": "fd7a5241bb1117aa50198b99b3a8793bd94c553e",
     "google-site-verification": "NuiHvK8Jv1J0x3YNrz-vO08kJnbRtIHjyBAf1B6AnTE",
