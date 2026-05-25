@@ -7,7 +7,6 @@ import {
 } from "@nestjs/common"
 import { Cron, CronExpression } from "@nestjs/schedule"
 import { BooksService } from "src/books/books.service"
-import { CommonService } from "src/common/common.service"
 import { DATABASE_CONNECTION } from "src/database/database.provider"
 import { getDateRange } from "src/utils"
 import { TransformLoanBookRes } from "src/utils/transform"
@@ -22,7 +21,6 @@ export class MeiliSearchTaskService {
   private readonly logger = new Logger(MeiliSearchTaskService.name)
   constructor(
     private readonly httpService: HttpService,
-    private readonly commonService: CommonService,
     private readonly booksService: BooksService,
     private readonly meilisearchService: MeilisearchService,
     @Inject(DATABASE_CONNECTION)
@@ -100,11 +98,6 @@ export class MeiliSearchTaskService {
       return updatedRecords
     } catch (error: any) {
       this.logger.error(`DB 저장 중 오류 발생: ${error.message}`, error)
-      await this.commonService.sendMessageToDiscord(
-        "saveScrapedDataToDB error",
-        JSON.stringify(error),
-        "Error"
-      )
       throw new InternalServerErrorException("saveScrapedDataToDB error")
     }
   }
@@ -118,11 +111,6 @@ export class MeiliSearchTaskService {
       this.logger.log(`MeiliSearch 데이터 동기화 완료: ${INDEX_NAME}`)
     } catch (error) {
       this.logger.error(`MeiliSearch 동기화 오류: ${error instanceof Error ? error.message : String(error)}`, error)
-      await this.commonService.sendMessageToDiscord(
-        "saveDataToMeiliSearch error",
-        JSON.stringify(error),
-        "Error"
-      )
     }
   }
 }

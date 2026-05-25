@@ -52,7 +52,11 @@ cacheable.install(httpsAgent);
   imports: [
     ClsModule.forRoot({
       global: true,
-      middleware: { mount: true, generateId: true, idGenerator: (req: any) => uuidv4() },
+      middleware: {
+        mount: true,
+        generateId: true,
+        idGenerator: (req: any) => uuidv4(),
+      },
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -65,7 +69,7 @@ cacheable.install(httpsAgent);
           name: 'rate-limit',
           ttl: 60000, // 1m
           limit: 60,
-          blockDuration: 60 * 60 * 1000, //1h
+          blockDuration: 60 * 10 * 1000, //10 min
         },
       ],
     }),

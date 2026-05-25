@@ -45,11 +45,6 @@ export class GovLibraryBigDataTaskService {
       )
     } catch (error) {
       this.logger.error("❌ 도서관 정보 최신화 실패", error)
-      await this.commonService.sendMessageToDiscord(
-        "도서관 정보 최신화 실패",
-        JSON.stringify(error),
-        "Error"
-      )
     }
   }
 
