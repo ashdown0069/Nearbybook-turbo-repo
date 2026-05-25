@@ -9,7 +9,6 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { searchBooksDto } from './dto/req/search-books.dto';
 import { searchBookDto } from './dto/req/search-book.dto';
-import { CommonService } from 'src/common/common.service';
 import { formatDate, getDateRange } from 'src/utils';
 import { XMLParser } from 'fast-xml-parser';
 import { RedisCache } from 'src/redis/redis-cache.decorator';
@@ -31,7 +30,6 @@ export class BooksService {
   private readonly logger = new Logger(BooksService.name);
   constructor(
     private readonly httpService: HttpService,
-    private readonly commonService: CommonService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
@@ -78,11 +76,6 @@ export class BooksService {
       return book;
     } catch (error) {
       this.logger.error(`Naver API 조회 중 오류 발생: ISBN=${isbn}`, error);
-      await this.commonService.sendMessageToDiscord(
-        'searchBook__naver error',
-        JSON.stringify(error),
-        'Error',
-      );
       throw new InternalServerErrorException('searchBook__naver error');
     }
   }
@@ -105,25 +98,34 @@ export class BooksService {
 
       const response = result.data?.response;
       if (!response || response.error) {
-        this.logger.warn(`도서관 빅데이터 API 조회 실패, Naver API로 전환: ISBN=${isbn}`);
+        this.logger.warn(
+          `도서관 빅데이터 API 조회 실패, Naver API로 전환: ISBN=${isbn}`,
+        );
         return this.searchBook__naver(isbn);
       }
 
       const detail = response.detail;
       if (!Array.isArray(detail) || detail.length === 0) {
-        this.logger.warn(`도서관 빅데이터 API 결과 없음, Naver API로 전환: ISBN=${isbn}`);
+        this.logger.warn(
+          `도서관 빅데이터 API 결과 없음, Naver API로 전환: ISBN=${isbn}`,
+        );
         return await this.searchBook__naver(isbn);
       }
 
       const foundBook = detail[0]?.book;
       if (!foundBook) {
-        this.logger.warn(`도서관 빅데이터 API 북 데이터 없음, Naver API로 전환: ISBN=${isbn}`);
+        this.logger.warn(
+          `도서관 빅데이터 API 북 데이터 없음, Naver API로 전환: ISBN=${isbn}`,
+        );
         return await this.searchBook__naver(isbn);
       }
       this.logger.log(`도서 상세 조회 성공: ${foundBook.bookname}`);
       return foundBook;
     } catch (error) {
-      this.logger.error(`도서 상세 조회 중 오류 발생, Naver API 시도: ISBN=${isbn}`, error);
+      this.logger.error(
+        `도서 상세 조회 중 오류 발생, Naver API 시도: ISBN=${isbn}`,
+        error,
+      );
       try {
         return await this.searchBook__naver(isbn);
       } catch (naverError) {
@@ -140,7 +142,9 @@ export class BooksService {
     isbn: SearchBookLocationDto['isbn'],
     pageNo: SearchBookLocationDto['pageNo'] = 1,
   ) {
-    this.logger.log(`도서 소장 위치 조회 시작: libCode=${libCode}, ISBN=${isbn}`);
+    this.logger.log(
+      `도서 소장 위치 조회 시작: libCode=${libCode}, ISBN=${isbn}`,
+    );
     try {
       const result = await firstValueFrom(
         this.httpService.get(`/itemSrch`, {
@@ -158,7 +162,9 @@ export class BooksService {
 
       const response = result.data.response as ItemSrchResponse;
       if (+response.resultNum <= 0) {
-        this.logger.log(`도서 소장 정보 없음: libCode=${libCode}, ISBN=${isbn}`);
+        this.logger.log(
+          `도서 소장 정보 없음: libCode=${libCode}, ISBN=${isbn}`,
+        );
         return {
           hasBook: false,
           libName: response.libNm,
@@ -166,15 +172,20 @@ export class BooksService {
           bookCode: '',
         };
       }
+      const firstDoc = response.docs?.[0]?.doc;
+      const firstCallNumber = firstDoc?.callNumbers?.[0]?.callNumber;
+
+      //'' 는 정보 없음
       const bookCode =
-        response.docs[0].doc.class_no +
-        '-' +
-        response.docs[0].doc.callNumbers[0].callNumber.book_code;
-      const shelfLocation =
-        response.docs[0].doc.callNumbers[0].callNumber.shelf_loc_name;
+        firstDoc && firstCallNumber
+          ? `${firstDoc.class_no}-${firstCallNumber.book_code}`
+          : '';
+      const shelfLocation = firstCallNumber?.shelf_loc_name ?? '';
       const libName = response.libNm;
 
-      this.logger.log(`도서 소장 위치 조회 성공: ${libName}, 위치: ${shelfLocation}`);
+      this.logger.log(
+        `도서 소장 위치 조회 성공: ${libName}, 위치: ${shelfLocation}`,
+      );
       return {
         hasBook: true,
         libName,
@@ -182,13 +193,11 @@ export class BooksService {
         bookCode,
       };
     } catch (error) {
-      this.logger.error(`도서 소장 위치 조회 중 오류 발생: libCode=${libCode}, ISBN=${isbn}`, error);
-      await this.commonService.sendMessageToDiscord(
-        'searchBookLocation service error',
-        JSON.stringify(error),
-        'Error',
+      this.logger.error(
+        `도서 소장 위치 조회 중 오류 발생: libCode=${libCode}, ISBN=${isbn}`,
+        error,
       );
-      throw new InternalServerErrorException('can not get library book list');
+      throw new InternalServerErrorException('can not get book location');
     }
   }
 
@@ -198,7 +207,9 @@ export class BooksService {
     query: searchBooksDto['query'],
     pageNo: searchBooksDto['pageNo'] = 1,
   ) {
-    this.logger.log(`도서 목록 검색 시작: mode=${mode}, query=${query}, pageNo=${pageNo}`);
+    this.logger.log(
+      `도서 목록 검색 시작: mode=${mode}, query=${query}, pageNo=${pageNo}`,
+    );
     let params;
     if (mode === 'title') {
       params = {
@@ -250,11 +261,6 @@ export class BooksService {
       return responseWithPages;
     } catch (error) {
       this.logger.error(`도서 목록 검색 중 오류 발생: query=${query}`, error);
-      await this.commonService.sendMessageToDiscord(
-        'getBooks service error',
-        JSON.stringify(error),
-        'Error',
-      );
       throw new InternalServerErrorException('can not get book list');
     }
   }
@@ -304,7 +310,9 @@ export class BooksService {
     kdc?: number,
   ) {
     const { startDate, endDate } = getDateRange();
-    this.logger.log(`인기 대출 도서 조회 시작: range=${startDate}~${endDate}, kdc=${kdc}`);
+    this.logger.log(
+      `인기 대출 도서 조회 시작: range=${startDate}~${endDate}, kdc=${kdc}`,
+    );
 
     try {
       const result = await lastValueFrom(
@@ -326,15 +334,12 @@ export class BooksService {
         return [];
       }
 
-      this.logger.log(`인기 대출 도서 조회 성공: ${docs.length}건 (kdc=${kdc})`);
+      this.logger.log(
+        `인기 대출 도서 조회 성공: ${docs.length}건 (kdc=${kdc})`,
+      );
       return docs.map((item) => item.doc);
     } catch (error) {
       this.logger.error(`인기 대출 도서 조회 중 오류 발생: kdc=${kdc}`, error);
-      await this.commonService.sendMessageToDiscord(
-        'getPopularLoanBooks service error',
-        JSON.stringify(error),
-        'Error',
-      );
       throw new InternalServerErrorException('can not get PopularLoanBooks');
     }
   }
@@ -343,7 +348,9 @@ export class BooksService {
     isbn: string,
     libCode: number,
   ): Promise<BookExistResponse['result']> {
-    this.logger.log(`도서 대출 가능 여부 확인 시작: ISBN=${isbn}, libCode=${libCode}`);
+    this.logger.log(
+      `도서 대출 가능 여부 확인 시작: ISBN=${isbn}, libCode=${libCode}`,
+    );
     try {
       const response = await lastValueFrom(
         this.httpService.get(`/bookExist`, {
@@ -359,11 +366,9 @@ export class BooksService {
       this.logger.log(`도서 대출 가능 여부 확인 결과: ${result.loanAvailable}`);
       return result;
     } catch (error) {
-      this.logger.error(`도서 대출 가능 여부 확인 중 오류 발생: ISBN=${isbn}, libCode=${libCode}`, error);
-      await this.commonService.sendMessageToDiscord(
-        'getBookLoanStatus service error',
-        JSON.stringify(error),
-        'Error',
+      this.logger.error(
+        `도서 대출 가능 여부 확인 중 오류 발생: ISBN=${isbn}, libCode=${libCode}`,
+        error,
       );
       throw new InternalServerErrorException('can not get loan status');
     }
@@ -392,14 +397,19 @@ export class BooksService {
         },
       );
 
-      this.logger.log(`자동완성 검색어 조회 성공: ${result.data.hits.length}건`);
+      this.logger.log(
+        `자동완성 검색어 조회 성공: ${result.data.hits.length}건`,
+      );
       return {
         hits: result.data.hits,
         query: result.data.query,
         processingTimeMs: result.data.processingTimeMs,
       };
     } catch (error) {
-      this.logger.error(`자동완성 검색어 조회 중 오류 발생: query=${query}`, error);
+      this.logger.error(
+        `자동완성 검색어 조회 중 오류 발생: query=${query}`,
+        error,
+      );
       throw new InternalServerErrorException('autocomplete search failed');
     }
   }
