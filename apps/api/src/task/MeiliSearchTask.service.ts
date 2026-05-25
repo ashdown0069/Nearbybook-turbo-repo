@@ -45,19 +45,26 @@ export class MeiliSearchTaskService {
       this.logger.warn("개발 환경에서는 작업을 건너뜁니다.")
       return
     }
+    this.logger.log("월간 도서 스크래핑 및 검색 엔진 동기화 시작...")
     const updatedRecords = await this.saveScrapedDataToDB().catch(() => null)
-    if (!updatedRecords) return
+    if (!updatedRecords) {
+      this.logger.warn("DB 저장 결과가 없어 작업을 중단합니다.")
+      return
+    }
 
     await this.saveDataToMeiliSearch(updatedRecords)
+    this.logger.log("월간 도서 스크래핑 및 검색 엔진 동기화 완료")
   }
 
   async saveScrapedDataToDB() {
     const { startDate } = getDateRange()
     const BATCH_SIZE = 1000
+    this.logger.log(`데이터 스크래핑 및 DB 저장 시작 (기준일: ${startDate})`)
 
     //1단계: 외부 API에서 데이터 수집 (트랜잭션 밖)
     const allRecords: schema.NewBookRecord[] = []
     for (let i = 0; i < 10; i++) {
+      this.logger.log(`KDC ${i}00번대 인기도서 수집 중...`)
       const result = await this.booksService.getPopularLoanBooks(1000, 1, i)
       const { records } = TransformLoanBookRes(
         result,
@@ -66,6 +73,7 @@ export class MeiliSearchTaskService {
       )
       allRecords.push(...records)
     }
+    this.logger.log(`총 ${allRecords.length}건의 데이터 수집 완료. DB 반영 시작...`)
 
     //2단계: DB 저장 (트랜잭션 안 — 1000건씩 배치)
     try {
@@ -85,12 +93,13 @@ export class MeiliSearchTaskService {
             })
             .returning()
           updatedRecords = updatedRecords.concat(inserted)
+          this.logger.log(`DB 배치 저장 진행 중... (${updatedRecords.length}/${allRecords.length})`)
         }
       })
-      this.logger.log(`saveScrapedDataToDB success`)
+      this.logger.log(`DB 저장 성공: 총 ${updatedRecords.length}건 반영됨`)
       return updatedRecords
     } catch (error: any) {
-      this.logger.error(error.message)
+      this.logger.error(`DB 저장 중 오류 발생: ${error.message}`, error)
       await this.commonService.sendMessageToDiscord(
         "saveScrapedDataToDB error",
         JSON.stringify(error),
@@ -102,12 +111,13 @@ export class MeiliSearchTaskService {
 
   async saveDataToMeiliSearch(records: schema.BookRecord[]) {
     const INDEX_NAME = "books"
+    this.logger.log(`MeiliSearch 데이터 동기화 시작: ${records.length}건`)
     try {
       await this.meilisearchService.addBooksDocuments(records, INDEX_NAME)
 
-      this.logger.log(`saveDataToMeiliSearch success`)
+      this.logger.log(`MeiliSearch 데이터 동기화 완료: ${INDEX_NAME}`)
     } catch (error) {
-      this.logger.error(error instanceof Error ? error.message : String(error))
+      this.logger.error(`MeiliSearch 동기화 오류: ${error instanceof Error ? error.message : String(error)}`, error)
       await this.commonService.sendMessageToDiscord(
         "saveDataToMeiliSearch error",
         JSON.stringify(error),

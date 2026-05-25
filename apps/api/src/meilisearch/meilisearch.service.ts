@@ -18,6 +18,7 @@ export class MeilisearchService {
 
   async addBooksDocuments(records: BookRecord[], indexName: string) {
     if (records.length === 0) return
+    this.logger.log(`Meilisearch 문서 추가 시작: ${records.length}건, 인덱스=${indexName}`);
     const docs = records.map((r) => ({
       id: r.isbn,
       title: r.title,
@@ -33,9 +34,9 @@ export class MeilisearchService {
     }))
     try {
       await this.meiliSearch.index(indexName).addDocuments(docs)
-      this.logger.log(`${records.length} documents added to ${indexName} index`)
+      this.logger.log(`Meilisearch 문서 추가 완료: ${records.length}건이 ${indexName} 인덱스에 추가됨`)
     } catch (error) {
-      this.logger.error(`addDocuments error ${indexName} index`, error)
+      this.logger.error(`Meilisearch 문서 추가 중 오류 발생: 인덱스=${indexName}`, error)
       throw error
     }
   }

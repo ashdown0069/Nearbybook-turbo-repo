@@ -38,10 +38,10 @@ export class DistributedLockService {
 
     if (acquired) {
       this.logger.log(
-        `Lock acquired: ${lockKey} (instance: ${this.instanceId})`
+        `분산 락 획득 성공: ${lockKey} (인스턴스: ${this.instanceId})`
       )
     } else {
-      this.logger.warn(`Lock denied: ${lockKey} (held by another instance)`)
+      this.logger.warn(`분산 락 획득 거부: ${lockKey} (다른 인스턴스에서 점유 중)`)
     }
 
     return acquired
@@ -75,10 +75,10 @@ export class DistributedLockService {
     const released = result === 1
 
     if (released) {
-      this.logger.log(`Lock released: ${lockKey}`)
+      this.logger.log(`분산 락 해제 완료: ${lockKey}`)
     } else {
       this.logger.warn(
-        `Lock release failed: ${lockKey} (not owned by this instance)`
+        `분산 락 해제 실패: ${lockKey} (소유권이 없거나 이미 해제됨)`
       )
     }
 

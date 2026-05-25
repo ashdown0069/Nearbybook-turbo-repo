@@ -25,8 +25,10 @@ export class TrackingTaskService implements OnModuleInit {
       this.logger.warn("개발 환경에서는 작업을 건너뜁니다.")
       return
     }
+    this.logger.log("인기 도서 집계 스케줄러 등록 시작...")
     await this.popQueue.upsertJobScheduler("flush-job", {
       pattern: CronExpression.EVERY_2_HOURS,
     })
+    this.logger.log("인기 도서 집계 스케줄러 등록 완료 (2시간 주기)")
   }
 }

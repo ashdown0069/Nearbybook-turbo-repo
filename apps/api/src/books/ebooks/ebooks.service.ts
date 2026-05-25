@@ -40,11 +40,13 @@ export class EbooksService {
       );
 
       const data = response.data;
+      const numFound = Number(data.TOTAL_COUNT || 0);
 
+      this.logger.log(`Ebook 검색 성공: ${numFound}건 발견`);
       return {
-        pages: Math.ceil(Number(data.TOTAL_COUNT || 0) / 10),
+        pages: Math.ceil(numFound / 10),
         books: data.docs || [],
-        numFound: Number(data.TOTAL_COUNT || 0),
+        numFound,
       };
     } catch (error) {
       this.logger.error("searchEbooks 서비스 에러", error);

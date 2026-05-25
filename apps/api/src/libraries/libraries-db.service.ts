@@ -26,6 +26,7 @@ export class LibrariesDbService {
     regionCode: string,
     dtlRegionCode: string | null
   ): Promise<void> {
+    this.logger.log(`단일 도서관 정보 저장/업데이트 시작: libCode=${lib.libCode}`);
     await this.db
       .insert(schema.libraries)
       .values({
@@ -58,6 +59,7 @@ export class LibrariesDbService {
           dtlRegionCode,
         },
       })
+    this.logger.log(`단일 도서관 정보 저장 완료: ${lib.libName}`);
   }
 
   async upsertLibraries(
@@ -66,6 +68,9 @@ export class LibrariesDbService {
     dtlRegionCode: string
   ): Promise<void> {
     if (libs.length === 0) return
+    this.logger.log(
+      `대량 도서관 정보 저장 시작: ${libs.length}건 (regionCode=${regionCode}, dtlRegionCode=${dtlRegionCode})`
+    )
 
     await this.db
       .insert(schema.libraries)
@@ -101,11 +106,13 @@ export class LibrariesDbService {
           dtlRegionCode: sql`excluded.dtl_region_code`,
         },
       })
+    this.logger.log(`대량 도서관 정보 저장 완료: ${libs.length}건 처리됨`)
   }
 
   async findByRegionCode(region: string, dtlRegion?: string) {
+    this.logger.log(`DB에서 지역 기반 도서관 조회: region=${region}, dtlRegion=${dtlRegion}`);
     try {
-      return await this.db
+      const result = await this.db
         .select()
         .from(schema.libraries)
         .where(
@@ -116,8 +123,10 @@ export class LibrariesDbService {
               : undefined
           )
         )
+      this.logger.log(`DB 조회 성공: ${result.length}건의 도서관 발견`);
+      return result
     } catch (error) {
-      this.logger.error("findByRegionCode Error", error)
+      this.logger.error(`findByRegionCode Error (region=${region})`, error)
       throw new InternalServerErrorException(
         "DB에서 도서관 데이터를 가져오는 데 실패했습니다"
       )
@@ -125,6 +134,7 @@ export class LibrariesDbService {
   }
 
   async findByLibCode(libCode: string) {
+    this.logger.log(`DB에서 도서관 코드 조회: libCode=${libCode}`);
     try {
       const result = await this.db
         .select()
@@ -132,9 +142,15 @@ export class LibrariesDbService {
         .where(eq(schema.libraries.libCode, libCode))
         .limit(1)
 
-      return result[0] || null
+      const found = result[0] || null
+      if (found) {
+        this.logger.log(`DB 도서관 코드 조회 성공: ${found.libName}`);
+      } else {
+        this.logger.warn(`DB 도서관 코드 조회 결과 없음: libCode=${libCode}`);
+      }
+      return found
     } catch (error) {
-      this.logger.error("findByLibCode Error", error)
+      this.logger.error(`findByLibCode Error (libCode=${libCode})`, error)
       throw new InternalServerErrorException(
         "DB에서 도서관 데이터를 가져오는 데 실패했습니다"
       )

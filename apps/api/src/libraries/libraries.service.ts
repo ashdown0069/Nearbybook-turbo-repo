@@ -25,6 +25,7 @@ export class LibrariesService {
     region: number,
     detailRegion: number
   ) {
+    this.logger.log(`ISBN 기반 소장 도서관 조회 시작: ISBN=${ISBN}, region=${region}`);
     try {
       const response = await lastValueFrom(
         this.httpService.get(`/libSrchByBook`, {
@@ -41,13 +42,16 @@ export class LibrariesService {
         })
       )
 
-      if (response.data.response.libs.length > 0) {
-        return response.data.response.libs.map((lib) => lib.lib)
+      const libs = response.data.response.libs;
+      if (libs && libs.length > 0) {
+        this.logger.log(`ISBN 기반 소장 도서관 조회 성공: ${libs.length}개 도서관`);
+        return libs.map((lib) => lib.lib)
       } else {
+        this.logger.log(`ISBN 기반 소장 도서관 결과 없음: ISBN=${ISBN}`);
         return []
       }
     } catch (error) {
-      this.logger.error("getLibraryListByISBN service error", error)
+      this.logger.error(`ISBN 기반 소장 도서관 조회 중 오류 발생: ISBN=${ISBN}`, error)
       await this.commonService.sendMessageToDiscord(
         "getLibraryListByISBN service error",
         JSON.stringify(error),
@@ -58,6 +62,7 @@ export class LibrariesService {
   }
 
   async getRegionLibraryList(region: number, dtlRegion?: number) {
+    this.logger.log(`지역별 도서관 목록 조회 시작: region=${region}, dtlRegion=${dtlRegion}`);
     return await this.LibrariesDbService.findByRegionCode(region.toString())
   }
 
@@ -65,6 +70,7 @@ export class LibrariesService {
     region: number,
     dtlRegion?: number
   ): Promise<LibSrchResponse["libs"]["lib"] | []> {
+    this.logger.log(`API를 통한 지역 도서관 목록 호출: region=${region}`);
     let params = {}
     if (dtlRegion) {
       params = {
@@ -89,10 +95,11 @@ export class LibrariesService {
         })
       )
 
-      // return result.data;
-      return result.data.response.libs.map((lib) => lib.lib)
+      const libs = result.data.response.libs;
+      this.logger.log(`지역 도서관 목록 호출 성공: ${libs?.length ?? 0}건`);
+      return libs.map((lib) => lib.lib)
     } catch (error) {
-      this.logger.error("fetchRegionLibraryList service error", error)
+      this.logger.error(`지역 도서관 목록 호출 중 오류 발생: region=${region}`, error)
       await this.commonService.sendMessageToDiscord(
         "fetchRegionLibraryList service error",
         JSON.stringify(error),
@@ -108,6 +115,7 @@ export class LibrariesService {
     region: number,
     dtlRegion: number
   ) {
+    this.logger.log(`웹용 ISBN 도서관 조회 시작: ISBN=${ISBN}, region=${region}`);
     const libsWithBookPromise = this.fetchLibrariesByISBN(
       ISBN,
       region,
@@ -127,6 +135,7 @@ export class LibrariesService {
       ...lib,
     }))
 
+    this.logger.log(`웹용 ISBN 도서관 조회 완료: 총 ${result.length}개 도서관 매핑`);
     return result
   }
 }

@@ -1,66 +1,66 @@
-import { Controller, Get, Query, UseInterceptors } from "@nestjs/common"
-import { LibrariesService } from "./libraries.service"
-import { SearchLibrariesByISBNDto } from "./dto/req/search-libs-byISBN"
-import { SearchLibrariesByRegionDto } from "./dto/req/search-libs-byRegion"
-import { Serialize } from "src/interceptors/serialize.interceptor"
-import { LibraryResponseDto } from "./dto/res/libs-response.dto"
-import { LibrariesDbService } from "./libraries-db.service"
-import { CacheInterceptor, CacheTTL } from "@nestjs/cache-manager"
+import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
+import { LibrariesService } from './libraries.service';
+import { SearchLibrariesByISBNDto } from './dto/req/search-libs-byISBN';
+import { SearchLibrariesByRegionDto } from './dto/req/search-libs-byRegion';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { LibraryResponseDto } from './dto/res/libs-response.dto';
+import { LibrariesDbService } from './libraries-db.service';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
-@Controller("libraries")
+@Controller('libraries')
 export class LibrariesController {
   constructor(
     private readonly librariesService: LibrariesService,
-    private readonly librariesDbService: LibrariesDbService
+    private readonly librariesDbService: LibrariesDbService,
   ) {}
 
   //도서(isbn사용) 소장 도서관 검색 (지역 전체 도서관 리턴)
   @CacheTTL(60 * 60 * 24) // 24시간 캐시
   @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
-  @Get("/searchbyisbn")
+  @Get('/searchbyisbn')
   async findLibrariesByISBN__Web(@Query() query: SearchLibrariesByISBNDto) {
     return await this.librariesService.findLibrariesByISBN__Web(
       query.isbn,
       query.region,
-      query.dtlRegion
-    )
+      query.dtlRegion,
+    );
   }
 
   //도서(isbn사용) 소장 도서관만 리턴
   @CacheTTL(60 * 30)
   @UseInterceptors(CacheInterceptor)
-  @Get("/searchbyisbn/extension")
+  @Get('/searchbyisbn/extension')
   async findLibrariesByISBN__Extension(
-    @Query() query: SearchLibrariesByISBNDto
+    @Query() query: SearchLibrariesByISBNDto,
   ) {
     return await this.librariesService.fetchLibrariesByISBN(
       query.isbn,
       query.region,
-      query.dtlRegion
-    )
+      query.dtlRegion,
+    );
   }
 
   //공공 도서관 찾기용
-  @CacheTTL(60 * 60 * 24) // 24시간 캐시
-  @UseInterceptors(CacheInterceptor)
+  // @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  // @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
-  @Get("/searchbyregion")
+  @Get('/searchbyregion')
   async findLibrariesByRegion(
     @Query()
-    query: SearchLibrariesByRegionDto
+    query: SearchLibrariesByRegionDto,
   ) {
     return await this.librariesDbService.findByRegionCode(
       query.region.toString(),
-      query.dtlRegion ? query.dtlRegion.toString() : undefined
-    )
+      query.dtlRegion ? query.dtlRegion.toString() : undefined,
+    );
   }
 
   //extension에서 도서관 코드로 도서관 정보 가져오기용
   @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
-  @Get("/getLibInfo")
-  async getLibInfo(@Query("libCode") libCode: string) {
-    return await this.librariesDbService.findByLibCode(libCode)
+  @Get('/getLibInfo')
+  async getLibInfo(@Query('libCode') libCode: string) {
+    return await this.librariesDbService.findByLibCode(libCode);
   }
 }

@@ -57,9 +57,11 @@ export class GovLibraryBigDataTaskService {
 
   private async upsertLibraries(): Promise<number> {
     let total = 0
+    this.logger.log("지역별 도서관 정보 수집 시작...")
 
     for (const { code: regionCode, name: cityName } of SI_DO_CODE_AND_NAME) {
       const districts = DISTRICTS_CODE_AND_NAME[cityName] ?? []
+      this.logger.log(`${cityName} (${regionCode}) 지역 수집 시작...`)
 
       for (
         let i = 0;
@@ -86,12 +88,15 @@ export class GovLibraryBigDataTaskService {
 
           if (result.status === "rejected") {
             this.logger.warn(`[${dtlCode}] ${dtlName} 조회 실패 - 건너뜀`)
-            this.logger.error(`[${dtlCode}] 실패 원인`, result.reason)
+            this.logger.error(`[${dtlCode}] 실패 원인: ${dtlName}`, result.reason)
             continue
           }
 
           const libs = result.value as any[]
-          if (libs.length === 0) continue
+          if (libs.length === 0) {
+            this.logger.log(`[${dtlCode}] ${dtlName} 결과 없음`)
+            continue
+          }
 
           try {
             await this.librariesDbService.upsertLibraries(
@@ -100,7 +105,7 @@ export class GovLibraryBigDataTaskService {
               dtlCode
             )
             total += libs.length
-            this.logger.log(`${cityName} ${dtlName} ${libs.length}건 저장완료`)
+            this.logger.log(`${cityName} ${dtlName} ${libs.length}건 저장 완료`)
           } catch (error) {
             this.logger.error(
               `[${dtlCode}] ${dtlName} DB 저장 실패`,
