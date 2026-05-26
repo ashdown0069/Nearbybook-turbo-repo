@@ -1,62 +1,71 @@
-import { Injectable, Logger } from "@nestjs/common"
-import { Cron, CronExpression } from "@nestjs/schedule"
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   SI_DO_CODE_AND_NAME,
   DISTRICTS_CODE_AND_NAME,
-} from "src/constant/region-codes"
-import { LibrariesService } from "src/libraries/libraries.service"
-import { LibrariesDbService } from "src/libraries/libraries-db.service"
-import { CommonService } from "src/common/common.service"
-import { RedisLock } from "src/redis/redis-lock.decorator"
+} from 'src/constant/region-codes';
+import { LibrariesService } from 'src/libraries/libraries.service';
+import { LibrariesDbService } from 'src/libraries/libraries-db.service';
+import { CommonService } from 'src/common/common.service';
+import { RedisLock } from 'src/redis/redis-lock.decorator';
 
 @Injectable()
 export class GovLibraryBigDataTaskService {
-  private readonly logger = new Logger(GovLibraryBigDataTaskService.name)
+  private readonly logger = new Logger(GovLibraryBigDataTaskService.name);
 
   constructor(
     private readonly librariesService: LibrariesService,
     private readonly librariesDbService: LibrariesDbService,
-    private readonly commonService: CommonService
+    private readonly commonService: CommonService,
   ) {}
 
   // 2개월 주기
   @Cron(CronExpression.EVERY_2ND_MONTH, {
-    name: "libraryRefresh",
-    timeZone: "Asia/Seoul",
+    name: 'libraryRefresh',
+    timeZone: 'Asia/Seoul',
   })
-  @RedisLock({ key: "cron:libraryRefresh", ttlSeconds: 3600 })
+  @RedisLock({ key: 'cron:libraryRefresh', ttlSeconds: 3600 })
   async refreshLibraries() {
-    if (process.env.NODE_ENV === "development") {
-      this.logger.warn("개발 환경에서는 작업을 건너뜁니다.")
-      return
+    if (process.env.NODE_ENV === 'development') {
+      this.logger.warn('개발 환경에서는 작업을 건너뜁니다.');
+      return;
     }
-    this.logger.log("도서관 정보 최신화 시작...")
+    this.logger.log('도서관 정보 최신화 시작...');
 
     try {
       // regions/detailRegions는 scraper-libs.ts(수동 초기 적재)가 담당
       // 크론잡은 libraries 최신화만 처리
-      const total = await this.upsertLibraries()
+      const total = await this.upsertLibraries();
 
-      this.logger.log(`✅ 도서관 정보 최신화 완료 (${total}건)`)
+      this.logger.log(`✅ 도서관 정보 최신화 완료 (${total}건)`);
       await this.commonService.sendMessageToDiscord(
-        "도서관 정보 최신화 완료",
+        '도서관 정보 최신화 완료',
         `총 ${total}건 처리`,
-        "Feedback"
-      )
+        'Feedback',
+      );
     } catch (error) {
-      this.logger.error("❌ 도서관 정보 최신화 실패", error)
+      this.logger.error('❌ 도서관 정보 최신화 실패', error);
+
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      await this.commonService
+        .sendMessageToDiscord(
+          '🚨 [CRON] 도서관 정보 최신화 실패',
+          `작업 중 치명적인 오류가 발생했습니다.\n**[Error]** ${errorMsg}`,
+          'Error',
+        )
+        .catch((e) => this.logger.error('Discord 알림 전송 실패', e));
     }
   }
 
-  private static readonly PARALLEL_CHUNK_SIZE = 5
+  private static readonly PARALLEL_CHUNK_SIZE = 5;
 
   private async upsertLibraries(): Promise<number> {
-    let total = 0
-    this.logger.log("지역별 도서관 정보 수집 시작...")
+    let total = 0;
+    this.logger.log('지역별 도서관 정보 수집 시작...');
 
     for (const { code: regionCode, name: cityName } of SI_DO_CODE_AND_NAME) {
-      const districts = DISTRICTS_CODE_AND_NAME[cityName] ?? []
-      this.logger.log(`${cityName} (${regionCode}) 지역 수집 시작...`)
+      const districts = DISTRICTS_CODE_AND_NAME[cityName] ?? [];
+      this.logger.log(`${cityName} (${regionCode}) 지역 수집 시작...`);
 
       for (
         let i = 0;
@@ -65,52 +74,57 @@ export class GovLibraryBigDataTaskService {
       ) {
         const chunk = districts.slice(
           i,
-          i + GovLibraryBigDataTaskService.PARALLEL_CHUNK_SIZE
-        )
+          i + GovLibraryBigDataTaskService.PARALLEL_CHUNK_SIZE,
+        );
 
         const results = await Promise.allSettled(
           chunk.map(({ code: dtlCode }) =>
             this.librariesService.fetchRegionLibraryList(
               Number(regionCode),
-              Number(dtlCode)
-            )
-          )
-        )
+              Number(dtlCode),
+            ),
+          ),
+        );
 
         for (let j = 0; j < chunk.length; j++) {
-          const { code: dtlCode, name: dtlName } = chunk[j]
-          const result = results[j]
+          const { code: dtlCode, name: dtlName } = chunk[j];
+          const result = results[j];
 
-          if (result.status === "rejected") {
-            this.logger.warn(`[${dtlCode}] ${dtlName} 조회 실패 - 건너뜀`)
-            this.logger.error(`[${dtlCode}] 실패 원인: ${dtlName}`, result.reason)
-            continue
+          if (result.status === 'rejected') {
+            this.logger.warn(`[${dtlCode}] ${dtlName} 조회 실패 - 건너뜀`);
+            this.logger.error(
+              `[${dtlCode}] 실패 원인: ${dtlName}`,
+              result.reason,
+            );
+            continue;
           }
 
-          const libs = result.value as any[]
+          const libs = result.value as any[];
           if (libs.length === 0) {
-            this.logger.log(`[${dtlCode}] ${dtlName} 결과 없음`)
-            continue
+            this.logger.log(`[${dtlCode}] ${dtlName} 결과 없음`);
+            continue;
           }
 
           try {
             await this.librariesDbService.upsertLibraries(
               libs,
               regionCode,
-              dtlCode
-            )
-            total += libs.length
-            this.logger.log(`${cityName} ${dtlName} ${libs.length}건 저장 완료`)
+              dtlCode,
+            );
+            total += libs.length;
+            this.logger.log(
+              `${cityName} ${dtlName} ${libs.length}건 저장 완료`,
+            );
           } catch (error) {
             this.logger.error(
               `[${dtlCode}] ${dtlName} DB 저장 실패`,
-              (error as any)?.cause ?? error
-            )
+              (error as any)?.cause ?? error,
+            );
           }
         }
       }
     }
 
-    return total
+    return total;
   }
 }
