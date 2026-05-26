@@ -1,0 +1,1 @@
+CREATE INDEX "libraries_region_idx" ON "libraries" USING btree ("region_code","dtl_region_code");
