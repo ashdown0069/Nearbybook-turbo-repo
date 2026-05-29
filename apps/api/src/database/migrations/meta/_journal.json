@@ -15,6 +15,13 @@
       "when": 1779786786568,
       "tag": "0001_watery_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780041704361,
+      "tag": "0002_stale_shinko_yamashiro",
+      "breakpoints": true
     }
   ]
 }
