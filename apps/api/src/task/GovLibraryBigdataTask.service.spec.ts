@@ -18,7 +18,7 @@ describe('GovLibraryBigDataTaskService', () => {
   };
 
   const mockCommonService = {
-    sendMessageToDiscord: jest.fn(),
+    sendMessageToDiscord: jest.fn().mockResolvedValue(true),
   };
 
   beforeEach(async () => {
