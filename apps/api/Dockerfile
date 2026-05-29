@@ -59,16 +59,26 @@ WORKDIR /app
 # 애플리케이션 환경 변수를 프로덕션(운영)으로 설정합니다.
 ENV NODE_ENV=production
 
+# Builder 단계에서 완성된 의존성과 빌드 결과물(dist) 전체를 먼저 복사합니다. (root 권한으로 복사)
+COPY --from=builder /app .
+
+# 배포 자동 마이그레이션 진입점 셸 스크립트에 실행 권한 부여
+RUN chmod +x apps/api/entrypoint.sh
+
 # [보안 설정] root 권한으로 프로세스가 실행되는 것을 막기 위해 비루트(non-root) 유저를 생성합니다.
 RUN addgroup --system --gid 1001 jhk
 RUN adduser --system --uid 1001 jhk
-USER jhk
 
-# Builder 단계에서 완성된 의존성과 빌드 결과물(dist) 전체를 그대로 복사합니다.
-COPY --from=builder /app .
+# 소유권을 생성된 비루트 유저(jhk)에게 양도하여 권한 에러를 사전 차단합니다.
+RUN chown -R jhk:jhk /app
+
+USER jhk
 
 # 컨테이너 외부로 노출할 포트를 지정합니다.
 EXPOSE 4001
+
+# 진입점(Entrypoint)으로 자동 마이그레이션 스크립트를 지정합니다.
+ENTRYPOINT ["/app/apps/api/entrypoint.sh"]
 
 # NestJS 앱을 실행합니다. 
 # 모노레포 구조 상 루트 기준 최하위 빌드 파일의 경로인 apps/api/dist/src/main.js를 실행합니다.
