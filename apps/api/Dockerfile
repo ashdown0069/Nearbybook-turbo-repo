@@ -32,11 +32,6 @@ WORKDIR /app
 # 1. 솎아낸 패키지 설정 파일들(package.json 등)만 먼저 복사합니다. (레이어 캐싱 활용)
 COPY --from=prepare /app/out/json/ .
 
-#  npm Workspaces 404 에러 방지
-# api 앱 빌드 그래프에서 제외된 @workspace/eslint-config의 빈 폴더와 가짜 package.json을 생성합니다.
-# 이 작업이 없으면 npm은 로컬에 폴더가 없다고 판단하여 npm 공식 레지스트리에서 다운로드를 시도하다가 404 에러를 냅니다.
-RUN mkdir -p packages/eslint-config && \
-    echo '{"name":"@workspace/eslint-config","version":"0.0.1"}' > packages/eslint-config/package.json
 
 # 2. 로컬 워크스페이스가 잡혔으므로 에러 없이 안전하게 모든 의존성을 설치합니다.
 RUN npm install --no-package-lock

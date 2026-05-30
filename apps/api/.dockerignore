@@ -58,10 +58,8 @@ apps/native
 apps/extension
 apps/scraper
 
-# 불필요한 패키지들
+# 불필요한 패키지들 (turbo prune이 필요한 패키지만 자동 추출하므로 최소한만 제외)
 packages/ui
-packages/eslint-config
-packages/data-access
 
 # 기타
 .claude
