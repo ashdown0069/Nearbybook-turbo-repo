@@ -47,8 +47,9 @@ RUN npx turbo build --filter=api...
 # Stage 3: Runner (실행 단계)
 # 빌드가 완료된 결과물만 가져와서 아주 가볍고 안전한 환경에서 앱을 구동합니다.
 # =========================================================================
-# 실행 환경은 보안과 용량 최적화를 위해 alpine 리눅스 기반 이미지를 사용합니다.
-FROM node:${NODE_VERSION}-alpine AS runner
+# Builder와 동일한 base(slim) 이미지를 사용합니다.
+# alpine(musl libc)과 slim(glibc) 간 native 바이너리(esbuild 등) ABI 불일치를 방지합니다.
+FROM base AS runner
 WORKDIR /app
 
 # 애플리케이션 환경 변수를 프로덕션(운영)으로 설정합니다.
