@@ -15,6 +15,7 @@ describe("LibrariesService", () => {
     };
     mockDbService = {
       findByRegionCode: jest.fn(),
+      upsertLibraries: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({

@@ -17,7 +17,6 @@ export class LibrariesService {
     private readonly LibrariesDbService: LibrariesDbService,
   ) {}
 
-  @RedisCache({ ttl: 3600 })
   async fetchLibrariesByISBN(
     ISBN: string,
     region: number,
@@ -125,7 +124,11 @@ export class LibrariesService {
       dtlRegion,
     );
 
-    const regionLibsPromise = this.fetchRegionLibraryList(region, dtlRegion);
+    // 로컬 DB 우선 조회 후, 없을 시 외부 API를 싱크하는 헬퍼 메서드 호출
+    const regionLibsPromise = this.getOrFetchRegionLibraryList(
+      region,
+      dtlRegion,
+    );
 
     const [libsWithBook, regionLibs] = await Promise.all([
       libsWithBookPromise,
@@ -142,5 +145,47 @@ export class LibrariesService {
       `웹용 ISBN 도서관 조회 완료: 총 ${result.length}개 도서관 매핑`,
     );
     return result;
+  }
+
+  /**
+   * 행정구역별 전체 도서관 목록을 가져올 때 로컬 DB를 우선 조회하고,
+   * 없을 경우 외부 공공 API를 호출하여 DB에 저장하는 메서드
+   */
+  private async getOrFetchRegionLibraryList(
+    region: number,
+    dtlRegion?: number,
+  ): Promise<any[]> {
+    // 1. 로컬 데이터베이스 선조회
+    const localLibs = await this.LibrariesDbService.findByRegionCode(
+      region.toString(),
+      dtlRegion?.toString(),
+    );
+
+    // 2. 데이터가 로컬 DB에 존재하면 즉시 반환
+    if (localLibs && localLibs.length > 0) {
+      this.logger.log(
+        `로컬 DB에서 지역 도서관 목록 반환: region=${region}, dtlRegion=${dtlRegion}, count=${localLibs.length}건`,
+      );
+      return localLibs;
+    }
+
+    // 3. 로컬 DB에 데이터가 없으면 외부 API 호출
+    this.logger.warn(
+      `로컬 DB 캐시 미스! 외부 API로부터 동기화 시작: region=${region}, dtlRegion=${dtlRegion}`,
+    );
+    const externalLibs = await this.fetchRegionLibraryList(region, dtlRegion);
+
+    if (externalLibs && externalLibs.length > 0) {
+      // 4. 로컬 DB 적재는 백그라운드 비동기로 실행하여 사용자 응답 속도를 확보
+      this.LibrariesDbService.upsertLibraries(
+        externalLibs as any[],
+        region.toString(),
+        dtlRegion?.toString() || '',
+      ).catch((err) => {
+        this.logger.error('외부 도서관 정보 로컬 DB 적재 중 에러 발생', err);
+      });
+    }
+
+    return externalLibs;
   }
 }

@@ -42,8 +42,8 @@ export class LibrariesController {
   }
 
   //공공 도서관 찾기용
-  // @CacheTTL(60 * 60 * 24) // 24시간 캐시
-  // @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
   @Get('/searchbyregion')
   async findLibrariesByRegion(
@@ -57,6 +57,7 @@ export class LibrariesController {
   }
 
   //extension에서 도서관 코드로 도서관 정보 가져오기용
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
   @UseInterceptors(CacheInterceptor)
   @Serialize(LibraryResponseDto)
   @Get('/getLibInfo')

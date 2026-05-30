@@ -48,7 +48,8 @@ export class BooksController {
   }
 
   //검색창 밑 검색어 추천
-  // @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @UseInterceptors(CacheInterceptor)
   @Serialize(TrendingBooksDto)
   @Get('/trending')
   async getTrendingBooks() {
@@ -64,6 +65,7 @@ export class BooksController {
   }
 
   //main page에서 사용
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
   @UseInterceptors(CacheInterceptor)
   @Serialize(BookDto)
   @Get('/popularloanbooks')
