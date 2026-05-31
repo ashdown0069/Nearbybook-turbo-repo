@@ -12,6 +12,10 @@ import { PopularityProcessor } from "./processor/popularity.processor"
 import { QUEUE_NAMES } from "src/constant/tokens"
 import { BullModule } from "@nestjs/bullmq"
 
+// 신규 추가 임포트
+import { SearchLogTaskService } from "./SearchLogTask.service"
+import { SearchLogProcessor } from "./processor/search-log.processor"
+
 @Module({
   controllers: [TaskController],
   providers: [
@@ -19,15 +23,23 @@ import { BullModule } from "@nestjs/bullmq"
     GovLibraryBigDataTaskService,
     TrackingTaskService,
     PopularityProcessor,
+    SearchLogTaskService,   // 신규 등록
+    SearchLogProcessor,     // 신규 등록
   ],
   imports: [
     BooksModule,
     MeilisearchModule,
     CommonModule,
     LibrariesModule,
-    BullModule.registerQueue({
-      name: QUEUE_NAMES.POPULARITY,
-    }),
+    BullModule.registerQueue(
+      {
+        name: QUEUE_NAMES.POPULARITY,
+      },
+      {
+        name: QUEUE_NAMES.SEARCH_LOG, // 신규 큐 등록
+      }
+    ),
   ],
 })
 export class TaskModule {}
+
