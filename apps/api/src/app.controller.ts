@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FeedbackDto } from './common/dto/feedback.dto';
 import { CommonService } from './common/common.service';
 import { hostname } from 'os';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('/')
 export class AppController {
@@ -16,6 +17,15 @@ export class AppController {
     return {
       status: 'ok',
       hostname: hostname(),
+    };
+  }
+
+  @UseInterceptors(CacheInterceptor)
+  @Get('/test')
+  async test() {
+    console.log('cache test');
+    return {
+      message: 'This is a test endpoint.',
     };
   }
 

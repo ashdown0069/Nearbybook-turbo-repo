@@ -12,7 +12,8 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+    // CORS_ORIGIN 환경변수가 지정되지 않은 경우(undefined) false를 대입하여 모든 외부 크로스 도메인 요청을 차단합니다.
+    origin: process.env.CORS_ORIGIN?.split(',') || false,
   });
   app.useGlobalPipes(
     new ValidationPipe({
