@@ -1,11 +1,11 @@
-# Search Log Time-Series Aggregation Implementation Plan
+# Search Log Time-Series Aggregation Implementation Plan (Middleware-Enhanced)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement time-series query aggregation for search logs using Redis, NestJS Schedule, and BullMQ, flush statistics every 30 minutes, and Bulk Upsert them into the database using Drizzle ORM.
+**Goal:** Implement time-series query aggregation for search logs using Redis, NestJS Middleware, NestJS Schedule, and BullMQ. Flush statistics every 30 minutes, and Bulk Upsert them into the database using Drizzle ORM. By capturing search queries at the middleware level, we guarantee that 100% of searches (including those that hit NestJS CacheInterceptor) are correctly tracked.
 
 **Architecture:** 
-1. `BooksService` intercepts searches and increments search query frequency counts in a Redis Hash (`search:logs:daily:[date]`), storing active dates in a Redis Set (`search:logs:dates`).
+1. `SearchLogMiddleware` intercepts all incoming requests to `GET /books/search` *before* the `CacheInterceptor` operates. It increments the search count in a Redis Hash (`search:logs:daily:[date]`) using an atomic `HINCRBY` operation and updates the set of active dates (`search:logs:dates`).
 2. A BullMQ worker (`SearchLogProcessor`) runs periodically (triggered by a BullMQ Job Scheduler every 30 minutes).
 3. The processor atomically renames Redis Keys to prevent race conditions, pops active dates, parses the stats, and performs a Bulk Upsert into PostgreSQL via Drizzle ORM.
 
@@ -85,36 +85,88 @@ git commit -m "feat: 검색 로그 테이블 스키마에 일자별 집계용 �
 
 ---
 
-### Task 2: Redis Search Logging Implementation in BooksService
+### Task 2: SearchLogMiddleware Implementation and Registration
 
 **Files:**
 - Modify: `apps/api/src/constant/tokens.ts`
-- Modify: `apps/api/src/books/books.service.ts`
-- Modify: `apps/api/src/books/books.service.spec.ts`
+- Create: `apps/api/src/common/middleware/search-log.middleware.ts`
+- Create: `apps/api/src/common/middleware/search-log.middleware.spec.ts`
+- Modify: `apps/api/src/app.module.ts`
 
 - [ ] **Step 1: Write the failing test**
 
-Modify `apps/api/src/books/books.service.spec.ts` to assert that searching books calls a tracking helper `_trackSearch` which calls `redis.hincrby` and `redis.sadd`.
-
-First, let's examine the test file to see how redis is mocked. If not mocked, inject a mocked Redis client. Add these test cases to `apps/api/src/books/books.service.spec.ts`:
+Create `apps/api/src/common/middleware/search-log.middleware.spec.ts` to assert that intercepting requests successfully extracts query parameters and calls Redis commands.
 
 ```typescript
-// Add inside the existing describe("BooksService", () => { ... })
-it("searchBooks 호출 시 _trackSearch 가 정상 호출되고 Redis 해시 및 셋에 값이 추가되어야 한다", async () => {
-  const hincrbySpy = jest.spyOn(mockRedis, "hincrby").mockResolvedValue(1);
-  const saddSpy = jest.spyOn(mockRedis, "sadd").mockResolvedValue(1);
+// apps/api/src/common/middleware/search-log.middleware.spec.ts
+import { Test, TestingModule } from "@nestjs/testing";
+import { SearchLogMiddleware } from "./search-log.middleware";
+import { REDIS_CLIENT } from "src/constant/tokens";
 
-  await service.searchBooks("title", "nestjs", 1);
+describe("SearchLogMiddleware", () => {
+  let middleware: SearchLogMiddleware;
+  let mockRedis: any;
+  let mockPipeline: any;
 
-  expect(hincrbySpy).toHaveBeenCalled();
-  expect(saddSpy).toHaveBeenCalled();
+  beforeEach(async () => {
+    mockPipeline = {
+      hincrby: jest.fn().mockReturnThis(),
+      sadd: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    };
+
+    mockRedis = {
+      pipeline: jest.fn().mockReturnValue(mockPipeline),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SearchLogMiddleware,
+        { provide: REDIS_CLIENT, useValue: mockRedis },
+      ],
+    }).compile();
+
+    middleware = module.get<SearchLogMiddleware>(SearchLogMiddleware);
+  });
+
+  it("정의되어 있어야 한다", () => {
+    expect(middleware).toBeDefined();
+  });
+
+  it("query와 mode가 유효할 때 Redis 파이프라인이 정상 동작해야 한다", async () => {
+    const req = {
+      query: { query: "nestjs", mode: "title" },
+    } as any;
+    const res = {} as any;
+    const next = jest.fn();
+
+    await middleware.use(req, res, next);
+
+    expect(mockRedis.pipeline).toHaveBeenCalled();
+    expect(mockPipeline.hincrby).toHaveBeenCalled();
+    expect(mockPipeline.sadd).toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it("query나 mode가 비어있거나 무효하면 Redis 기록을 생략하고 next()를 호출해야 한다", async () => {
+    const req = {
+      query: { query: "", mode: "title" },
+    } as any;
+    const res = {} as any;
+    const next = jest.fn();
+
+    await middleware.use(req, res, next);
+
+    expect(mockRedis.pipeline).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
 });
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `npm run test -- apps/api/src/books/books.service.spec.ts`
-Expected: FAIL (Cannot read property hincrby of undefined OR helper not implemented yet).
+Run: `npm run test -- apps/api/src/common/middleware/search-log.middleware.spec.ts`
+Expected: FAIL (Cannot find modules or compilation error because middleware doesn't exist yet).
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -141,77 +193,76 @@ export const REDIS_KEYS = {
 }
 ```
 
-Next, modify `apps/api/src/books/books.service.ts` to implement `_trackSearch` and invoke it inside `searchBooks`:
+Next, create `apps/api/src/common/middleware/search-log.middleware.ts` to implement the search interception:
 
 ```typescript
-// apps/api/src/books/books.service.ts
-// Add constant imports if needed:
-import { REDIS_KEYS } from 'src/constant/tokens';
+// apps/api/src/common/middleware/search-log.middleware.ts
+import { Inject, Injectable, NestMiddleware } from "@nestjs/common"
+import { Request, Response, NextFunction } from "express"
+import Redis from "ioredis"
+import { REDIS_CLIENT, REDIS_KEYS } from "src/constant/tokens"
 
-// Inside BooksService class, modify searchBooks method:
-  @Serialize(BookDto)
-  async searchBooks(
-    mode: searchBooksDto['mode'],
-    query: searchBooksDto['query'],
-    pageNo: searchBooksDto['pageNo'] = 1,
-  ) {
-    this.logger.log(
-      `도서 목록 검색 시작: mode=${mode}, query=${query}, pageNo=${pageNo}`,
-    );
+@Injectable()
+export class SearchLogMiddleware implements NestMiddleware {
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
-    // 검색 추적 비동기 호출 (메인 비즈니스 흐름 응답 지연 없도록 .catch 처리)
-    this._trackSearch(mode, query).catch((error) => {
-      this.logger.error(`검색 로그 로깅 실패: mode=${mode}, query=${query}`, error);
-    });
+  async use(req: Request, res: Response, next: NextFunction) {
+    const { query, mode } = req.query
 
-    let params;
-    if (mode === 'title') {
-      params = {
-        title: query,
-      };
-    } else if (mode === 'isbn') {
-      params = {
-        isbn13: query,
-      };
+    if (query && (mode === "isbn" || mode === "title")) {
+      const trimmedQuery = String(query).trim()
+      const searchMode = String(mode) as "isbn" | "title"
+
+      if (trimmedQuery) {
+        // 한국 시간 기준 YYYY-MM-DD 날짜 추출
+        const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" })
+        const dailyHashKey = `${REDIS_KEYS.SEARCH_LOG_DAILY_PREFIX}${today}`
+        const field = `${searchMode}:${trimmedQuery}`
+
+        try {
+          const pipeline = this.redis.pipeline()
+          pipeline.hincrby(dailyHashKey, field, 1)
+          pipeline.sadd(REDIS_KEYS.SEARCH_LOG_DATES, today)
+          await pipeline.exec()
+        } catch (error) {
+          // 비동기 로깅 실패 시 사용자 검색 흐름을 방해하지 않고 에러 로그만 콘솔에 남김
+          console.error(`SearchLogMiddleware: Redis log saving failed: ${field}`, error)
+        }
+      }
     }
-    // ... (기존 코드 유지)
+    next()
+  }
+}
 ```
 
-And implement `_trackSearch` method inside `BooksService` class:
+Now, modify `apps/api/src/app.module.ts` to configure and apply the middleware on `/books/search`:
 
 ```typescript
-// Add at the bottom of BooksService class:
-  async _trackSearch(mode: 'isbn' | 'title', query: string): Promise<void> {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) return;
+// apps/api/src/app.module.ts
+// Add imports at the top:
+import { NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { SearchLogMiddleware } from './common/middleware/search-log.middleware';
 
-    // 한국 시간 기준 YYYY-MM-DD 날짜 추출
-    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
-    const dailyHashKey = `${REDIS_KEYS.SEARCH_LOG_DAILY_PREFIX}${today}`;
-    const field = `${mode}:${trimmedQuery}`;
-
-    try {
-      const pipeline = this.redis.pipeline();
-      pipeline.hincrby(dailyHashKey, field, 1);
-      pipeline.sadd(REDIS_KEYS.SEARCH_LOG_DATES, today);
-      await pipeline.exec();
-      this.logger.log(`검색 로그 임시 저장 성공 (Redis): ${field} (${today})`);
-    } catch (error) {
-      this.logger.error(`Redis 검색 로그 저장 중 오류 발생: ${field}`, error);
-    }
+// Modify class definition at the bottom of the file (lines 128-129):
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(SearchLogMiddleware)
+      .forRoutes({ path: 'books/search', method: RequestMethod.GET });
   }
+}
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `npm run test -- apps/api/src/books/books.service.spec.ts`
+Run: `npm run test -- apps/api/src/common/middleware/search-log.middleware.spec.ts`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```powershell
-git add apps/api/src/constant/tokens.ts apps/api/src/books/books.service.ts apps/api/src/books/books.service.spec.ts
-git commit -m "feat: BooksService 검색 시 Redis에 실시간 검색 횟수 카운트를 원자적으로 저장하는 기능 추가"
+git add apps/api/src/constant/tokens.ts apps/api/src/common/middleware/search-log.middleware.ts apps/api/src/common/middleware/search-log.middleware.spec.ts apps/api/src/app.module.ts
+git commit -m "feat: 캐시 히트 시에도 100% 로깅되도록 SearchLogMiddleware 구현 및 app.module에 라우트 연결 완료"
 ```
 
 ---
@@ -254,6 +305,7 @@ describe("SearchLogProcessor 테스트", () => {
       srem: jest.fn().mockResolvedValue(1),
       hgetall: jest.fn().mockResolvedValue({ "title:nestjs": "5", "isbn:123456": "2" }),
       del: jest.fn().mockResolvedValue(1),
+      exists: jest.fn().mockResolvedValue(1),
     };
 
     mockDb = {
