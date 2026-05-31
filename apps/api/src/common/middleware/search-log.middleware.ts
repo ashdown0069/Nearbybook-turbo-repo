@@ -1,10 +1,12 @@
-import { Inject, Injectable, NestMiddleware } from "@nestjs/common"
+import { Inject, Injectable, Logger, NestMiddleware } from "@nestjs/common"
 import { Request, Response, NextFunction } from "express"
 import Redis from "ioredis"
 import { REDIS_CLIENT, REDIS_KEYS } from "src/constant/tokens"
 
 @Injectable()
 export class SearchLogMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(SearchLogMiddleware.name)
+
   constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -26,8 +28,8 @@ export class SearchLogMiddleware implements NestMiddleware {
           pipeline.sadd(REDIS_KEYS.SEARCH_LOG_DATES, today)
           await pipeline.exec()
         } catch (error) {
-          // 비동기 로깅 실패 시 사용자 검색 흐름을 방해하지 않고 에러 로그만 콘솔에 남김
-          console.error(`SearchLogMiddleware: Redis log saving failed: ${field}`, error)
+          // 비동기 로깅 실패 시 사용자 검색 흐름을 방해하지 않고 에러 로그만 남김
+          this.logger.error(`Redis 검색 로그 저장 실패: ${field}`, error instanceof Error ? error.stack : undefined)
         }
       }
     }
