@@ -41,7 +41,7 @@ export class RedisCacheAspect implements LazyDecorator<any, RedisCacheOptions> {
         try {
           return await method(...args)
         } catch (e) {
-          console.error(`[Aspect] Error during method execution:`, e)
+          this.logger.error(`메서드 실행 중 에러 발생: ${e}`, e instanceof Error ? e.stack : undefined)
           throw e
         }
       })()
