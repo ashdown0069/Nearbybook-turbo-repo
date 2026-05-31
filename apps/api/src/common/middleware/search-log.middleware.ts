@@ -22,15 +22,13 @@ export class SearchLogMiddleware implements NestMiddleware {
         const dailyHashKey = `${REDIS_KEYS.SEARCH_LOG_DAILY_PREFIX}${today}`
         const field = `${searchMode}:${trimmedQuery}`
 
-        try {
-          const pipeline = this.redis.pipeline()
-          pipeline.hincrby(dailyHashKey, field, 1)
-          pipeline.sadd(REDIS_KEYS.SEARCH_LOG_DATES, today)
-          await pipeline.exec()
-        } catch (error) {
+        const pipeline = this.redis.pipeline()
+        pipeline.hincrby(dailyHashKey, field, 1)
+        pipeline.sadd(REDIS_KEYS.SEARCH_LOG_DATES, today)
+        pipeline.exec().catch((error) => {
           // 비동기 로깅 실패 시 사용자 검색 흐름을 방해하지 않고 에러 로그만 남김
           this.logger.error(`Redis 검색 로그 저장 실패: ${field}`, error instanceof Error ? error.stack : undefined)
-        }
+        })
       }
     }
     next()
