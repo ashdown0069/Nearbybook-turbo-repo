@@ -12,6 +12,8 @@ node_modules
 .env.test.local
 .env.production.local
 .env.production
+.env.development
+
 
 # Testing
 coverage
@@ -37,6 +39,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+request.http
+
 
 .expo
 .vscode
