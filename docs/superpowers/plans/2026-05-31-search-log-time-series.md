@@ -80,7 +80,7 @@ Expected: Database schema successfully updated.
 
 ```powershell
 git add apps/api/src/database/schema/searchLogs.ts apps/api/src/database/schema/searchLogs.spec.ts
-git commit -m "feat: 검색 로그 테이블 스키마에 일자별 집계용 컬럼 및 유니크 제약조건 추가"
+git commit -m "feat(api): 검색 로그 테이블 스키마에 일자별 집계용 컬럼 및 유니크 제약조건 추가"
 ```
 
 ---
@@ -262,7 +262,7 @@ Expected: PASS
 
 ```powershell
 git add apps/api/src/constant/tokens.ts apps/api/src/common/middleware/search-log.middleware.ts apps/api/src/common/middleware/search-log.middleware.spec.ts apps/api/src/app.module.ts
-git commit -m "feat: 캐시 히트 시에도 100% 로깅되도록 SearchLogMiddleware 구현 및 app.module에 라우트 연결 완료"
+git commit -m "feat(api): SearchLogMiddleware 구현 및 app.module에 라우트 연결"
 ```
 
 ---
@@ -486,7 +486,7 @@ Expected: PASS
 
 ```powershell
 git add apps/api/src/task/processor/search-log.processor.ts apps/api/src/task/processor/search-log.processor.spec.ts
-git commit -m "feat: Redis 격리 저장 데이터를 PostgreSQL로 원자적으로 Bulk Upsert하는 BullMQ Processor 구현"
+git commit -m "feat(api): Redis 데이터를 DB에 저장하는 BullMQ Processor 추가"
 ```
 
 ---
@@ -654,5 +654,5 @@ Expected: PASS
 
 ```powershell
 git add apps/api/src/task/SearchLogTask.service.ts apps/api/src/task/SearchLogTask.service.spec.ts apps/api/src/task/task.module.ts
-git commit -m "feat: SearchLogTaskService 스케줄러 등록 및 TaskModule에 BullMQ 큐 바인딩 완료"
+git commit -m "feat(api): SearchLogTaskService 스케줄러 등록 및 TaskModule에 BullMQ 큐 추가"
 ```

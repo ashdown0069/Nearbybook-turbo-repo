@@ -13,7 +13,7 @@ describe('LoggingInterceptor', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('요청과 응답을 로깅해야 함', (done) => {
