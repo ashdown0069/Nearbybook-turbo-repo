@@ -17,6 +17,7 @@ describe("AppController", () => {
       providers: [
         AppService,
         { provide: CommonService, useValue: commonService },
+        { provide: "CACHE_MANAGER", useValue: {} },
       ],
     }).compile();
 
