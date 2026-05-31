@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { SearchLogMiddleware } from './common/middleware/search-log.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -126,4 +127,10 @@ cacheable.install(httpsAgent);
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(SearchLogMiddleware)
+      .forRoutes({ path: 'books/search', method: RequestMethod.GET });
+  }
+}
