@@ -57,4 +57,33 @@ describe("SearchLogProcessor 테스트", () => {
     expect(mockDb.insert).toHaveBeenCalled();
     expect(mockRedis.del).toHaveBeenCalled();
   });
+
+  it("DB Upsert 시 count 컬럼의 업데이트 수식에 실제 PostgreSQL 컬럼명인 excluded.search_count가 포함되어야 한다", async () => {
+    const job = { name: "flush-search-logs", data: {} } as any;
+    await processor.process(job);
+
+    expect(mockDb.onConflictDoUpdate).toHaveBeenCalled();
+    const updateCallArg = mockDb.onConflictDoUpdate.mock.calls[0][0];
+    
+    // Drizzle ORM의 sql 템플릿 리터럴 객체 내부 구조를 안전하게 문자열화하여 검증
+    const sqlChunk = updateCallArg.set.count;
+    const queryParts = sqlChunk.queryChunks.map((chunk: any) => {
+      if (typeof chunk === "string") return chunk;
+      if (chunk && typeof chunk === "object") {
+        if (chunk.name) return chunk.name;
+        if (Array.isArray(chunk.value)) return chunk.value.join("");
+      }
+      return String(chunk);
+    });
+    const serializedSql = queryParts.join(" ");
+    
+    // 실제 DB 컬럼인 'search_count'가 사용되어야 함
+    expect(serializedSql).toContain("search_count");
+    expect(serializedSql).toContain("excluded.search_count");
+    expect(serializedSql).not.toContain("excluded.count");
+  });
+
+
+
 });
+

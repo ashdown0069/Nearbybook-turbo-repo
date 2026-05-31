@@ -20,8 +20,8 @@ describe("RedisLockAspect", () => {
   });
 
   it("분산 락을 획득하고 완료 후 해제해야 한다", async () => {
-    // 분산 락 획득에 성공한 경우를 모킹합니다.
-    mockLockService.tryAcquire.mockResolvedValue(true);
+    // 분산 락 획득에 성공하여 고유 토큰을 발급하는 시나리오를 모킹합니다.
+    mockLockService.tryAcquire.mockResolvedValue("mock-token");
     const mockOriginalMethod = jest.fn().mockResolvedValue("done");
     
     const wrapped = aspect.wrap({
@@ -33,16 +33,16 @@ describe("RedisLockAspect", () => {
 
     const result = await wrapped("param1");
     
-    // 정상적으로 작업을 수행한 뒤 락을 정상적으로 해제해야 합니다.
+    // 정상적으로 작업을 수행한 뒤 자신이 건 고유 토큰으로 락을 정상적으로 해제해야 합니다.
     expect(result).toBe("done");
     expect(mockLockService.tryAcquire).toHaveBeenCalledWith("lockKey", 10);
-    expect(mockLockService.release).toHaveBeenCalledWith("lockKey");
+    expect(mockLockService.release).toHaveBeenCalledWith("lockKey", "mock-token");
     expect(mockOriginalMethod).toHaveBeenCalledWith("param1");
   });
 
   it("락 획득 실패 시 원래 메서드를 실행하지 않고 바로 반환해야 한다", async () => {
-    // 락 획득에 실패한 경우(다른 프로세스가 이미 락을 점유 중)를 모킹합니다.
-    mockLockService.tryAcquire.mockResolvedValue(false);
+    // 락 획득에 실패한 경우(다른 프로세스가 이미 락을 점유 중) null을 모킹합니다.
+    mockLockService.tryAcquire.mockResolvedValue(null);
     const mockOriginalMethod = jest.fn();
     
     const wrapped = aspect.wrap({

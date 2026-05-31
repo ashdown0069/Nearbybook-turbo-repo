@@ -54,21 +54,26 @@ describe("DistributedLockService (Mock Redis)", () => {
 
   it("락 획득에 성공한다", async () => {
     const result = await lockService.tryAcquire("test-key", 10);
-    expect(result).toBe(true);
+    // 락 획득 성공 시 고유 실행 토큰(String)이 발급되어야 합니다.
+    expect(typeof result).toBe("string");
   });
 
   it("동일 키에 대해 이중 획득이 불가능하다", async () => {
     await lockService.tryAcquire("test-key", 10);
     const second = await lockService.tryAcquire("test-key", 10);
-    expect(second).toBe(false);
+    // 이미 락이 걸려있으므로 null을 반환해야 합니다.
+    expect(second).toBeNull();
   });
 
   it("락 해제 후 같은 키를 재획득할 수 있다", async () => {
-    await lockService.tryAcquire("test-key", 10);
-    const released = await lockService.release("test-key");
+    const token = await lockService.tryAcquire("test-key", 10);
+    expect(token).not.toBeNull();
+
+    // 본인이 발급받은 execution token을 전달하여 안전하게 해제합니다.
+    const released = await lockService.release("test-key", token!);
     expect(released).toBe(true);
 
     const reacquired = await lockService.tryAcquire("test-key", 10);
-    expect(reacquired).toBe(true);
+    expect(typeof reacquired).toBe("string");
   });
 });

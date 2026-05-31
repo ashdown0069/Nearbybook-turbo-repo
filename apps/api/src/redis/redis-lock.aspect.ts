@@ -14,8 +14,9 @@ export class RedisLockAspect implements LazyDecorator<any, RedisLockOptions> {
     const { key, ttlSeconds } = metadata
 
     return async (...args: any[]) => {
-      const acquired = await this.lockService.tryAcquire(key, ttlSeconds)
-      if (!acquired) {
+      // 락 획득 후 고유 실행 토큰을 발급받습니다.
+      const lockToken = await this.lockService.tryAcquire(key, ttlSeconds)
+      if (!lockToken) {
         this.logger.log(
           `Skipping cron job [${key}]: another instance holds the lock`
         )
@@ -25,7 +26,8 @@ export class RedisLockAspect implements LazyDecorator<any, RedisLockOptions> {
       try {
         return await method(...args)
       } finally {
-        await this.lockService.release(key)
+        // 자신이 획득한 고유 토큰을 대조하여 락을 안전하게 해제합니다.
+        await this.lockService.release(key, lockToken)
       }
     }
   }

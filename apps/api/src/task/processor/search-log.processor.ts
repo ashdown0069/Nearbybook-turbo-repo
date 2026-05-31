@@ -113,7 +113,8 @@ export class SearchLogProcessor extends WorkerHost {
           .onConflictDoUpdate({
             target: [schema.searchLogs.searchDate, schema.searchLogs.query, schema.searchLogs.mode],
             set: {
-              count: sql`${schema.searchLogs.count} + excluded.count`,
+              // PostgreSQL의 excluded 가상 테이블은 ORM 객체 속성명이 아닌 실제 DB 컬럼명인 'search_count'를 참조해야 함
+              count: sql`${schema.searchLogs.count} + excluded.search_count`,
             },
           })
 
