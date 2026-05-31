@@ -11,9 +11,16 @@ async function bootstrap() {
   });
 
   app.use(helmet());
+  const corsOriginEnv = process.env.CORS_ORIGIN;
+  const corsOrigins = corsOriginEnv
+    ? corsOriginEnv
+        .replace(/['"]/g, '')
+        .split(',')
+        .map((origin) => origin.trim())
+    : '*';
+
   app.enableCors({
-    // CORS_ORIGIN 환경변수가 지정되지 않은 경우(undefined) false를 대입하여 모든 외부 크로스 도메인 요청을 차단합니다.
-    origin: process.env.CORS_ORIGIN?.split(',') || false,
+    origin: corsOrigins,
   });
   app.useGlobalPipes(
     new ValidationPipe({
