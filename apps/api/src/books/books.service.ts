@@ -36,8 +36,9 @@ export class BooksService {
   /**
    * 책 검색으로는 검색결과가 없지만 도서 소장 도서관 검색에는
    * 도서가 검색되는 경우가 있어 Naver api로 한번 더 검색
+   * ttl = 86400,  1일
    */
-  @RedisCache({ ttl: 3600 })
+  @RedisCache({ ttl: 86400 })
   async searchBook__naver(isbn: searchBookDto['isbn']) {
     this.logger.log(`Naver API를 통한 도서 상세 조회 시작: ISBN=${isbn}`);
     try {
@@ -80,7 +81,7 @@ export class BooksService {
     }
   }
 
-  // @RedisCache({ ttl: 3600 })
+  @RedisCache({ ttl: 86400 })
   async searchBook(isbn: searchBookDto['isbn']) {
     this.logger.log(`도서 상세 조회 시작: ISBN=${isbn}`);
     try {
@@ -266,7 +267,6 @@ export class BooksService {
   }
 
   async getTrendingBooks() {
-    this.logger.log('인기 도서 트렌드 조회 시작');
     try {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -296,7 +296,6 @@ export class BooksService {
         ...new Map(books.map((item) => [item.isbn13, item])).values(),
       ].slice(0, 7);
 
-      this.logger.log(`인기 도서 트렌드 조회 성공: ${filteredBooks.length}건`);
       return filteredBooks;
     } catch (error) {
       this.logger.error('인기 도서 트렌드 조회 중 오류 발생', error);

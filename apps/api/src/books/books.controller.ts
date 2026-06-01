@@ -25,6 +25,7 @@ export class BooksController {
     );
   }
 
+  @CacheTTL(60 * 60 * 24) // 24시간 캐시
   @UseInterceptors(CacheInterceptor)
   @Serialize(BooksResponseDto)
   @Get('/search')
