@@ -41,6 +41,7 @@ export default function Search() {
   const [mode, setMode] = useState(state.mode)
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
+
   const router = useRouter()
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -106,6 +107,7 @@ export default function Search() {
           className="relative flex w-full items-center rounded-full border border-slate-200 bg-white p-2 transition-all focus-within:ring-2 focus-within:ring-green-500/20"
         >
           <Select
+            key={state.mode}
             name="mode"
             defaultValue={state.mode}
             onValueChange={(val) => setMode(val as "title" | "isbn")}
@@ -123,6 +125,7 @@ export default function Search() {
           </Select>
           <div className="mx-1 h-5 w-[1px] bg-slate-200" />
           <Input
+            key={state.query}
             type="search"
             name="query"
             defaultValue={state.query}
