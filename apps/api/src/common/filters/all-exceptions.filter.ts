@@ -21,9 +21,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private readonly discordAlertCache = new Map<string, number>();
   private readonly ALERT_THROTTLE_MS = 1000 * 60 * 5;
 
-  // 캐시 주기적 초기화(Flush)를 위한 설정 (24시간)
+  // 캐시 주기적 초기화(Flush)를 위한 설정 (1시간)
   private lastResetTime = Date.now();
-  private readonly CACHE_RESET_INTERVAL = 1000 * 60 * 60 * 24;
+  private readonly CACHE_RESET_INTERVAL = 1000 * 60 * 60;
 
   constructor(
     private readonly commonService: CommonService,
@@ -33,7 +33,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const now = Date.now();
 
-    // 24시간이 경과하면 캐시를 완전히 비워 메모리 파편화를 방지합니다.
+    // 1시간이 경과하면 캐시를 완전히 비워 메모리 파편화를 방지합니다.
     if (now - this.lastResetTime > this.CACHE_RESET_INTERVAL) {
       this.discordAlertCache.clear();
       this.lastResetTime = now;
