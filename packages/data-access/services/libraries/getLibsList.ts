@@ -3,14 +3,14 @@ import {
   UseQueryResult,
   useQuery,
   keepPreviousData,
-} from "@tanstack/react-query";
-import type { AxiosInstance } from "axios";
-import type { Library } from "@workspace/types";
+} from "@tanstack/react-query"
+import type { AxiosInstance } from "axios"
+import type { Library } from "@workspace/types"
 export const getLibsList = async (
   axiosInstance: AxiosInstance,
   region: string,
-  dtlRegion?: string,
-): Promise<Library[]> => {
+  dtlRegion?: string
+) => {
   return axiosInstance
     .get("/libraries/searchbyregion", {
       params: {
@@ -18,25 +18,25 @@ export const getLibsList = async (
         dtlRegion,
       },
     })
-    .then((res) => res.data);
-};
+    .then((res) => res.data)
+}
 //for native
 export const useGetRegionLibsList = (
   axiosInstance: AxiosInstance,
   region: string,
-  dtlRegion: string,
+  dtlRegion: string
 ) => {
   return useQuery({
     queryKey: ["useGetRegionLibsList", region, dtlRegion],
     queryFn: () => getLibsList(axiosInstance, region, dtlRegion),
     enabled: !!region && !!dtlRegion,
     placeholderData: keepPreviousData,
-  });
-};
+  })
+}
 
 export const useGetLibsList = (
   axiosInstance: AxiosInstance,
-  selectedRegions: string[],
+  selectedRegions: string[]
 ) => {
   return useQueries({
     queries: selectedRegions.map((region) => ({
@@ -49,12 +49,12 @@ export const useGetLibsList = (
     combine: (results) => {
       return results.reduce(
         (acc, result, index) => {
-          const regionKey = selectedRegions[index];
-          acc[regionKey as string] = result;
-          return acc;
+          const regionKey = selectedRegions[index]
+          acc[regionKey as string] = result
+          return acc
         },
-        {} as Record<string, UseQueryResult<Library[], Error>>,
-      );
+        {} as Record<string, UseQueryResult<Library[], Error>>
+      )
     },
-  });
-};
+  })
+}

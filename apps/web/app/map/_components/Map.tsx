@@ -54,7 +54,7 @@ export default function Map({
     if (
       libsData &&
       libsData.length > 0 &&
-      libsData.every((lib) => !lib.hasBook)
+      libsData.every((lib: any) => !lib.hasBook)
     ) {
       toast.warning("검색 결과가 없습니다.")
     }
