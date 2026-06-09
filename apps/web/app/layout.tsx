@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import QueryProvider from "@/components/providers/QueryProvider"
 import { Toaster } from "@workspace/ui/components/sonner"
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
+// import { Analytics } from "@vercel/analytics/next"
+// import { SpeedInsights } from "@vercel/speed-insights/next"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import "@workspace/ui/globals.css"
 import Script from "next/script"
@@ -105,8 +105,8 @@ export default function RootLayout({
         <QueryProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </QueryProvider>
-        {process.env.NODE_ENV === "production" ? <Analytics /> : null}
-        {process.env.NODE_ENV === "production" ? <SpeedInsights /> : null}
+        {/* {process.env.NODE_ENV === "production" ? <Analytics /> : null} */}
+        {/* {process.env.NODE_ENV === "production" ? <SpeedInsights /> : null} */}
       </body>
     </html>
   )
