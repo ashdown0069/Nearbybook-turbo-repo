@@ -94,6 +94,7 @@ export default function RootLayout({
       >
         <Script
           src="http://nearbybook-umami-09f2bf-144-24-70-70.sslip.io/script.js"
+          data-website-id="0bf9d632-8abd-4432-a6ee-8e3af93efd38"
           strategy="afterInteractive"
         />
         <Toaster
