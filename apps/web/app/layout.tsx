@@ -93,7 +93,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Script
-          src="http://nearbybook-umami-0b541c-144-24-70-70.sslip.io/script.js"
+          src="http://nearbybook-umami-09f2bf-144-24-70-70.sslip.io/script.js"
           strategy="afterInteractive"
         />
         <Toaster
