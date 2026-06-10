@@ -52,3 +52,4 @@ request.http
 # temp
 apps/scraper
 docs
+.env*.local
