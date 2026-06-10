@@ -11,14 +11,21 @@
 - **브라우저 확장 프로그램**: 온라인 서점(교보문고, YES24, 알라딘 등) 페이지에서 바로 주변 도서관 소장 여부를 확인할 수 있는 확장 프로그램을 제공합니다.
 - **반응형 UI/UX / 인기 대출 도서 정보 제공 / 트렌드 도서 정보 제공**
 
+<br />
+
 ## 🛠️ 기술 스택
 
-- **Frontend**: Next.js , React, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **State Management**: Zustand, React Query (@tanstack/react-query)
-- **Map**: Naver Maps API
-- **Testing:** Jest, React Testing Library
-- **Deployment:** Vercel
+- **Framework**: `Next.js 15.5.x` (App Router)
+- **Library**: `React 19.2.0`
+- **Styling**: `Tailwind CSS 4` & `shadcn/ui`
+- **State Management (Server)**: `@tanstack/react-query` (서버 상태 캐싱 및 Prefetch 동기화)
+- **State Management (Client)**: `Zustand` (가볍고 직관적인 UI 및 필터 상태 관리)
+- **Map & Location**: `Naver Maps API` (사용자 중심 지도 핀 시각화 및 클러스터링)
+- **Icon**: `lucide-react`
+- **Testing**: `Jest`, `@testing-library/react`, `jest-environment-jsdom` (컴포넌트 및 비즈니스 훅 테스트)
+- **Telemetry**: `@vercel/analytics`, `@vercel/speed-insights` (실시간 Core Web Vitals 측정)
+- **AI**: `Claude Code(SuperClaude_Framework skills 사용)`, `Google Gemini(Superpower skills 사용)` 사용
+
 
 ## 💡 주요 구현 사항
 
@@ -40,25 +47,19 @@
 - Next.js의 `Image` 컴포넌트를 사용하여 이미지 최적화
 - CSR로 렌더링 되는 컴포넌트의 Hover 상태시 `prefetchQuery` 기능을 사용하도록 구현하여 사용자의 경험 향상
 - Hover 상태가 300ms 지속되면 페칭하도록 구현하여 네트워크 요청을 최적화
+- 네이버 지도의 클러스터링을 도입하여 수백개의 핀을 성능 저하없이 표시하도록 개선
+
+
 
 ## 🚀 개발 환경 설정 및 실행
 
-프로젝트를 로컬 환경에서 설정하고 실행하는 방법은 다음과 같습니다.
-
-## ENV
-
-```
-NEXT_PUBLIC_BACKEND_URL="https://api.nearbybook.kr"
-NEXT_PUBLIC_MAP_CLIENT_ID=""
-NEXT_PUBLIC_EXTENSION_STORE_URL=""
-NEXT_PUBLIC_EXTENSION_WHALE_STORE_URL=""
-MAINTENANCE=false
-
-```
-
-## 실행
+개발환경 실행
 
 ```
     npm install
     npm run dev
+```
+테스트 실행 
+```
+    npm run test
 ```
