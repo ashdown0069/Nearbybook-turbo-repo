@@ -14,14 +14,8 @@ export async function generateMetadata({
   if (!params.isbn) return {} as Metadata
 
   try {
-    const urlParams = new URLSearchParams({
-      mode: "isbn",
-      query: params.isbn,
-      pageNo: String(1),
-    })
-
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/books/search?${urlParams.toString()}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/books/search/${params.isbn}`
     )
 
     if (!res.ok) {
@@ -29,13 +23,13 @@ export async function generateMetadata({
     }
 
     const result = await res.json()
-
-    if (!result?.books || result.books.length === 0) {
-      console.warn("generateMetadata: No book found for ISBN", params.isbn)
+    if (!result?.bookname) {
+      console.warn("generateMetadata: No book found for ISBN")
       return {} as Metadata
     }
 
-    const book = result.books[0] as Book
+    const book = result as Book
+
     return {
       title: `${book.bookname} | 내 주변 도서관 찾기`,
       description: `${book.bookname}(저자: ${book.authors})을(를) 소장한 내 주변 공공 도서관 위치를 확인해보세요.`,
