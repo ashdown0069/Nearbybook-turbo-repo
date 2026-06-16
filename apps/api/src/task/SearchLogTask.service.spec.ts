@@ -33,7 +33,7 @@ describe("SearchLogTaskService 테스트", () => {
     expect(mockQueue.setGlobalConcurrency).toHaveBeenCalledWith(1);
     expect(mockQueue.upsertJobScheduler).toHaveBeenCalledWith(
       "flush-search-logs-job",
-      expect.objectContaining({ pattern: "0 */30 * * * *" }) // EVERY_30_MINUTES (30분 주기 스케줄러 패턴)
+      expect.objectContaining({ pattern: "0 0-23/6 * * *" }) // (6시간 주기 스케줄러 패턴)
     );
   });
 });
