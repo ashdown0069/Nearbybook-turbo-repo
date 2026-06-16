@@ -92,6 +92,6 @@ export class BooksController {
         '네이버 책 검색 API는 개발 환경에서만 사용할 수 있습니다.',
       );
     }
-    return await this.booksService.searchBook__naver(isbn);
+    return await this.booksService.searchBookFromNaver('isbn', isbn);
   }
 }
