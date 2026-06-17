@@ -139,8 +139,9 @@ export default function Search() {
           className="relative flex w-full items-center rounded-full border border-slate-200 bg-white p-2 transition-all focus-within:ring-2 focus-within:ring-green-500/20"
         >
           <Select
+            key={state.mode}
             name="mode"
-            value={mode}
+            defaultValue={state.mode}
             onValueChange={(val) => setMode(val as "title" | "isbn")}
           >
             <SelectTrigger
@@ -156,9 +157,10 @@ export default function Search() {
           </Select>
           <div className="mx-1 h-5 w-[1px] bg-slate-200" />
           <Input
+            key={state.query}
             type="search"
             name="query"
-            value={query}
+            defaultValue={state.query}
             onChange={handleInputChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
