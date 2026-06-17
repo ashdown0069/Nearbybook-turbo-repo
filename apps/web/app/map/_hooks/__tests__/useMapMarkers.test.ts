@@ -1,5 +1,8 @@
 import { renderHook } from "@testing-library/react";
 import { useMapMarkers } from "../useMapMarkers";
+import { trackEvent } from "@/lib/umami";
+
+jest.mock("@/lib/umami");
 
 describe("useMapMarkers 훅", () => {
   let mockMap: any;
@@ -12,6 +15,7 @@ describe("useMapMarkers 훅", () => {
     // 필요한 naver maps 객체 추가 모킹
     naver.maps.Size = jest.fn().mockImplementation((w, h) => ({ w, h }));
     naver.maps.Point = jest.fn().mockImplementation((x, y) => ({ x, y }));
+    // @ts-ignore
     naver.maps.LatLngBounds = jest.fn().mockImplementation((sw, ne) => ({
       extend: jest.fn(),
       hasLatLng: jest.fn().mockReturnValue(true),
@@ -47,6 +51,7 @@ describe("useMapMarkers 훅", () => {
       setCenter: jest.fn(),
       getZoom: jest.fn().mockReturnValue(12),
       setZoom: jest.fn(),
+      // @ts-ignore
       getBounds: jest.fn().mockReturnValue(new naver.maps.LatLngBounds()),
       getProjection: jest.fn().mockReturnValue({
         fromCoordToOffset: jest.fn((latlng: any) => ({ x: latlng.lat() * 100, y: latlng.lng() * 100 }))
@@ -95,6 +100,9 @@ describe("useMapMarkers 훅", () => {
     clickCallback();
     expect(naver.maps.InfoWindow).toHaveBeenCalled();
     expect(mockInfoWindowInstance.open).toHaveBeenCalled();
+
+    // 트래킹 호출 검증
+    expect(trackEvent).toHaveBeenCalledWith("map-library-click", { library: "도서관1" });
 
     // 두 번째 클릭 시 기존 InfoWindow 닫힘 검증
     clickCallback();

@@ -129,9 +129,14 @@ const BookCard = memo(function BookCard({
               asChild
               ref={ref}
               variant="secondary"
-              className="w-full bg-green-500 py-1 font-bold text-white hover:bg-green-400 sm:w-auto"
+              className="w-full bg-green-500 p-5 font-bold text-white hover:bg-green-400 sm:w-auto"
             >
-              <Link href={`/map?isbn=${isbn}`}>소장 도서관 보기</Link>
+              <Link
+                href={`/map?isbn=${isbn}`}
+                data-umami-event="search-result-click"
+              >
+                소장 도서관 보기
+              </Link>
             </Button>
           </div>
         </div>

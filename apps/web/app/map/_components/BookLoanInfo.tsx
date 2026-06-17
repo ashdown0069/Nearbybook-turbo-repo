@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useBookInfo } from "../_hooks/useBookInfo";
 import { Loader } from "lucide-react";
+import { trackEvent } from "@/lib/umami";
 
 interface BookLoanInfoProps {
   isbn: string;
@@ -10,6 +12,15 @@ interface BookLoanInfoProps {
 
 export default function BookLoanInfo({ isbn, libCode }: BookLoanInfoProps) {
   const { loanStatus, location, locationLoading } = useBookInfo(isbn, libCode);
+  const trackedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const currentKey = `${isbn}-${libCode}`;
+    if (trackedRef.current !== currentKey && loanStatus && loanStatus !== "loading" && loanStatus !== "idle") {
+      trackEvent("loan-status-view", { libCode, isbn, status: loanStatus });
+      trackedRef.current = currentKey;
+    }
+  }, [loanStatus, libCode, isbn]);
 
   return (
     <div className="flex w-full flex-col gap-2">

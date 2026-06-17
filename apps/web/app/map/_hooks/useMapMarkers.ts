@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { createRoot, Root } from "react-dom/client"
 import type { Library } from "@workspace/types"
+import { trackEvent } from "@/lib/umami"
 
 type ActiveInfoWindowRef = {
   infoWindow: naver.maps.InfoWindow | null
@@ -72,6 +73,9 @@ export function useMapMarkers({
           activeInfoWindow.current.reactRoot?.unmount()
           activeInfoWindow.current.infoWindow?.close()
         }
+
+        // 트래킹 추가
+        trackEvent("map-library-click", { library: lib.libName })
 
         // 새 React 루트 생성 및 렌더링
         const contentNode = document.createElement("div")

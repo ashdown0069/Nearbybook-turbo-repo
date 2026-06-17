@@ -18,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { PrefetchSearchBooks } from "@workspace/data-access"
 import { axiosInstance } from "@/lib/axios"
 import Autocomplete from "./Autocomplete"
+import { trackEvent } from "@/lib/umami"
 
 interface SearchState {
   query: string
@@ -45,10 +46,34 @@ export default function Search() {
   const router = useRouter()
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
+  // 액션 상태 변화에 따라 내부 상태 동기화 (render 시점에 수행하여 cascading render 방지)
+  const [prevQuery, setPrevQuery] = useState(state.query)
+  const [prevMode, setPrevMode] = useState(state.mode)
+
+  if (state.query !== prevQuery) {
+    setPrevQuery(state.query)
+    setQuery(state.query)
+  }
+
+  if (state.mode !== prevMode) {
+    setPrevMode(state.mode)
+    setMode(state.mode)
+  }
+
   useDebounce(
     async () => {
       if (query) {
-        await PrefetchSearchBooks(axiosInstance, queryClient, mode, query, "1")
+        try {
+          await PrefetchSearchBooks(
+            axiosInstance,
+            queryClient,
+            mode,
+            query,
+            "1"
+          )
+        } catch (error) {
+          console.error("검색어 프리페칭 실패:", error)
+        }
       }
     },
     500,
@@ -57,6 +82,7 @@ export default function Search() {
 
   const handleSelect = useCallback(
     (value: string) => {
+      trackEvent("autocomplete-select")
       setQuery(value)
       setIsOpen(false)
       router.push(
@@ -104,12 +130,17 @@ export default function Search() {
       <div className="relative">
         <Form
           action={action}
+          role="search"
+          onSubmit={() => {
+            if (query.trim()) {
+              trackEvent("search-submit", { mode })
+            }
+          }}
           className="relative flex w-full items-center rounded-full border border-slate-200 bg-white p-2 transition-all focus-within:ring-2 focus-within:ring-green-500/20"
         >
           <Select
-            key={state.mode}
             name="mode"
-            defaultValue={state.mode}
+            value={mode}
             onValueChange={(val) => setMode(val as "title" | "isbn")}
           >
             <SelectTrigger
@@ -125,10 +156,9 @@ export default function Search() {
           </Select>
           <div className="mx-1 h-5 w-[1px] bg-slate-200" />
           <Input
-            key={state.query}
             type="search"
             name="query"
-            defaultValue={state.query}
+            value={query}
             onChange={handleInputChange}
             onFocus={handleFocus}
             onBlur={handleBlur}

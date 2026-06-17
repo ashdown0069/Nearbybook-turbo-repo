@@ -5,11 +5,16 @@ import Search from "../Search"
 import { useRouter } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import { PrefetchSearchBooks } from "@workspace/data-access"
+import { trackEvent } from "@/lib/umami"
 
 // Next.js 기능 모킹
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
   redirect: jest.fn(),
+}))
+
+jest.mock("@/lib/umami", () => ({
+  trackEvent: jest.fn(),
 }))
 
 jest.mock("next/form", () => ({
@@ -191,6 +196,30 @@ describe("Search 컴포넌트", () => {
         "query=%EC%B6%94%EC%B2%9C%20%EA%B2%80%EC%83%89%EC%96%B4"
       )
     )
+    expect(trackEvent).toHaveBeenCalledWith("autocomplete-select")
+  })
+
+  it("유효한 입력값이 있을 때 폼을 제출하면 search-submit 이벤트를 트래킹해야 한다", async () => {
+    const user = userEvent.setup()
+    render(<Search />)
+
+    const input = screen.getByRole("searchbox")
+    await user.type(input, "테스트")
+
+    const form = screen.getByRole("search")
+    fireEvent.submit(form)
+
+    expect(trackEvent).toHaveBeenCalledWith("search-submit", { mode: "title" })
+  })
+
+  it("빈 입력값일 때 폼을 제출하면 search-submit 이벤트를 트래킹하지 않아야 한다", async () => {
+    const user = userEvent.setup()
+    render(<Search />)
+
+    const form = screen.getByRole("search")
+    fireEvent.submit(form)
+
+    expect(trackEvent).not.toHaveBeenCalledWith("search-submit", expect.any(Object))
   })
 
   it("Escape 키를 누르면 Autocomplete가 닫혀야 한다 (handleKeyDown 분기)", async () => {

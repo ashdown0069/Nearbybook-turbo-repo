@@ -1,5 +1,6 @@
 "use client"
 import Logo from "@/components/common/Logo"
+import { trackEvent } from "@/lib/umami"
 import {
   Collapsible,
   CollapsibleContent,
@@ -39,6 +40,10 @@ export default function MapCheckBox({
 }: MapCheckBoxProps) {
   const allCodes = SI_DO_CODE_AND_NAME.map((region) => region.code)
   const handleRegionChange = (code: string, checked: boolean) => {
+    if (checked) {
+      const region = SI_DO_CODE_AND_NAME.find((r) => r.code === code)
+      trackEvent("map-region-select", { region: region?.name ?? code })
+    }
     onRegionChange(code, checked)
   }
   const handleToggleAll = () => {

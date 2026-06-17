@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useMountedState } from "react-use"
+import { trackEvent } from "@/lib/umami"
 
 export default function ExtensionPromotion({
   className,
@@ -22,6 +23,7 @@ export default function ExtensionPromotion({
       href={extensionStoreUrl || "#"}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackEvent("extension-promo-click")}
       className={cn(
         "block rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-100",
         className

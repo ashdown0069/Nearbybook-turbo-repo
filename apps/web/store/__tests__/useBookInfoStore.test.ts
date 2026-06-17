@@ -25,7 +25,7 @@ describe("useBookInfoStore 스토어", () => {
       result.current.setLoanStatus(isbn, libCode, "canLoan");
     });
 
-    expect(result.current.entries[key].loanStatus).toBe("canLoan");
+    expect(result.current.entries[key]?.loanStatus).toBe("canLoan");
   });
 
   it("도서 위치 정보(location)를 업데이트할 수 있어야 한다", () => {
@@ -36,7 +36,7 @@ describe("useBookInfoStore 스토어", () => {
       result.current.setLocation(isbn, libCode, location);
     });
 
-    expect(result.current.entries[key].location).toEqual(location);
+    expect(result.current.entries[key]?.location).toEqual(location);
   });
 
   it("위치 정보 로딩 상태(locationLoading)를 업데이트할 수 있어야 한다", () => {
@@ -46,13 +46,13 @@ describe("useBookInfoStore 스토어", () => {
       result.current.setLocationLoading(isbn, libCode, true);
     });
 
-    expect(result.current.entries[key].locationLoading).toBe(true);
+    expect(result.current.entries[key]?.locationLoading).toBe(true);
 
     act(() => {
       result.current.setLocationLoading(isbn, libCode, false);
     });
 
-    expect(result.current.entries[key].locationLoading).toBe(false);
+    expect(result.current.entries[key]?.locationLoading).toBe(false);
   });
 
   it("존재하지 않는 엔트리에 대해 업데이트할 때 기본값을 바탕으로 생성되어야 한다", () => {
@@ -63,8 +63,8 @@ describe("useBookInfoStore 스토어", () => {
     });
 
     const entry = result.current.entries[key];
-    expect(entry.loanStatus).toBe("loading");
-    expect(entry.location).toBeNull();
-    expect(entry.locationLoading).toBe(false);
+    expect(entry?.loanStatus).toBe("loading");
+    expect(entry?.location).toBeNull();
+    expect(entry?.locationLoading).toBe(false);
   });
 });
