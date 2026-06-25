@@ -1,7 +1,7 @@
 "use client"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useMountedState } from "react-use"
+import { useMedia, useMountedState } from "react-use"
 import { trackEvent } from "@/lib/umami"
 
 export default function ExtensionPromotion({
@@ -17,6 +17,13 @@ export default function ExtensionPromotion({
     window.navigator.userAgent.includes("Whale")
       ? process.env.NEXT_PUBLIC_EXTENSION_WHALE_STORE_URL
       : process.env.NEXT_PUBLIC_EXTENSION_STORE_URL
+
+  const isMobile = useMedia("(max-width: 768px)", true)
+
+  //모바일 환경의 경우 확장 프로그램 설치가 불가능하므로, 모바일 환경에서는 프로모션을 표시하지 않음
+  if (isMobile) {
+    return null
+  }
 
   return (
     <Link
