@@ -7,6 +7,7 @@ import { Toaster } from "@workspace/ui/components/sonner"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import "@workspace/ui/globals.css"
 import Script from "next/script"
+import TempAlert from "@/components/TempAlert"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,6 +93,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+      <TempAlert />
         <Script
           src="https://front.nearbybook.kr/script.js"
           data-website-id="0bf9d632-8abd-4432-a6ee-8e3af93efd38"
