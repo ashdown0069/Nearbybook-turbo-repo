@@ -4,8 +4,6 @@ ARG NODE_VERSION=22.18.0
 # [Base 이미지 설정] 
 # 경량화된 slim 이미지를 기반으로 시작합니다.
 FROM node:${NODE_VERSION}-slim AS base
-# 최신 npm 버전 간의 호환성을 위해 전역 npm을 최신으로 업데이트합니다.
-RUN npm install -g npm@latest
 
 
 # =========================================================================
