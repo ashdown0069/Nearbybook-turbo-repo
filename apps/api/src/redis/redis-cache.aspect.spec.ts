@@ -29,13 +29,13 @@ describe("RedisCacheAspect", () => {
     // AOP 래핑 규격에 따라 원래 메서드를 감싸는 래핑 함수를 생성합니다.
     const wrapped = aspect.wrap({
       method: mockOriginalMethod,
-      metadata: { ttl: 60 },
+      metadata: { ttlSeconds: 60 },
       instance: { constructor: { name: "TestClass" } },
       methodName: "testMethod",
     });
 
     const result = await wrapped("param1");
-    
+
     // 캐싱된 결과를 정상적으로 반환하고, 원래 메서드는 건너 뛰어야 합니다.
     expect(result).toEqual({ data: "cached" });
     expect(mockRedis.get).toHaveBeenCalled();
@@ -49,16 +49,59 @@ describe("RedisCacheAspect", () => {
     
     const wrapped = aspect.wrap({
       method: mockOriginalMethod,
-      metadata: { ttl: 60 },
+      metadata: { ttlSeconds: 60 },
       instance: { constructor: { name: "TestClass" } },
       methodName: "testMethod",
     });
 
     const result = await wrapped("param1");
-    
+
     // 새 데이터를 반환하고 원래 메서드를 실행하며, 그 결과를 Redis에 저장해야 합니다.
     expect(result).toEqual({ data: "fresh" });
     expect(mockOriginalMethod).toHaveBeenCalledWith("param1");
     expect(mockRedis.set).toHaveBeenCalled();
+  });
+
+  it("캐시 저장 시 ioredis 의 EX 옵션에 초 단위 TTL 을 넘겨야 한다", async () => {
+    // EX 는 초 단위 만료 옵션입니다. 여기에 밀리초 값을 넣으면 캐시가 1000배 오래 남습니다.
+    mockRedis.get.mockResolvedValue(null);
+    const mockOriginalMethod = jest.fn().mockResolvedValue({ data: "fresh" });
+
+    const wrapped = aspect.wrap({
+      method: mockOriginalMethod,
+      metadata: { ttlSeconds: 86400 },
+      instance: { constructor: { name: "TestClass" } },
+      methodName: "testMethod",
+    });
+
+    await wrapped("param1");
+
+    expect(mockRedis.set).toHaveBeenCalledWith(
+      expect.any(String),
+      JSON.stringify({ data: "fresh" }),
+      "EX",
+      86400,
+    );
+  });
+
+  it("ttlSeconds 를 생략하면 기본값 3600초를 사용해야 한다", async () => {
+    mockRedis.get.mockResolvedValue(null);
+    const mockOriginalMethod = jest.fn().mockResolvedValue({ data: "fresh" });
+
+    const wrapped = aspect.wrap({
+      method: mockOriginalMethod,
+      metadata: {},
+      instance: { constructor: { name: "TestClass" } },
+      methodName: "testMethod",
+    });
+
+    await wrapped("param1");
+
+    expect(mockRedis.set).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      "EX",
+      3600,
+    );
   });
 });

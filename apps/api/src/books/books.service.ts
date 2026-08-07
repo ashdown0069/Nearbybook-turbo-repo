@@ -12,6 +12,7 @@ import { searchBookDto } from './dto/req/search-book.dto';
 import { formatDate, getDateRange } from 'src/utils';
 import { XMLParser } from 'fast-xml-parser';
 import { RedisCache } from 'src/redis/redis-cache.decorator';
+import { REDIS_CACHE_TTL } from 'src/constant/cache-ttl';
 import {
   NaverBookAdvResponse,
   ItemSrchResponse,
@@ -74,7 +75,7 @@ export class BooksService {
    * @param query 검색어 (제목 또는 ISBN)
    * @returns Book 객체 또는 결과 없을 시 null
    */
-  @RedisCache({ ttl: 86400 })
+  @RedisCache({ ttlSeconds: REDIS_CACHE_TTL.ONE_DAY })
   async searchBookFromNaver(
     mode: 'title' | 'isbn',
     query: string,
@@ -147,7 +148,7 @@ export class BooksService {
     }
   }
 
-  @RedisCache({ ttl: 86400 })
+  @RedisCache({ ttlSeconds: REDIS_CACHE_TTL.ONE_DAY })
   async searchBook(isbn: searchBookDto['isbn']) {
     this.logger.log(`도서 상세 조회 시작: ISBN=${isbn}`);
     try {

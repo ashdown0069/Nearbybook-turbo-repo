@@ -19,7 +19,7 @@ export class RedisCacheAspect implements LazyDecorator<any, RedisCacheOptions> {
     instance,
     methodName,
   }: WrapParams<any, RedisCacheOptions>) {
-    const { ttl = 3600 } = metadata
+    const { ttlSeconds = 3600 } = metadata
     const className = instance.constructor.name
     const prefix = `cache:${className}.${methodName}`
 
@@ -48,8 +48,8 @@ export class RedisCacheAspect implements LazyDecorator<any, RedisCacheOptions> {
 
       if (result != null) {
         try {
-          await this.redis.set(cacheKey, JSON.stringify(result), "EX", ttl)
-          this.logger.debug(`SAVE ${cacheKey} (ttl: ${ttl}s)`)
+          await this.redis.set(cacheKey, JSON.stringify(result), "EX", ttlSeconds)
+          this.logger.debug(`SAVE ${cacheKey} (ttl: ${ttlSeconds}s)`)
         } catch (error) {
           this.logger.error(`Redis SETEX 실패: ${error}`)
         }
