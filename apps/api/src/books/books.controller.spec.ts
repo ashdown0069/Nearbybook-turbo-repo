@@ -1,7 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { BooksController } from "./books.controller";
 import { BooksService } from "./books.service";
-import { CACHE_MANAGER } from "@nestjs/cache-manager"; // [CACHE_MANAGER]: NestJS 캐싱 관리를 위한 의존성 주입 토큰
+import { CACHE_MANAGER, CACHE_TTL_METADATA } from "@nestjs/cache-manager"; // [CACHE_MANAGER]: NestJS 캐싱 관리를 위한 의존성 주입 토큰
+import { HTTP_CACHE_TTL } from "src/constant/cache-ttl";
 
 describe("BooksController", () => {
   let controller: BooksController;
@@ -40,5 +41,41 @@ describe("BooksController", () => {
     const result = await controller.searchBook("9788900000000");
     expect(service.searchBook).toHaveBeenCalledWith("9788900000000");
     expect(result).toEqual({ bookname: "test" });
+  });
+
+  // ==========================================================
+  // [용어 설명 주석]
+  // 1. 메타데이터(Metadata): 데코레이터가 클래스나 메서드에 몰래 붙여 두는 부가 정보입니다.
+  //    @CacheTTL(x) 는 내부적으로 SetMetadata(CACHE_TTL_METADATA, x) 이므로,
+  //    핸들러 함수에서 그 값을 그대로 읽어올 수 있습니다.
+  // 2. 이 테스트가 필요한 이유: @CacheTTL 의 인자는 초가 아니라 '밀리초'입니다.
+  //    초 단위 계산식(60*60*24)으로 되돌아가면 캐시가 1/1000 로 짧아지는데,
+  //    응답은 여전히 정상이라 기능 테스트로는 절대 잡히지 않습니다.
+  // ==========================================================
+  describe("HTTP 캐시 TTL 메타데이터", () => {
+    it.each([
+      ["searchBooks", HTTP_CACHE_TTL.ONE_DAY],
+      ["getTrendingBooks", HTTP_CACHE_TTL.ONE_DAY],
+      ["getBookLoanStatus", HTTP_CACHE_TTL.THIRTY_MINUTES],
+      ["getPopularLoanBooks", HTTP_CACHE_TTL.ONE_DAY],
+      ["searchBookLocation", HTTP_CACHE_TTL.ONE_DAY],
+    ])("%s 핸들러의 TTL 은 밀리초 단위 %d 여야 한다", (methodName, expected) => {
+      const handler = BooksController.prototype[methodName];
+      expect(Reflect.getMetadata(CACHE_TTL_METADATA, handler)).toBe(expected);
+    });
+
+    it("캐싱하지 않는 라우트에는 TTL 메타데이터가 없어야 한다", () => {
+      // /autocomplete 과 /search/:isbn 은 의도적으로 컨트롤러 캐시를 두지 않습니다.
+      // (searchBook 은 서비스 계층의 @RedisCache 가 담당)
+      expect(
+        Reflect.getMetadata(
+          CACHE_TTL_METADATA,
+          BooksController.prototype.getAutocompleteSuggestions,
+        ),
+      ).toBeUndefined();
+      expect(
+        Reflect.getMetadata(CACHE_TTL_METADATA, BooksController.prototype.searchBook),
+      ).toBeUndefined();
+    });
   });
 });

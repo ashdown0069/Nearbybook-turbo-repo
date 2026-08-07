@@ -10,6 +10,7 @@ import { BookDto, BooksResponseDto } from './dto/res/books.dto';
 import { AutoCompleteDto } from './dto/req/autocomplete.dto';
 import { AutocompleteResponseDto } from './dto/res/autocomplete.dto';
 import { SearchBookLocationDto } from './dto/req/search-book-location.dto';
+import { HTTP_CACHE_TTL } from 'src/constant/cache-ttl';
 
 @Controller('books')
 export class BooksController {
@@ -25,7 +26,7 @@ export class BooksController {
     );
   }
 
-  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @CacheTTL(HTTP_CACHE_TTL.ONE_DAY)
   @UseInterceptors(CacheInterceptor)
   @Serialize(BooksResponseDto)
   @Get('/search')
@@ -49,7 +50,7 @@ export class BooksController {
   }
 
   //검색창 밑 검색어 추천
-  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @CacheTTL(HTTP_CACHE_TTL.ONE_DAY)
   @UseInterceptors(CacheInterceptor)
   @Serialize(TrendingBooksDto)
   @Get('/trending')
@@ -58,7 +59,7 @@ export class BooksController {
   }
 
   //지도에서 사용
-  @CacheTTL(60 * 30) // 30분 캐시
+  @CacheTTL(HTTP_CACHE_TTL.THIRTY_MINUTES)
   @UseInterceptors(CacheInterceptor)
   @Get('/loanstatus')
   async getBookLoanStatus(@Query() query: LoanAvailableDto) {
@@ -66,7 +67,7 @@ export class BooksController {
   }
 
   //main page에서 사용
-  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @CacheTTL(HTTP_CACHE_TTL.ONE_DAY)
   @UseInterceptors(CacheInterceptor)
   @Serialize(BookDto)
   @Get('/popularloanbooks')
@@ -74,7 +75,7 @@ export class BooksController {
     return await this.booksService.getPopularLoanBooks();
   }
 
-  @CacheTTL(60 * 60 * 24) // 24시간 캐시
+  @CacheTTL(HTTP_CACHE_TTL.ONE_DAY)
   @UseInterceptors(CacheInterceptor)
   @Get('/searchBookLocation')
   async searchBookLocation(@Query() query: SearchBookLocationDto) {
