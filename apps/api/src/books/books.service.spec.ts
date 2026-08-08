@@ -36,90 +36,93 @@ describe("BooksService", () => {
     service = module.get<BooksService>(BooksService);
   });
 
-  describe("searchBookFromNaver", () => {
-    it("ISBN 모드로 조회 성공 시 Book 객체를 반환해야 한다", async () => {
-      const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-      <rss version="2.0">
-        <channel>
-          <total>1</total>
-          <item>
-            <title>Test Book</title>
-            <author>Author</author>
-            <publisher>Publisher</publisher>
-            <pubdate>20201201</pubdate>
-            <isbn>9788900000000</isbn>
-            <image>http://image.url</image>
-          </item>
-        </channel>
-      </rss>`;
-
-      mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
-
-      const result = await service.searchBookFromNaver("isbn", "9788900000000");
-      expect(result).not.toBeNull();
-      expect(result!.bookname).toBe("Test Book");
-      expect(result!.authors).toBe("Author");
-      expect(result!.isbn13).toBe("9788900000000");
-
-      // API 호출 시 d_isbn 파라미터가 설정되었는지 확인
-      expect(mockHttpService.axiosRef.get).toHaveBeenCalledWith(
-        "https://openapi.naver.com/v1/search/book_adv.xml",
-        expect.objectContaining({
-          params: expect.objectContaining({ d_isbn: "9788900000000" }),
-        }),
-      );
-    });
-
-    it("title 모드로 조회 성공 시 Book 객체를 반환해야 한다", async () => {
-      const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-      <rss version="2.0">
-        <channel>
-          <total>5</total>
-          <item>
-            <title>자바의 정석</title>
-            <author>남궁성</author>
-            <publisher>도우출판</publisher>
-            <pubdate>20220101</pubdate>
-            <isbn>9788900000001</isbn>
-            <image>http://image.url/java.jpg</image>
-          </item>
-        </channel>
-      </rss>`;
-
-      mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
-
-      const result = await service.searchBookFromNaver("title", "자바의 정석");
-      expect(result).not.toBeNull();
-      expect(result!.bookname).toBe("자바의 정석");
-
-      // API 호출 시 d_titl 파라미터가 설정되었는지 확인
-      expect(mockHttpService.axiosRef.get).toHaveBeenCalledWith(
-        "https://openapi.naver.com/v1/search/book_adv.xml",
-        expect.objectContaining({
-          params: expect.objectContaining({ d_titl: "자바의 정석" }),
-        }),
-      );
-    });
-
-    it("조회 결과가 없으면 null을 반환해야 한다", async () => {
-      const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
-      <rss version="2.0">
-        <channel>
-          <total>0</total>
-        </channel>
-      </rss>`;
-      mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
-      const result = await service.searchBookFromNaver("isbn", "9788900000000");
-      expect(result).toBeNull();
-    });
-
-    it("API 에러 시 InternalServerErrorException을 발생시켜야 한다", async () => {
-      mockHttpService.axiosRef.get.mockRejectedValue(new Error("Naver API Error"));
-      await expect(service.searchBookFromNaver("isbn", "9788900000000")).rejects.toThrow(
-        "searchBookFromNaver error",
-      );
-    });
-  });
+  /*
+   * 네이버 폴백 비활성화(2026-08-08)로 searchBookFromNaver가 주석 처리되어 호출 불가.
+   * 재활성화 시 books.service.ts와 함께 주석 해제.
+   *
+   * describe("searchBookFromNaver", () => {
+   *   it("ISBN 모드로 조회 성공 시 Book 객체를 반환해야 한다", async () => {
+   *     const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+   *     <rss version="2.0">
+   *       <channel>
+   *         <total>1</total>
+   *         <item>
+   *           <title>Test Book</title>
+   *           <author>Author</author>
+   *           <publisher>Publisher</publisher>
+   *           <pubdate>20201201</pubdate>
+   *           <isbn>9788900000000</isbn>
+   *           <image>http://image.url</image>
+   *         </item>
+   *       </channel>
+   *     </rss>`;
+   *
+   *     mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
+   *
+   *     const result = await service.searchBookFromNaver("isbn", "9788900000000");
+   *     expect(result).not.toBeNull();
+   *     expect(result!.bookname).toBe("Test Book");
+   *     expect(result!.authors).toBe("Author");
+   *     expect(result!.isbn13).toBe("9788900000000");
+   *
+   *     expect(mockHttpService.axiosRef.get).toHaveBeenCalledWith(
+   *       "https://openapi.naver.com/v1/search/book_adv.xml",
+   *       expect.objectContaining({
+   *         params: expect.objectContaining({ d_isbn: "9788900000000" }),
+   *       }),
+   *     );
+   *   });
+   *
+   *   it("title 모드로 조회 성공 시 Book 객체를 반환해야 한다", async () => {
+   *     const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+   *     <rss version="2.0">
+   *       <channel>
+   *         <total>5</total>
+   *         <item>
+   *           <title>자바의 정석</title>
+   *           <author>남궁성</author>
+   *           <publisher>도우출판</publisher>
+   *           <pubdate>20220101</pubdate>
+   *           <isbn>9788900000001</isbn>
+   *           <image>http://image.url/java.jpg</image>
+   *         </item>
+   *       </channel>
+   *     </rss>`;
+   *
+   *     mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
+   *
+   *     const result = await service.searchBookFromNaver("title", "자바의 정석");
+   *     expect(result).not.toBeNull();
+   *     expect(result!.bookname).toBe("자바의 정석");
+   *
+   *     expect(mockHttpService.axiosRef.get).toHaveBeenCalledWith(
+   *       "https://openapi.naver.com/v1/search/book_adv.xml",
+   *       expect.objectContaining({
+   *         params: expect.objectContaining({ d_titl: "자바의 정석" }),
+   *       }),
+   *     );
+   *   });
+   *
+   *   it("조회 결과가 없으면 null을 반환해야 한다", async () => {
+   *     const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+   *     <rss version="2.0">
+   *       <channel>
+   *         <total>0</total>
+   *       </channel>
+   *     </rss>`;
+   *     mockHttpService.axiosRef.get.mockResolvedValue({ data: xmlData });
+   *     const result = await service.searchBookFromNaver("isbn", "9788900000000");
+   *     expect(result).toBeNull();
+   *   });
+   *
+   *   it("API 에러 시 InternalServerErrorException을 발생시켜야 한다", async () => {
+   *     mockHttpService.axiosRef.get.mockRejectedValue(new Error("Naver API Error"));
+   *     await expect(service.searchBookFromNaver("isbn", "9788900000000")).rejects.toThrow(
+   *       "searchBookFromNaver error",
+   *     );
+   *   });
+   * });
+   */
 
   describe("searchBook", () => {
     it("도서관 빅데이터 API 조회 성공 시 도서 정보를 정상 반환해야 한다", async () => {
@@ -142,37 +145,61 @@ describe("BooksService", () => {
       expect(result.bookname).toBe("API Book");
     });
 
-    it("도서관 빅데이터 API 실패 시 Naver API로 대체 호출해야 한다", async () => {
-      mockHttpService.get.mockReturnValue(of({ data: { response: { error: "API Key Expired" } } }));
-      const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
-        bookname: "Naver Book",
-        authors: "Author",
-        publisher: "Publisher",
-        publication_year: "2021",
-        isbn13: "9788900000000",
-        bookImageURL: "http://image.url",
-      });
+    // 네이버 폴백 비활성화(2026-08-08)로 아래 3개 케이스는 더 이상 유효하지 않아 주석 처리.
+    // 재활성화 시 books.service.ts와 함께 주석 해제.
+    //
+    // it("도서관 빅데이터 API 실패 시 Naver API로 대체 호출해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(of({ data: { response: { error: "API Key Expired" } } }));
+    //   const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
+    //     bookname: "Naver Book",
+    //     authors: "Author",
+    //     publisher: "Publisher",
+    //     publication_year: "2021",
+    //     isbn13: "9788900000000",
+    //     bookImageURL: "http://image.url",
+    //   });
+    //
+    //   const result = await service.searchBook("9788900000000");
+    //   expect(spyNaver).toHaveBeenCalledWith("isbn", "9788900000000");
+    //   expect(result.bookname).toBe("Naver Book");
+    // });
+    //
+    // it("도서관 빅데이터 API 응답이 유효하지 않으면 Naver API를 호출해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(of({ data: { response: { detail: [] } } }));
+    //   const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
+    //     bookname: "Fallback Book",
+    //   } as any);
+    //   const result = await service.searchBook("9788900000000");
+    //   expect(spyNaver).toHaveBeenCalled();
+    //   expect(result.bookname).toBe("Fallback Book");
+    // });
+    //
+    // it("Naver API도 결과가 없으면 빈 객체를 반환해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(of({ data: { response: { error: "Error" } } }));
+    //   jest.spyOn(service, "searchBookFromNaver").mockResolvedValue(null);
+    //   const result = await service.searchBook("9788900000000");
+    //   expect(result).toEqual({});
+    // });
 
-      const result = await service.searchBook("9788900000000");
-      expect(spyNaver).toHaveBeenCalledWith("isbn", "9788900000000");
-      expect(result.bookname).toBe("Naver Book");
-    });
-
-    it("도서관 빅데이터 API 응답이 유효하지 않으면 Naver API를 호출해야 한다", async () => {
-      mockHttpService.get.mockReturnValue(of({ data: { response: { detail: [] } } }));
-      const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
-        bookname: "Fallback Book",
-      } as any);
-      const result = await service.searchBook("9788900000000");
-      expect(spyNaver).toHaveBeenCalled();
-      expect(result.bookname).toBe("Fallback Book");
-    });
-
-    it("Naver API도 결과가 없으면 빈 객체를 반환해야 한다", async () => {
-      mockHttpService.get.mockReturnValue(of({ data: { response: { error: "Error" } } }));
-      jest.spyOn(service, "searchBookFromNaver").mockResolvedValue(null);
+    it("도서관 빅데이터 API가 에러를 반환하면 Naver를 호출하지 않고 즉시 빈 객체를 반환해야 한다", async () => {
+      mockHttpService.get.mockReturnValue(
+        of({ data: { response: { error: "API Key Expired" } } }),
+      );
       const result = await service.searchBook("9788900000000");
       expect(result).toEqual({});
+    });
+
+    it("도서관 빅데이터 API 응답에 상세 정보가 없으면 즉시 빈 객체를 반환해야 한다", async () => {
+      mockHttpService.get.mockReturnValue(of({ data: { response: { detail: [] } } }));
+      const result = await service.searchBook("9788900000000");
+      expect(result).toEqual({});
+    });
+
+    it("도서관 빅데이터 API 요청 중 예외가 발생하면 InternalServerErrorException을 던져야 한다", async () => {
+      mockHttpService.get.mockReturnValue(throwError(() => new Error("Network Error")));
+      await expect(service.searchBook("9788900000000")).rejects.toThrow(
+        "도서 정보를 가져올 수 없습니다",
+      );
     });
   });
 
@@ -245,28 +272,51 @@ describe("BooksService", () => {
       expect(result.books.length).toBe(2);
     });
 
-    it("도서관 빅데이터 API 조회 결과가 없으면 Naver API 폴백으로 1건 반환해야 한다", async () => {
-      mockHttpService.get.mockReturnValue(of({ data: { response: { docs: [] } } }));
-      const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
-        bookname: "Naver Book",
-        authors: "Author",
-        publisher: "Publisher",
-        publication_year: "2023",
-        isbn13: "9788900000003",
-        bookImageURL: "http://image.url",
-      });
+    // 네이버 폴백 비활성화(2026-08-08)로 아래 3개 케이스는 더 이상 유효하지 않아 주석 처리.
+    // 재활성화 시 books.service.ts와 함께 주석 해제.
+    //
+    // it("도서관 빅데이터 API 조회 결과가 없으면 Naver API 폴백으로 1건 반환해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(of({ data: { response: { docs: [] } } }));
+    //   const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
+    //     bookname: "Naver Book",
+    //     authors: "Author",
+    //     publisher: "Publisher",
+    //     publication_year: "2023",
+    //     isbn13: "9788900000003",
+    //     bookImageURL: "http://image.url",
+    //   });
+    //
+    //   const result = await service.searchBooks("title", "자바", 1);
+    //   expect(spyNaver).toHaveBeenCalledWith("title", "자바");
+    //   expect(result.books.length).toBe(1);
+    //   expect(result.books[0].bookname).toBe("Naver Book");
+    //   expect(result.pages).toBe(1);
+    //   expect(result.numFound).toBe(1);
+    // });
+    //
+    // it("Naver API 폴백에서도 결과가 없으면 빈 목록을 반환해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(of({ data: { response: { docs: [] } } }));
+    //   jest.spyOn(service, "searchBookFromNaver").mockResolvedValue(null);
+    //
+    //   const result = await service.searchBooks("title", "없는책", 1);
+    //   expect(result.books).toEqual([]);
+    //   expect(result.pages).toBe(0);
+    //   expect(result.numFound).toBe(0);
+    // });
+    //
+    // it("도서관 빅데이터 API 조회 중 에러 발생 시 Naver API 폴백을 호출해야 한다", async () => {
+    //   mockHttpService.get.mockReturnValue(throwError(() => new Error("API Down")));
+    //   const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
+    //     bookname: "Naver Book from Error",
+    //   } as any);
+    //
+    //   const result = await service.searchBooks("title", "자바", 1);
+    //   expect(spyNaver).toHaveBeenCalledWith("title", "자바");
+    //   expect(result.books[0].bookname).toBe("Naver Book from Error");
+    // });
 
-      const result = await service.searchBooks("title", "자바", 1);
-      expect(spyNaver).toHaveBeenCalledWith("title", "자바");
-      expect(result.books.length).toBe(1);
-      expect(result.books[0].bookname).toBe("Naver Book");
-      expect(result.pages).toBe(1);
-      expect(result.numFound).toBe(1);
-    });
-
-    it("Naver API 폴백에서도 결과가 없으면 빈 목록을 반환해야 한다", async () => {
+    it("도서관 빅데이터 API 조회 결과가 없으면 즉시 빈 목록을 반환해야 한다", async () => {
       mockHttpService.get.mockReturnValue(of({ data: { response: { docs: [] } } }));
-      jest.spyOn(service, "searchBookFromNaver").mockResolvedValue(null);
 
       const result = await service.searchBooks("title", "없는책", 1);
       expect(result.books).toEqual([]);
@@ -274,15 +324,12 @@ describe("BooksService", () => {
       expect(result.numFound).toBe(0);
     });
 
-    it("도서관 빅데이터 API 조회 중 에러 발생 시 Naver API 폴백을 호출해야 한다", async () => {
+    it("도서관 빅데이터 API 조회 중 에러 발생 시 InternalServerErrorException을 던져야 한다", async () => {
       mockHttpService.get.mockReturnValue(throwError(() => new Error("API Down")));
-      const spyNaver = jest.spyOn(service, "searchBookFromNaver").mockResolvedValue({
-        bookname: "Naver Book from Error",
-      } as any);
 
-      const result = await service.searchBooks("title", "자바", 1);
-      expect(spyNaver).toHaveBeenCalledWith("title", "자바");
-      expect(result.books[0].bookname).toBe("Naver Book from Error");
+      await expect(service.searchBooks("title", "자바", 1)).rejects.toThrow(
+        "can not get book list",
+      );
     });
   });
 

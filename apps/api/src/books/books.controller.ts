@@ -86,13 +86,18 @@ export class BooksController {
     );
   }
 
-  @Get('searchNaver/:isbn')
-  async searchNaver(@Param('isbn') isbn: string) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(
-        '네이버 책 검색 API는 개발 환경에서만 사용할 수 있습니다.',
-      );
-    }
-    return await this.booksService.searchBookFromNaver('isbn', isbn);
-  }
+  /*
+   * 네이버 폴백 비활성화(2026-08-08)로 searchBookFromNaver가 주석 처리되어 사용 불가.
+   * 재활성화 시 books.service.ts의 searchBookFromNaver와 함께 주석 해제.
+   *
+   * @Get('searchNaver/:isbn')
+   * async searchNaver(@Param('isbn') isbn: string) {
+   *   if (process.env.NODE_ENV === 'production') {
+   *     throw new Error(
+   *       '네이버 책 검색 API는 개발 환경에서만 사용할 수 있습니다.',
+   *     );
+   *   }
+   *   return await this.booksService.searchBookFromNaver('isbn', isbn);
+   * }
+   */
 }
