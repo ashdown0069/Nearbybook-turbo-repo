@@ -10,7 +10,7 @@ describe("trackEvent", () => {
   afterEach(() => {
     // 각 테스트 후 window.umami 및 NODE_ENV 정리
     delete (window as any).umami
-    process.env.NODE_ENV = originalEnv
+    ;(process.env as any).NODE_ENV = originalEnv
     jest.restoreAllMocks()
   })
 
@@ -43,7 +43,7 @@ describe("trackEvent", () => {
   })
 
   it("개발 환경에서 트래커가 없을 때 콘솔에 디버그 로그를 출력해야 한다", () => {
-    process.env.NODE_ENV = "development"
+    ;(process.env as any).NODE_ENV = "development"
     const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {})
 
     trackEvent("debug-event", { check: true })

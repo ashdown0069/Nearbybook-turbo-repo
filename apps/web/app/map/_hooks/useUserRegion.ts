@@ -19,13 +19,15 @@ export function useUserRegion({
   region: regionProp,
   dtlRegion: detailRegionProp,
 }: Partial<Region>) {
-  const { setRegion, setStatus, setMyPosition } = useMapStore(
-    useShallow((state) => ({
-      setRegion: state.setRegion,
-      setStatus: state.setStatus,
-      setMyPosition: state.setMyPosition,
-    }))
-  )
+  const { setRegion, setStatus, setMyPosition, setIsLocationAllowed } =
+    useMapStore(
+      useShallow((state) => ({
+        setRegion: state.setRegion,
+        setStatus: state.setStatus,
+        setMyPosition: state.setMyPosition,
+        setIsLocationAllowed: state.setIsLocationAllowed,
+      }))
+    )
 
   const updateRegionAndCookie = useCallback(
     (
@@ -52,11 +54,12 @@ export function useUserRegion({
           description: "브라우저의 위치 정보 권한을 확인해주세요.",
         })
       }
+      setIsLocationAllowed(false)
       setRegion(DEFAULT_REGION, DEFAULT_DISTRICT)
       setMyPosition(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng)
       setStatus("success")
     },
-    [setRegion, setStatus, setMyPosition]
+    [setRegion, setStatus, setMyPosition, setIsLocationAllowed]
   )
 
   useEffect(() => {
@@ -64,6 +67,7 @@ export function useUserRegion({
 
     // 1. URL 파라미터 로직
     if (regionProp && detailRegionProp) {
+      setIsLocationAllowed(false)
       const result = findRegionByCodes(regionProp, detailRegionProp)
 
       if (!result) {
@@ -114,6 +118,7 @@ export function useUserRegion({
 
         const { latitude, longitude } = position.coords
         setMyPosition(latitude, longitude)
+        setIsLocationAllowed(true)
 
         const userLocation = new naver.maps.LatLng(latitude, longitude)
 
@@ -159,6 +164,7 @@ export function useUserRegion({
     setMyPosition,
     setRegion,
     setStatus,
+    setIsLocationAllowed,
     updateRegionAndCookie,
   ])
 }

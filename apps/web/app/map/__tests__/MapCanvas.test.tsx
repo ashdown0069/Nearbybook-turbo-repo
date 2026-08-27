@@ -22,7 +22,10 @@ jest.mock("next/dynamic", () => () => {
 })
 
 describe("MapCanvas 컴포넌트", () => {
-  const mockMapRef = { current: "mock-map-instance" }
+  const mockMapInstance = {
+    setCenter: jest.fn(),
+  }
+  const mockMapRef = { current: mockMapInstance }
   const mockHandleSearchAgain = jest.fn()
   const mockLibraryList: Library[] = [
     {
@@ -40,6 +43,23 @@ describe("MapCanvas 컴포넌트", () => {
   ]
   const mockIsbn = "1234567890"
 
+  const mockMarkerSetMap = jest.fn()
+  const mockMarkerSetPosition = jest.fn()
+
+  beforeAll(() => {
+    // Naver Maps Global Mocking
+    ;(global as any).naver = {
+      maps: {
+        LatLng: jest.fn().mockImplementation((lat, lng) => ({ lat, lng })),
+        Point: jest.fn().mockImplementation((x, y) => ({ x, y })),
+        Marker: jest.fn().mockImplementation(() => ({
+          setMap: mockMarkerSetMap,
+          setPosition: mockMarkerSetPosition,
+        })),
+      },
+    }
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
 
@@ -55,6 +75,7 @@ describe("MapCanvas 컴포넌트", () => {
       myLng: 126.978,
       region: { name: "서울특별시" },
       dtl_region: { name: "중구" },
+      isLocationAllowed: true,
     })
   })
 
@@ -135,5 +156,31 @@ describe("MapCanvas 컴포넌트", () => {
     fireEvent.click(button)
 
     expect(mockHandleSearchAgain).toHaveBeenCalledTimes(1)
+  })
+
+  it("isLocationAllowed가 true일 때 내 위치 파란 점 마커를 생성해야 한다", () => {
+    render(<MapCanvas libraryList={mockLibraryList} isbn={mockIsbn} />)
+
+    expect(global.naver.maps.Marker).toHaveBeenCalledWith(
+      expect.objectContaining({
+        position: expect.any(Object),
+        map: mockMapInstance,
+        zIndex: 100,
+      })
+    )
+  })
+
+  it("isLocationAllowed가 false일 때 내 위치 마커를 생성하지 않아야 한다", () => {
+    ;(useMapStore as unknown as jest.Mock).mockReturnValue({
+      myLat: 37.5665,
+      myLng: 126.978,
+      region: { name: "서울특별시" },
+      dtl_region: { name: "중구" },
+      isLocationAllowed: false,
+    })
+
+    render(<MapCanvas libraryList={mockLibraryList} isbn={mockIsbn} />)
+
+    expect(global.naver.maps.Marker).not.toHaveBeenCalled()
   })
 })

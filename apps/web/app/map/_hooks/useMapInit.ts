@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { LOCATION_BTN_HTML } from "@/app/map/_etc/constants"
+import { useMapStore } from "@/store/useMapStore"
 
 interface UseMapInitProps {
   mapId: string
@@ -9,6 +10,8 @@ interface UseMapInitProps {
 export function useMapInit({ mapId, initialCenter }: UseMapInitProps) {
   const mapRef = useRef<naver.maps.Map | null>(null)
   const [isMapLoaded, setIsMapLoaded] = useState(false)
+  const setMyPosition = useMapStore((state) => state.setMyPosition)
+  const setIsLocationAllowed = useMapStore((state) => state.setIsLocationAllowed)
 
   useEffect(() => {
     const mapElement = document.getElementById(mapId)
@@ -49,16 +52,16 @@ export function useMapInit({ mapId, initialCenter }: UseMapInitProps) {
 
       customControl.setMap(map)
       const customControlElement = customControl.getElement()
-      // 버튼 클릭 시 현재 위치로 이동하는 로직
+      // 버튼 클릭 시 현재 위치로 이동 및 스토어 동기화 로직
       naver.maps.Event.addDOMListener(customControlElement, "click", () => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              const newCenter = new naver.maps.LatLng(
-                position.coords.latitude,
-                position.coords.longitude
-              )
+              const { latitude, longitude } = position.coords
+              const newCenter = new naver.maps.LatLng(latitude, longitude)
               map.setCenter(newCenter)
+              setMyPosition(latitude, longitude)
+              setIsLocationAllowed(true)
             },
             (error) => {
               console.error("Geolocation error:", error)
@@ -75,7 +78,7 @@ export function useMapInit({ mapId, initialCenter }: UseMapInitProps) {
     return () => {
       naver.maps.Event.removeListener(initListener)
     }
-  }, [mapId])
+  }, [mapId, setMyPosition, setIsLocationAllowed])
 
   // 2. 좌표 변경 감지 및 지도 이동 로직 (추가됨)
   useEffect(() => {
