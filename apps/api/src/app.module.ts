@@ -34,7 +34,7 @@ const httpAgent = new http.Agent({
   maxFreeSockets: 20,
   maxTotalSockets: 200,
   scheduling: 'lifo',
-  timeout: 20000, // connection timeout
+  timeout: 15000, // connection timeout
   keepAliveMsecs: 1000,
 });
 const httpsAgent = new https.Agent({
@@ -43,7 +43,7 @@ const httpsAgent = new https.Agent({
   maxFreeSockets: 20,
   maxTotalSockets: 200,
   scheduling: 'lifo',
-  timeout: 20000, // connection timeout
+  timeout: 15000, // connection timeout
   keepAliveMsecs: 1000,
 });
 
@@ -77,7 +77,7 @@ cacheable.install(httpsAgent);
     HttpModule.register({
       global: true,
       maxRedirects: 5,
-      timeout: 20000,
+      timeout: 15000,
       baseURL: 'http://data4library.kr/api',
       httpAgent,
       httpsAgent,
