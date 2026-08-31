@@ -107,7 +107,7 @@ export default function MapCanvas({ libraryList, isbn }: MapCanvasProps) {
         <Button
           onClick={handleSearchAgain}
           variant={"outline"}
-          className="absolute bottom-10 left-1/2 z-50 -translate-x-1/2 transform cursor-pointer bg-green-500 p-5 text-white shadow-lg hover:bg-green-400 hover:text-white md:bottom-6"
+          className="absolute bottom-10 left-1/2 z-20 -translate-x-1/2 transform cursor-pointer bg-green-500 p-5 text-white shadow-lg hover:bg-green-400 hover:text-white md:bottom-6"
         >
           <RotateCcw />
           다시 검색하기
